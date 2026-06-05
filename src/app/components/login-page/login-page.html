@@ -1,0 +1,40 @@
+<div class="left-side">
+    Welcome!
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <label for="emailControl">Email: </label>
+        <input id="emailControl" type="text" [formControl]="email" />
+        @if (email.touched && email.invalid) {
+        @if (email.hasError('required')) {
+        <div>Email is required</div>
+        }
+        @if (email.hasError('email')) {
+        <div>Please enter a valid email address</div>
+        }
+        }
+        <div>
+            <label for="password">Password: </label>
+            <input id="password" type="text" [formControl]="password" />
+        </div>
+        @if (password.touched && password.invalid) {
+        @if (password.hasError('required')) {
+        <div>Password is required</div>
+        }
+        @if (password.hasError('minlength')) {
+        <div>Password must be at least 8 characters</div>
+        }
+        @if (password.hasError('pattern')) {
+        <div>
+            Password must contain at least one uppercase letter, one lowercase letter, and one number
+        </div>
+        }
+        }
+        <button type="submit" [disabled]="!loginForm.valid">Submit</button>
+    </form>
+</div>
+<div class="divider" role="separator" aria-label="Divider"></div>
+<div class="right-side">
+    Don't have an account?
+    <span>
+        Sign up!
+    </span>
+</div>
