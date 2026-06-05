@@ -1,0 +1,15 @@
+<label for="name">{{ formName }}: </label>
+<input
+  showError
+  class="border-2 border-amber-200 border-solid rounded-xl"
+  id="formControl"
+  type="text"
+  [formControl]="form"
+/>
+@if (form.touched && form.errors) {
+  @for (errorKey of ObjectKeys(form.errors); track errorKey) {
+    <div class="text-error text-sm">
+      {{ getErrorMessage(errorKey) }}
+    </div>
+  }
+}

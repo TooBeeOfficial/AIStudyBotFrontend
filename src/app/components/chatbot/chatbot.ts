@@ -6,7 +6,7 @@ import { ChangeDetectorRef } from '@angular/core';
 @Component({
     selector: 'app-chatbot',
     templateUrl: './chatbot.html',
-    styleUrl: './chatbot.scss',
+    styleUrl: './chatbot.css',
 })
 export class Chatbot implements OnInit {
     constructor(private chatBotReq:AIBot, private cdr:ChangeDetectorRef) {

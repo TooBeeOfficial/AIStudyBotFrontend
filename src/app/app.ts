@@ -7,7 +7,7 @@ import { LoginPage } from "./components/login-page/login-page";
   selector: 'app-root',
   imports: [RouterOutlet, LoginPage],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('my-app');

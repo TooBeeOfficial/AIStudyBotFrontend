@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, FormResetEvent, FormSubmittedEvent, PristineChangeEvent, ReactiveFormsModule, StatusChangeEvent, TouchedChangeEvent, Validators, ValueChangeEvent } from '@angular/forms';
+import { TextForm } from "../text-form/text-form";
 
 @Component({
     selector: 'app-login-page',
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, TextForm],
     templateUrl: './login-page.html',
-    styleUrl: './login-page.scss',
+    styleUrl: './login-page.css',
 })
 export class LoginPage {
     loginForm = new FormGroup(
@@ -30,33 +31,7 @@ export class LoginPage {
         }
     )
 
-    constructor() {
-        this.loginForm.events.subscribe((e) => {
-            if (e instanceof ValueChangeEvent) {
-                console.log('Value changed to: ', e.value);
-            }
-
-            if (e instanceof StatusChangeEvent) {
-                console.log('Status changed to: ', e.status);
-            }
-
-            if (e instanceof PristineChangeEvent) {
-                console.log('Pristine status changed to: ', e.pristine);
-            }
-
-            if (e instanceof TouchedChangeEvent) {
-                console.log('Touched status changed to: ', e.touched);
-            }
-
-            if (e instanceof FormResetEvent) {
-                console.log('Form was reset');
-            }
-
-            if (e instanceof FormSubmittedEvent) {
-                console.log('Form was submitted');
-            }
-        })
-    }
+    constructor() {}
 
     login() {
         if (this.loginForm.invalid) {
