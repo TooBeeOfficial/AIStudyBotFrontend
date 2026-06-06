@@ -4,7 +4,11 @@
     [ngClass]="signingIn ? 'opacity-0 translate-y-full' : 'opacity-100 translate-y-0'"
   >
     <h3 class="mb-10 text-2xl">Welcome!</h3>
-    <form class="flex flex-col gap-1 justify-center max-w-xs" [formGroup]="loginForm" (ngSubmit)="login()">
+    <form
+      class="flex flex-col gap-1 justify-center max-w-xs"
+      [formGroup]="loginForm"
+      (ngSubmit)="login()"
+    >
       <app-text-form [textForm]="email" formName="E-mail"></app-text-form>
       <app-text-form
         [textForm]="password"
@@ -12,12 +16,15 @@
         formTextType="password"
         [showHideButton]="true"
       ></app-text-form>
-      <app-button variant="primary" [disabled]="signingIn" [fullWidth]="true">Sign In!</app-button>
+      <app-button (clicked)="login()" variant="primary" [disabled]="signingIn" [fullWidth]="true"
+        >Sign In!</app-button
+      >
       <app-button
         type="button"
         [disabled]="signingIn ? true : false"
         variant="white"
         [fullWidth]="true"
+        (clicked)="googleLogin()"
       >
         <svg class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
           <path
@@ -86,12 +93,19 @@
         formTextType="password"
         [showHideButton]="true"
       ></app-text-form>
-      <app-button variant="primary" [disabled]="!signingIn" [fullWidth]="true">Sign up!</app-button>
+      <app-text-form
+        [textForm]="ConfirmPassword"
+        formName="Confirm Password"
+        formTextType="password"
+        [showHideButton]="true"
+      ></app-text-form>
+      <app-button variant="primary" [disabled]="!signingIn" [fullWidth]="true" (clicked)="signUp()">Sign up!</app-button>
       <app-button
         type="button"
         [disabled]="signingIn ? false : true"
         variant="white"
         [fullWidth]="true"
+        (clicked)="googleLogin()"
       >
         <svg class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
           <path

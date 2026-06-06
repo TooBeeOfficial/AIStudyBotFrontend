@@ -47,8 +47,8 @@ export class TextForm {
       case 'email':
         return 'Please enter a valid email address';
 
-      case 'passwor':
-        return 'Please enter a valid email address';
+      case 'password':
+        return 'Please enter a valid passwor';
 
       case 'minlength':
         const error = this.form.errors?.['minlength'];

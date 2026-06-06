@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { AIModel } from '../../models/aiModel';
 import { Observable } from 'rxjs';
 
 @Injectable({
-    providedIn:"root"
+  providedIn: 'root',
 })
 export class AIBot {
     private apiURL = environment.apiUrl
-    constructor(private http: HttpClient) { }
+    private http: HttpClient = inject(HttpClient)
 
     getAIModels(): Observable<AIModel[]> {
         return this.http.get<AIModel[]>(this.apiURL + "/models",{
