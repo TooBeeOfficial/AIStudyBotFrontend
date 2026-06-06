@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, FormResetEvent, FormSubmittedEvent, PristineChangeEvent, ReactiveFormsModule, StatusChangeEvent, TouchedChangeEvent, Validators, ValueChangeEvent } from '@angular/forms';
+import { FormControl, FormGroup,ReactiveFormsModule,Validators, } from '@angular/forms';
 import { TextForm } from "../text-form/text-form";
+import { Button } from "../button/button";
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-login-page',
-    imports: [ReactiveFormsModule, TextForm],
+    imports: [ReactiveFormsModule, TextForm, Button, CommonModule],
     templateUrl: './login-page.html',
     styleUrl: './login-page.css',
 })
@@ -27,9 +29,11 @@ export class LoginPage {
                 Validators.minLength(8),
                 Validators.maxLength(16),
                 Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
-            ])
+            ]),
+            usernameControl: new FormControl('')
         }
     )
+    private signin:boolean = false;
 
     constructor() {}
 
@@ -46,5 +50,21 @@ export class LoginPage {
     get password() {
         return this.loginForm.controls.passwordControl;
     }
-
+    
+    get username() {
+        return this.loginForm.controls.usernameControl;
+    }
+    get signingIn(){
+        return this.signin
+    }
+    set signingIn(signingIn:boolean){
+        this.signin = signingIn
+    }
+    flipSignIn(){
+        console.log("flipped")
+        this.signin = !this.signin
+    }
+    loginWithGoogle(){
+        
+    }
 }

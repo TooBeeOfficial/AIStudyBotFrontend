@@ -2,22 +2,27 @@ import { Component, ContentChild, Input, OnInit, contentChild } from '@angular/c
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ErrorService } from '../../shared/error-service';
 import { ShowErrorDirective } from '../../shared/show-error.directive';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-text-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MatIconModule],
   templateUrl: './text-form.html',
   styleUrl: './text-form.css',
 })
 export class TextForm {
   @ContentChild(ShowErrorDirective, { static: true })
   errorDirective!: ShowErrorDirective;
+  showPassword: boolean = false;
 
   constructor(private errorService: ErrorService) {}
 
   @Input() textForm!: FormControl;
   @Input() formName: string = 'default';
+  @Input() formTextType: string = 'text';
+  @Input() showHideButton: boolean = false;
   error: string = '';
+
   ObjectKeys = Object.keys;
 
   get errorMessage(): string | null {
@@ -56,6 +61,18 @@ export class TextForm {
       default:
         return 'Must include uppercase, lowercase, and number';
     }
+  }
+
+  hidePassword() {
+    if (this.showHideButton == false) {
+      return;
+    }
+    if (this.formTextType == 'text') {
+      this.formTextType = 'password';
+    } else if (this.formTextType == 'password') {
+      this.formTextType = 'text';
+    }
+    this.showPassword = !this.showPassword;
   }
 
   get form() {

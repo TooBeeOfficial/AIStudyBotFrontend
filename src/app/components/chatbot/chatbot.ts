@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AIModel } from '../../models/aiModel';
-import { AIBot } from '../../services/aibot';
+import { AIBot } from '../../shared/services/aibot';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({

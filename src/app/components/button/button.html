@@ -1,1 +1,20 @@
-<p>button works!</p>
+<button
+  [type]="type"
+  [disabled]="disabled"
+  (click)="onClick()"
+  class="inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+  [ngClass]="{
+    'w-full': fullWidth,
+
+    'bg-blue-600  text-white! hover:bg-blue-700 focus-visible:ring-blue-200': variant === 'primary',
+
+    'bg-white text-blue-700 hover:bg-blue-50 focus-visible:ring-blue-100': variant === 'secondary',
+
+    'bg-red-500 text-white! hover:bg-red-600 focus-visible:ring-red-200': variant === 'danger',
+
+    'bg-white text-slate-800 hover:bg-white focus-visible:ring-slate-200 shadow-sm':
+      variant === 'white',
+  }"
+>
+  <ng-content />
+</button>
