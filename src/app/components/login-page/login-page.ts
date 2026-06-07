@@ -1,9 +1,11 @@
-import { Component, inject, Inject } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TextForm } from '../text-form/text-form';
 import { Button } from '../button/button';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../shared/services/user';
+import { User } from '../../models/UserModel';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-page',
@@ -11,7 +13,7 @@ import { UserService } from '../../shared/services/user';
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   loginForm = new FormGroup({
     emailControl: new FormControl('', [Validators.required, Validators.email]),
     /* 
@@ -27,18 +29,21 @@ export class LoginPage {
       Validators.maxLength(16),
       Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/),
     ]),
-    usernameControl: new FormControl(''),
     passwordSignUpControl: new FormControl('', [
       Validators.required,
       Validators.minLength(8),
       Validators.maxLength(16),
       Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/),
     ]),
+    usernameControl: new FormControl(''),
   });
   private signin: boolean = false;
   private userService = inject(UserService);
-
-  constructor() {}
+  private router = inject(Router);
+  constructor() {
+    this.grabUser();
+  }
+  ngOnInit(): void {}
 
   login() {
     if (this.email.invalid || this.password.invalid) {
@@ -48,8 +53,8 @@ export class LoginPage {
       this.userService
         .loginUser(this.email.getRawValue() ?? '', this.password.getRawValue() ?? '')
         .subscribe({
-          next: (rseponse) => {
-            console.log(rseponse);
+          next: (user) => {
+            this.userService.setUser(User.fromApi(user));
           },
           error: (err: any) => {
             console.error(err);
@@ -89,11 +94,13 @@ export class LoginPage {
             console.error(err);
           },
         });
+      this.grabUser();
     }
   }
 
   googleLogin() {
     this.userService.googleLoginSignUp();
+    this.grabUser();
   }
   get email() {
     return this.loginForm.controls.emailControl;
@@ -116,15 +123,13 @@ export class LoginPage {
   flipSignIn() {
     this.signin = !this.signin;
   }
+  grabUser() {
+    this.userService.getUser().subscribe((res) => {
+      console.log(res);
+      this.userService.setUser(User.fromApi(res));
+      this.router.navigate(['/home']).then((success) => {
+        console.log('Navigation success:', success);
+      });
+    });
+  }
 }
-/*
-
-getUser().subscribe(
-        (res)=>{
-            console.log(res)
-        }
-    ) 
-logout().subscribe((res)=>{
-        console.log(res)
-    })
-*/

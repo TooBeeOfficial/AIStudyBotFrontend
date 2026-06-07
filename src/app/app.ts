@@ -5,12 +5,10 @@ import { LoginPage } from "./components/login-page/login-page";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoginPage],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('my-app');
-  newtitle = "This is my title!"
-  undertitle = "I hate angular structure."
 }

@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { User } from '../../models/UserModel';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +10,19 @@ import { Observable } from 'rxjs';
 export class UserService {
   private apiURL = environment.apiUrl;
   private http: HttpClient = inject(HttpClient);
+  private userSubject = new BehaviorSubject<User | null>(null);
+
+  user$ = this.userSubject.asObservable();
+
+  get user(): User | null {
+    return this.userSubject.value;
+  }
+  setUser(user: User | null) {
+    this.userSubject.next(user);
+  }
+  clearUser() {
+    this.userSubject.next(null);
+  }
 
   loginUser(email: string, password: string): Observable<JSON> {
     return this.http.post<JSON>(this.apiURL + '/login/email', {
