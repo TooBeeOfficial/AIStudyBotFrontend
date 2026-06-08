@@ -1,0 +1,33 @@
+<div class="bg-white rounded-xl p-6 w-[520px]">
+  <h2 class="text-xl font-semibold mb-4">
+    {{ data?.title || 'Create Question' }}
+  </h2>
+  <input
+    [(ngModel)]="question"
+    placeholder="Enter question"
+    class="w-full border rounded-lg px-3 py-2 mb-4"
+  />
+
+  <div class="space-y-3">
+    <div class="flex items-center gap-3 flex-col">
+      @for (item of answers; let i = $index; track $index) {
+        <div class="flex w-full">
+          <input type="radio" name="correct" [value]="i" [(ngModel)]="correctIndex" />
+          <input
+            [(ngModel)]="answers[i]"
+            placeholder="Answer {{ i + 1 }}"
+            class="flex-1 w-full border rounded-lg px-3 py-2 ml-3"
+          />
+        </div>
+      }
+    </div>
+  </div>
+
+  <button
+    (click)="submit()"
+    class="mt-5 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+    [disabled]="correctIndex === null"
+  >
+    Save Question
+  </button>
+</div>

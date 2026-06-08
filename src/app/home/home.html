@@ -8,7 +8,9 @@
         <mat-icon (click)="openMenu()">arrow_back</mat-icon>
       }
     </div>
-    <div class="text-right ml-auto text-white text-lg">Welcome {{ (userService.user$ | async)?.name }}!</div>
+    <div class="text-right ml-auto text-white text-lg">
+      Welcome {{ (userService.user$ | async)?.name }}!
+    </div>
     <mat-icon>person</mat-icon>
   </div>
 
@@ -21,12 +23,14 @@
     >
       <div class="text-2xl text-gray-500 flex self-center my-4 truncate">Chats</div>
       <div
+        (click)="createNewChat()"
         class="truncate w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
       >
         <mat-icon class="overflow-visible mr-2">add_comment</mat-icon>
         <div class="text-2xl">new chat</div>
       </div>
       <div
+      (click)="createNewQuestion()"
         class="truncate w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
       >
         <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>

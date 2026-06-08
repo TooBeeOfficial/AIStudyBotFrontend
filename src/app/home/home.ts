@@ -1,8 +1,11 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UserService } from '../shared/services/user';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { UserModel } from '../models/UserModel';
+import { ChatService } from '../shared/services/chat';
+import { MatDialog } from '@angular/material/dialog';
+import { MessageDialogComponent } from '../shared/dialogs/success-dialog/success-dialog';
+import { QuestionBuilderDialogComponent } from '../shared/dialogs/create-new-question/create-new-question';
 
 @Component({
   selector: 'app-home',
@@ -10,11 +13,12 @@ import { UserModel } from '../models/UserModel';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home  {
+export class Home {
   userService: UserService = inject(UserService);
+  chatService: ChatService = inject(ChatService);
   menuOpen: boolean = false;
-  constructor() {
-  }
+  dialog = inject(MatDialog);
+  constructor() {}
 
   get username() {
     return this.userService.user?.name;
@@ -22,5 +26,33 @@ export class Home  {
 
   openMenu() {
     this.menuOpen = !this.menuOpen;
+  }
+
+  createNewChat() {
+    this.chatService.createNewChat().subscribe((res) => {
+      this.dialog.open(MessageDialogComponent, {
+        data: {
+          title: 'Chat Created',
+          message: 'Your new chat is ready!',
+        },
+      });
+    });
+  }
+
+  createNewQuestion() {
+    const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {
+      data: {
+        title: 'Add Quiz Question',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log(result);
+
+        // send to backend
+        // this.chatService.saveQuestions(result).subscribe(...)
+      }
+    });
   }
 }
