@@ -7,18 +7,26 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class AIBot {
-    private apiURL = environment.apiUrl
-    private http: HttpClient = inject(HttpClient)
+export class AIBotService {
+  private apiURL = environment.apiUrl;
+  private http: HttpClient = inject(HttpClient);
 
-    getAIModels(): Observable<AIModel[]> {
-        return this.http.get<AIModel[]>(this.apiURL + "/models",{
-            withCredentials: true
-        });
-    }
-    askAIBot(): Observable<JSON> {
-        return this.http.get<JSON>(this.apiURL + "/models",{
-            withCredentials: true
-        });
-    }
+  getAIModels(): Observable<AIModel[]> {
+    return this.http.get<AIModel[]>(this.apiURL + '/models', {
+      withCredentials: true,
+    });
+  }
+
+  askAIBot(message: string, chatId: number, modelId: number): Observable<JSON> {
+    return this.http.post<JSON>(
+      `${this.apiURL}/chat?chatId=${chatId}`,
+      {
+        message: message,
+        model: modelId,
+      },
+      {
+        withCredentials: true,
+      },
+    );
+  }
 }

@@ -4,7 +4,7 @@ import { TextForm } from '../text-form/text-form';
 import { Button } from '../button/button';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../shared/services/user';
-import { User } from '../../models/UserModel';
+import { UserModel } from '../../models/UserModel';
 import { Router } from '@angular/router';
 
 @Component({
@@ -38,7 +38,7 @@ export class LoginPage implements OnInit {
     usernameControl: new FormControl(''),
   });
   private signin: boolean = false;
-  private userService = inject(UserService);
+  userService = inject(UserService);
   private router = inject(Router);
   constructor() {
     this.grabUser();
@@ -54,7 +54,7 @@ export class LoginPage implements OnInit {
         .loginUser(this.email.getRawValue() ?? '', this.password.getRawValue() ?? '')
         .subscribe({
           next: (user) => {
-            this.userService.setUser(User.fromApi(user));
+            this.userService.setUser(UserModel.fromApi(user));
           },
           error: (err: any) => {
             console.error(err);
@@ -98,6 +98,15 @@ export class LoginPage implements OnInit {
     }
   }
 
+  grabUser() {
+    this.userService.getUser().subscribe((res) => {
+      console.log(res);
+      this.userService.setUser(UserModel.fromApi(res));
+      this.router.navigate(['/home']).then((success) => {
+        console.log('Navigation success:', success);
+      });
+    });
+  }
   googleLogin() {
     this.userService.googleLoginSignUp();
     this.grabUser();
@@ -122,14 +131,5 @@ export class LoginPage implements OnInit {
   }
   flipSignIn() {
     this.signin = !this.signin;
-  }
-  grabUser() {
-    this.userService.getUser().subscribe((res) => {
-      console.log(res);
-      this.userService.setUser(User.fromApi(res));
-      this.router.navigate(['/home']).then((success) => {
-        console.log('Navigation success:', success);
-      });
-    });
   }
 }

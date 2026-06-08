@@ -1,13 +1,13 @@
-export class User {
+export class UserModel {
     id!: number;
-    username!: string;
+    name!: string;
     email!: string;
 
-    static fromApi(data: any): User {
-        const user = new User();
+    static fromApi(data: any): UserModel {
+        const user = new UserModel();
 
         user.id = data.id;
-        user.username = data.username;
+        user.name = data.name;
         user.email = data.email;
 
         return user;

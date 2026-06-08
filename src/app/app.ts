@@ -1,14 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Chatbot } from "./components/chatbot/chatbot";
-import { LoginPage } from "./components/login-page/login-page";
+import { UserService } from './shared/services/user';
+import { UserModel } from './models/UserModel';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
-export class App {
+export class App implements OnInit {
+  ngOnInit(): void {
+    this.userService.loadUser().subscribe();
+  }
+  userService = inject(UserService);
+  private router = inject(Router);
+
   protected readonly title = signal('my-app');
 }
