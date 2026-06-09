@@ -51,4 +51,10 @@ export class ChatService {
       withCredentials: true,
     });
   }
+  getFirstMessageFromUser(chatId: number) {
+    return this.http
+      .get<MessageModel>(`${this.apiURL}/chat/lastmessage?chatId=${chatId}`, {
+        withCredentials: true,
+      });
+  }
 }

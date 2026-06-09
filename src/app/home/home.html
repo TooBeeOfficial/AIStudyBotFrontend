@@ -30,7 +30,7 @@
         <div class="text-2xl">new chat</div>
       </div>
       <div
-      (click)="createNewQuestion()"
+        (click)="createNewQuestion()"
         class="truncate w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
       >
         <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
@@ -38,11 +38,11 @@
       </div>
       <div class="w-full h-px bg-gray-500"></div>
       <div class="flex-1 grow overflow-y-scroll w-full flex flex-col p-2">
-        @for (item of [].constructor(50); let i = $index; track $index) {
+        @for (item of firstMessages(); track $index) {
           <div
             class="w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center"
           >
-            <span class="truncate min-w-0"> Chat {{ i }} </span>
+            <span class="truncate min-w-0">{{ item.content }}</span>
           </div>
         }
       </div>
@@ -65,12 +65,66 @@
         <div class="my-12"></div>
       </div>
 
-      <div class="flex mx-50 mb-10 px-4 rounded-4xl bg-gray-900">
-        <div class="py-4 pr-4 whitespace-nowrap">model name</div>
-        <div class="h-full w-px bg-gray-500"></div>
-        <div class="w-full flex items-center py-4 px-4">text or drop file</div>
-        <div class="h-full w-px bg-gray-500"></div>
-        <div class="py-4 pl-4 whitespace-nowrap">send</div>
+      <div class="flex mx-50 mb-10 rounded-4xl bg-gray-900 items-center">
+        <div class="relative inline-block max-w-40 pl-4 hover:bg-gray-800 rounded-l-4xl">
+          <div
+            class="flex items-center justify-start cursor-pointer relative"
+            (click)="showModels = !showModels"
+          >
+            <div class="flex py-4 pr-4 truncate whitespace-nowrap transition-all duration-300 mr-7">
+              {{ selectedModel().modelName }}
+            </div>
+            @if (showModels) {
+              <mat-icon class="flex size-1.25 absolute right-1">expand_more</mat-icon>
+            } @else if (!showModels) {
+              <mat-icon class="flex size-1.25 absolute right-1">expand_less</mat-icon>
+            }
+          </div>
+          @if (showModels) {
+            <div
+              class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-white shadow-lg rounded-lg border p-2 z-50 text-cyan-950"
+            >
+              @for (model of models(); track $index) {
+                <div
+                  class="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer"
+                  (click)="selectModel(model)"
+                >
+                  {{ model.modelName }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+        <div class="h-full w-0.5 bg-gray-500"></div>
+        <div
+          class="flex h-max max-h-75 items-center grow"
+          (dragover)="onDragOver($event)"
+          (drop)="onFileDrop($event)"
+        >
+          <button
+            type="button"
+            class="px-3 text-gray-500 hover:text-gray-700"
+            (click)="fileInput.click()"
+          >
+            <mat-icon>attach_file</mat-icon>
+          </button>
+          <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+          <textarea
+            #ta
+            [(ngModel)]="textContent"
+            maxlength="3000"
+            rows="1"
+            placeholder="Type or drop pdf/text file..."
+            class="flex-1 resize-none overflow-scroll p-3 outline-none max-h-75 transition-all duration-100 ease-out"
+          ></textarea>
+        </div>
+        <div class="h-full w-0.5 bg-gray-500"></div>
+        <div
+          class="py-4 pl-4 whitespace-nowrap w-20 h-full cursor-pointer hover:bg-gray-800 rounded-r-4xl"
+          (click)="submitMessage()"
+        >
+          send
+        </div>
       </div>
     </div>
   </div>

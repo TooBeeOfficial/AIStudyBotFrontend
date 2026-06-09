@@ -10,7 +10,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 export class AIBotService {
   private apiURL = environment.apiUrl;
   private http: HttpClient = inject(HttpClient);
-  private AIModels = new BehaviorSubject<AIModel[] | null>(null);
+  private AIModels = new BehaviorSubject<AIModel[]>([]);
   AIModels$ = this.AIModels.asObservable();
 
   get AIModelList() {

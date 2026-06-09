@@ -18,10 +18,10 @@ export class QuestionBuilderDialogComponent {
     new AnswerModel(-1, -1, ''),
     new AnswerTableModel(Array.from({ length: 4 }, () => new AnswerModel(-1, -1, ''))),
   );
-  correctIndex: number = 0;
+  correctIndex: number = -1;
 
   getIfValidQuestion(): boolean {
-    if (this.question.question === '' || this.correctIndex === null) {
+    if (this.question.question === '' || this.correctIndex === -1) {
       return false;
     }
     for (let index = 0; index < this.question.answerTable.answers.length; index++) {

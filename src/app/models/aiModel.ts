@@ -1,13 +1,13 @@
 export class AIModel {
-    id!: number;
-    modelName!: string;
-    
-    static fromApi(data: any): AIModel {
-        const model = new AIModel();
+  id: number;
+  modelName: string;
 
-        model.id = data.id;
-        model.modelName = data.name;
+  constructor(id: number = 1, modelName: string = 'Default') {
+    this.id = id;
+    this.modelName = modelName;
+  }
 
-        return model;
-    }
+  static fromApi(data: any): AIModel {
+    return new AIModel(data?.id, data?.name);
+  }
 }

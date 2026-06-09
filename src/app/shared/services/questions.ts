@@ -26,7 +26,6 @@ export class QuestionsService {
     this.questionSubject.next(null);
   }
   createNewQuestion(question: any, chatId: number) {
-    console.log("QUESTION: ",question)
     const answers = AnswerTableModel.toStringArray(question.answers);
     const correct = question.correct.answer;
     return this.http.post(

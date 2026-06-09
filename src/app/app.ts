@@ -29,6 +29,7 @@ export class App implements OnInit {
     });
     this.AIBotService.getAIModels().subscribe({
       next: (models) => {
+        console.log(models)
         this.AIBotService.setAIModels(models);
       },
     });
