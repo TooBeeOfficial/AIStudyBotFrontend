@@ -1,20 +1,32 @@
-import { AnswerModel } from "./answerModel";
-import { AnswerTableModel } from "./answerTableModel";
+import { AnswerModel } from './answerModel';
+import { AnswerTableModel } from './answerTableModel';
 
 export class QuestionModel {
-    id!:number;
-    question!:string;
-    correctAnswer!:AnswerModel;
-    answerTable!:AnswerTableModel;
+  id!: number;
+  question!: string;
+  correctAnswer!: AnswerModel;
+  answerTable!: AnswerTableModel;
 
-    static fromApi(data: any): QuestionModel {
-        const question = new QuestionModel();
+  constructor(
+    id: number = 0,
+    question: string = '',
+    correctAnswer: AnswerModel = {} as AnswerModel,
+    answerTable: AnswerTableModel = new AnswerTableModel(),
+  ) {
+    this.id = id;
+    this.question = question;
+    this.correctAnswer = correctAnswer;
+    this.answerTable = answerTable;
+  }
 
-        question.id = data.id;
-        question.question = data.question;
-        question.correctAnswer = data.correct_answer;
-        question.answerTable = AnswerTableModel.fromApi(data.answers);
+  static fromApi(data: any): QuestionModel {
+    const question = new QuestionModel();
 
-        return question;
-    }
+    question.id = data.id;
+    question.question = data.question;
+    question.correctAnswer = data.correct_answer;
+    question.answerTable = AnswerTableModel.fromApi(data.answers);
+
+    return question;
+  }
 }

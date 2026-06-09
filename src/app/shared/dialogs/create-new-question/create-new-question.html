@@ -3,20 +3,22 @@
     {{ data?.title || 'Create Question' }}
   </h2>
   <input
-    [(ngModel)]="question"
+    type="text"
     placeholder="Enter question"
     class="w-full border rounded-lg px-3 py-2 mb-4"
+    [(ngModel)]="question.question"
   />
 
   <div class="space-y-3">
     <div class="flex items-center gap-3 flex-col">
-      @for (item of answers; let i = $index; track $index) {
+      @for (item of question.answerTable.answers; let i = $index; track $index) {
         <div class="flex w-full">
-          <input type="radio" name="correct" [value]="i" [(ngModel)]="correctIndex" />
+          <input type="radio" name="correct" [value]="i" (click)="setCorrectIndex(i)" />
           <input
-            [(ngModel)]="answers[i]"
+            type="text"
             placeholder="Answer {{ i + 1 }}"
             class="flex-1 w-full border rounded-lg px-3 py-2 ml-3"
+            [(ngModel)]="question.answerTable.answers[i].answer"
           />
         </div>
       }
@@ -26,7 +28,7 @@
   <button
     (click)="submit()"
     class="mt-5 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-    [disabled]="correctIndex === null"
+    [disabled]="!getIfValidQuestion()"
   >
     Save Question
   </button>

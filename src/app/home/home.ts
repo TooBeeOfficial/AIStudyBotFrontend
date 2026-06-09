@@ -6,6 +6,7 @@ import { ChatService } from '../shared/services/chat';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../shared/dialogs/success-dialog/success-dialog';
 import { QuestionBuilderDialogComponent } from '../shared/dialogs/create-new-question/create-new-question';
+import { QuestionsService } from '../shared/services/questions';
 
 @Component({
   selector: 'app-home',
@@ -16,6 +17,7 @@ import { QuestionBuilderDialogComponent } from '../shared/dialogs/create-new-que
 export class Home {
   userService: UserService = inject(UserService);
   chatService: ChatService = inject(ChatService);
+  questionService: QuestionsService = inject(QuestionsService);
   menuOpen: boolean = false;
   dialog = inject(MatDialog);
   constructor() {}
@@ -48,10 +50,12 @@ export class Home {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log(result);
-
-        // send to backend
-        // this.chatService.saveQuestions(result).subscribe(...)
+        this.questionService.createNewQuestion(result, 62).subscribe({
+          next: (res) => {
+          },
+          error: (res) => {
+          },
+        });
       }
     });
   }

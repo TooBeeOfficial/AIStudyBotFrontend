@@ -3,6 +3,8 @@ import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { QuestionModel } from '../../models/questionModel';
+import { AnswerTableModel } from '../../models/answerTableModel';
+import { AnswerModel } from '../../models/answerModel';
 
 @Injectable({
   providedIn: 'root',
@@ -22,5 +24,19 @@ export class QuestionsService {
   }
   clearUser() {
     this.questionSubject.next(null);
+  }
+  createNewQuestion(question: any, chatId: number) {
+    console.log("QUESTION: ",question)
+    const answers = AnswerTableModel.toStringArray(question.answers);
+    const correct = question.correct.answer;
+    return this.http.post(
+      this.apiURL + `/question/create?chatId=${chatId}`,
+      {
+        question: question.question.question ?? question.question,
+        answers: answers,
+        correct: correct,
+      },
+      { withCredentials: true },
+    );
   }
 }
