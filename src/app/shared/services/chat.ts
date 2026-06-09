@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { ChatModel } from '../../models/chatModel';
+import { MessageModel } from '../../models/chatMessageModel';
 
 @Injectable({
   providedIn: 'root',
@@ -44,5 +45,10 @@ export class ChatService {
   }
   createNewChat() {
     return this.http.post(this.apiURL + '/me/newchat', {}, { withCredentials: true });
+  }
+  getChatHistory(chatId: number) {
+    return this.http.get<MessageModel[]>(`${this.apiURL}/chat/history?chatId=${chatId}`, {
+      withCredentials: true,
+    });
   }
 }

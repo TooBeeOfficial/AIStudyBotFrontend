@@ -1,8 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, model } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { AIModel } from '../../models/aiModel';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,11 +10,22 @@ import { Observable } from 'rxjs';
 export class AIBotService {
   private apiURL = environment.apiUrl;
   private http: HttpClient = inject(HttpClient);
+  private AIModels = new BehaviorSubject<AIModel[] | null>(null);
+  AIModels$ = this.AIModels.asObservable();
+
+  get AIModelList() {
+    return this.AIModels.value;
+  }
+  setAIModels(models: AIModel[]) {
+    this.AIModels.next(models);
+  }
 
   getAIModels(): Observable<AIModel[]> {
-    return this.http.get<AIModel[]>(this.apiURL + '/models', {
-      withCredentials: true,
-    });
+    const models = this.http
+      .get<AIModel[]>(this.apiURL + '/models', {
+        withCredentials: true,
+      });
+    return models;
   }
 
   askAIBot(message: string, chatId: number, modelId: number): Observable<JSON> {
