@@ -1,6 +1,6 @@
 <div class="bg-gray-100 w-full h-screen flex flex-col">
   <!-- navbar -->
-  <div class="icon-group w-full flex items-center justify-between gap-3 h-16 bg-gray-900">
+  <div class="icon-group w-full flex items-center justify-between gap-3 h-16 bg-gray-900 relative">
     <div class="w-18 relative flex items-center">
       @if (!menuOpen) {
         <mat-icon (click)="openMenu()">menu</mat-icon>
@@ -11,7 +11,18 @@
     <div class="text-right ml-auto text-white text-lg">
       Welcome {{ (userService.user$ | async)?.name }}!
     </div>
-    <mat-icon>person</mat-icon>
+    <button (click)="showProfileDropdown = !showProfileDropdown">
+      <mat-icon>person</mat-icon>
+    </button>
+    @if (showProfileDropdown) {
+      <div
+        class="absolute top-full right-0 mr-2 mt-2 w-48 bg-white shadow-lg rounded-lg border text-cyan-950 z-1 p-2"
+      >
+        <div class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer">My Quizes</div>
+        <div class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+        (click)="logoutUser()">Log Out</div>
+      </div>
+    }
   </div>
 
   <!-- main -->
@@ -56,7 +67,7 @@
     <!-- chat -->
     <div class="flex-1 h-full flex flex-col text-white justify-between relative">
       <div
-        class="flex flex-col overflow-y-scroll overflow-x-hidden absolute bottom-16 top-0 left-50 right-50"
+        class="flex flex-col overflow-y-scroll overflow-x-hidden absolute bottom-16 top-0 px-50 w-full"
       >
         @if (currentChat().messages || currentChat().messages?.length > 0) {
           @for (item of currentChat().messages; let i = $index; track $index) {
@@ -88,13 +99,12 @@
             </div>
           } @empty {
             <div
-              class="flex text-gray-300 text-3xl self-center items-center text-center h-full absolute"
+              class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full absolute w-full"
             >
               No messages yet!
             </div>
           }
         }
-
         <div #bottom></div>
         <div class="mt-35"></div>
       </div>
@@ -103,12 +113,14 @@
       <div
         class="flex left-50 right-50 mb-10 rounded-4xl bg-gray-900 items-center absolute bottom-0"
       >
-        <div class="relative inline-block max-w-40 pl-4 hover:bg-gray-800 rounded-l-4xl">
+        <div class="flex h-full grow relative max-w-40 pl-4 hover:bg-gray-800 rounded-l-4xl">
           <div
-            class="flex items-center justify-start cursor-pointer relative"
+            class="flex items-center justify-start cursor-pointer relative w-full"
             (click)="showModels = !showModels"
           >
-            <div class="flex py-4 pr-4 truncate whitespace-nowrap transition-all duration-300 mr-7">
+            <div
+              class="flex py-4 pr-4 truncate whitespace-nowrap transition-all duration-300 mr-7 max-w-30"
+            >
               {{ selectedModel().modelName }}
             </div>
             @if (showModels) {
@@ -132,7 +144,6 @@
             </div>
           }
         </div>
-        <div class="h-full w-px bg-gray-500"></div>
         <div
           class="flex h-max max-h-75 items-center grow"
           (dragover)="onDragOver($event)"
@@ -140,10 +151,10 @@
         >
           <button
             type="button"
-            class="px-3 text-gray-500 hover:text-gray-700"
+            class="px-3 text-gray-500 hover:text-gray-700 cursor-pointer"
             (click)="fileInput.click()"
           >
-            <mat-icon>attach_file</mat-icon>
+            <mat-icon class="">attach_file</mat-icon>
           </button>
           <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
           <textarea
@@ -151,11 +162,10 @@
             [(ngModel)]="textContent"
             maxlength="3000"
             rows="1"
-            placeholder="Type or drop pdf/text file..."
+            [placeholder]="loadingFile ? 'Loading...' : 'Type or drop pdf/text file...'"
             class="flex-1 resize-none overflow-scroll p-3 outline-none max-h-75 transition-all duration-100 ease-out"
           ></textarea>
         </div>
-        <div class="h-full w-px bg-gray-500"></div>
         <div
           class="py-4 pl-4 whitespace-nowrap w-20 h-full cursor-pointer hover:bg-gray-800 rounded-r-4xl"
           (click)="submitMessage()"

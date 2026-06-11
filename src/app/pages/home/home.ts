@@ -1,21 +1,22 @@
 import { Component, effect, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
-import { UserService } from '../shared/services/user';
+import { UserService } from '../../shared/services/user';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { ChatService } from '../shared/services/chat';
+import { ChatService } from '../../shared/services/chat';
 import { MatDialog } from '@angular/material/dialog';
-import { MessageDialogComponent } from '../shared/dialogs/success-dialog/success-dialog';
-import { QuestionBuilderDialogComponent } from '../shared/dialogs/create-new-question/create-new-question';
-import { QuestionsService } from '../shared/services/questions';
+import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/success-dialog';
+import { QuestionBuilderDialogComponent } from '../../shared/dialogs/create-new-question/create-new-question';
+import { QuestionsService } from '../../shared/services/questions';
 import { switchMap, forkJoin, map, of, catchError, filter, take } from 'rxjs';
-import { MessageModel } from '../models/chatMessageModel';
-import { AIBotService } from '../shared/services/aibot';
+import { MessageModel } from '../../models/chatMessageModel';
+import { AIBotService } from '../../shared/services/aibot';
 import { signal } from '@angular/core';
-import { AIModel } from '../models/aiModel';
+import { AIModel } from '../../models/aiModel';
 import * as pdfjsLib from 'pdfjs-dist';
 import { FormsModule } from '@angular/forms';
-import { TwoButtonDialog } from '../shared/dialogs/two-button-dialog/two-button-dialog';
-import { ChatModel } from '../models/chatModel';
+import { TwoButtonDialog } from '../../shared/dialogs/two-button-dialog/two-button-dialog';
+import { ChatModel } from '../../models/chatModel';
+import { Router } from '@angular/router';
 
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.mjs';
 
@@ -38,18 +39,29 @@ export class Home implements OnInit {
   models = signal<AIModel[]>([]);
 
   dialog = inject(MatDialog);
+  router = inject(Router);
 
   isDragging: boolean = false;
   showModels: boolean = false;
   menuOpen: boolean = false;
+  loadingFile: boolean = false;
+  showProfileDropdown: boolean = true;
 
   @ViewChild('bottom')
   private bottom!: ElementRef<HTMLDivElement>;
 
   scrollToBottom() {
     this.bottom.nativeElement.scrollIntoView({
-      behavior: 'smooth',
+      behavior: 'auto',
       block: 'center',
+    });
+  }
+
+  logoutUser() {
+    this.userService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
     });
   }
 
@@ -68,7 +80,24 @@ export class Home implements OnInit {
     });
   }
 
-  submitMessage() {}
+  submitMessage() {
+    const message = this.textContent();
+    this.textContent.set('');
+
+    this.currentChat.update((chat) => ({
+      ...chat,
+      messages: [...chat.messages, new MessageModel(-1, chat.id, 'user', message)],
+    }));
+
+    setTimeout(() => this.scrollToBottom());
+
+    this.aiService.askAIBot(message, this.currentChat().id, this.selectedModel().id).subscribe({
+      next: async () => {
+        await new Promise((r) => setTimeout(r, 1000));
+        this.swapChat(this.currentChat().id);
+      },
+    });
+  }
 
   selectModel(model: any) {
     this.selectedModel.set(model);
@@ -178,36 +207,25 @@ export class Home implements OnInit {
   }
 
   swapChat(chatId: number) {
-    if (chatId === this.currentChat().id) return;
-    this.chatService.allchats$.subscribe({
-      next: (chats) => {
-        if (!chats) return;
-        console.log(chats);
-        const chat = chats?.filter((c) => c.id === chatId)[0];
-        if (!chat) return;
-        this.chatService.getChatHistory(chat.id).subscribe({
-          next: (messages) => {
-            chat.messages = messages;
-            this.currentChat.set(chat);
-            if (messages) {
-            }
-            console.log(this.currentChat());
-          },
-        });
-      },
-    });
+    const chats = this.chatService.allChats;
+    if (!chats) return;
 
-    this.chatService.chat$
-      .pipe(
-        filter((chat): chat is ChatModel => chat !== null),
-        take(1),
-      )
-      .subscribe((chat) => {
-        this.currentChat.set(chat);
-        setTimeout(() => {
-          this.scrollToBottom();
-        });
+    const baseChat = chats.find((c) => c.id === chatId);
+    if (!baseChat) return;
+
+    this.chatService.getChatHistory(chatId).subscribe((messages) => {
+      const updatedChat = {
+        ...baseChat,
+        messages: [...messages],
+      };
+
+      this.chatService.setChat(updatedChat);
+      this.currentChat.set(updatedChat);
+
+      requestAnimationFrame(() => {
+        this.scrollToBottom();
       });
+    });
   }
 
   createNewQuestion() {
@@ -292,15 +310,24 @@ export class Home implements OnInit {
     return fullText.trim();
   }
 
-  handleFile(file: File) {
+  async handleFile(file: File) {
     const name = file.name.toLowerCase();
     const type = file.type;
-    console.log(type);
 
+    console.log(type);
+    this.dialog.open(MessageDialogComponent, {
+      data: {
+        title: 'Loading!',
+        message: `Your file is being processed. You can close this tab.`,
+      },
+    });
+    this.loadingFile = true;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     if (type === 'application/pdf' || name.endsWith('.pdf')) {
       this.extractPdfText(file).then((val) => {
         this.textContent.set(val);
       });
+      this.loadingFile = false;
 
       return;
     }
@@ -317,8 +344,10 @@ export class Home implements OnInit {
       name.endsWith('.ts')
     ) {
       this.readText(file);
+      this.loadingFile = false;
       return;
     }
+    this.loadingFile = false;
     this.dialog.open(MessageDialogComponent, {
       data: {
         title: 'Failed!',
