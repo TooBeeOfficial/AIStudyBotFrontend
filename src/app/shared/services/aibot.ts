@@ -1,5 +1,5 @@
 import { inject, Injectable, model } from '@angular/core';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../Components/environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { AIModel } from '../../models/aiModel';
 import { BehaviorSubject, Observable, tap } from 'rxjs';

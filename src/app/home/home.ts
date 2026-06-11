@@ -7,13 +7,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../shared/dialogs/success-dialog/success-dialog';
 import { QuestionBuilderDialogComponent } from '../shared/dialogs/create-new-question/create-new-question';
 import { QuestionsService } from '../shared/services/questions';
-import { switchMap, forkJoin, map, of, catchError } from 'rxjs';
+import { switchMap, forkJoin, map, of, catchError, filter, take } from 'rxjs';
 import { MessageModel } from '../models/chatMessageModel';
 import { AIBotService } from '../shared/services/aibot';
 import { signal } from '@angular/core';
 import { AIModel } from '../models/aiModel';
 import * as pdfjsLib from 'pdfjs-dist';
 import { FormsModule } from '@angular/forms';
+import { TwoButtonDialog } from '../shared/dialogs/two-button-dialog/two-button-dialog';
+import { ChatModel } from '../models/chatModel';
 
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.mjs';
 
@@ -24,24 +26,35 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
+  questionService: QuestionsService = inject(QuestionsService);
   userService: UserService = inject(UserService);
   chatService: ChatService = inject(ChatService);
-  questionService: QuestionsService = inject(QuestionsService);
   aiService: AIBotService = inject(AIBotService);
-  menuOpen: boolean = false;
-  dialog = inject(MatDialog);
-  showModels = false;
+
+  currentChat = signal<ChatModel>(new ChatModel());
   selectedModel = signal<AIModel>(new AIModel());
   firstMessages = signal<MessageModel[]>([]);
-  models = signal<AIModel[]>([]);
-  isDragging = false;
   textContent = signal<string>('');
+  models = signal<AIModel[]>([]);
 
-  selectModel(model: any) {
-    this.selectedModel.set(model);
-    this.showModels = false;
+  dialog = inject(MatDialog);
+
+  isDragging: boolean = false;
+  showModels: boolean = false;
+  menuOpen: boolean = false;
+
+  @ViewChild('bottom')
+  private bottom!: ElementRef<HTMLDivElement>;
+
+  scrollToBottom() {
+    this.bottom.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
   }
+
   constructor() {
+    // Auto resize chat text area
     effect(() => {
       this.textContent();
 
@@ -57,11 +70,32 @@ export class Home implements OnInit {
 
   submitMessage() {}
 
+  selectModel(model: any) {
+    this.selectedModel.set(model);
+    this.showModels = false;
+  }
+
   ngOnInit(): void {
     this.aiService.AIModels$.subscribe((models) => {
       this.models.set(models.map((m) => AIModel.fromApi(m)));
     });
-
+    this.setCurrentChat();
+    this.setFirstMessages();
+  }
+  setCurrentChat() {
+    this.chatService.chat$
+      .pipe(
+        filter((chat): chat is ChatModel => chat !== null),
+        take(1),
+      )
+      .subscribe((chat) => {
+        this.currentChat.set(chat);
+        setTimeout(() => {
+          this.scrollToBottom();
+        });
+      });
+  }
+  setFirstMessages() {
     this.chatService.allchats$
       .pipe(
         switchMap((chats) => {
@@ -94,26 +128,93 @@ export class Home implements OnInit {
   }
 
   createNewChat() {
-    this.chatService.createNewChat().subscribe((res) => {
-      this.dialog.open(MessageDialogComponent, {
+    this.dialog
+      .open(TwoButtonDialog, {
         data: {
-          title: 'Chat Created',
-          message: 'Your new chat is ready!',
+          title: 'Create new chat?',
+          message: '',
+          confirmText: 'Confirm',
+          cancelText: 'Cancel',
+          showCancel: true,
         },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (!result) return;
+        this.chatService.createNewChat().subscribe({
+          next: () => {
+            this.chatService.loadChat().subscribe(() => {
+              this.dialog
+                .open(MessageDialogComponent, {
+                  data: {
+                    title: 'Success!',
+                    message: 'Created new chat!',
+                  },
+                })
+                .afterClosed()
+                .subscribe(() => {
+                  this.chatService.allchats$
+                    .pipe(
+                      filter((chats) => Array.isArray(chats) && chats.length >= 0),
+                      take(1),
+                      switchMap((chats) => {
+                        if (!chats || chats.length === 0) {
+                          return of([]);
+                        }
+
+                        return forkJoin(
+                          chats.map((c) => this.chatService.getFirstMessageFromUser(c.id)),
+                        );
+                      }),
+                    )
+                    .subscribe((messages) => {
+                      this.firstMessages.set([...messages]);
+                    });
+                });
+            });
+          },
+        });
       });
-    });
   }
 
-  createNewQuestion() {
-    const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {
-      data: {
-        title: 'Add Quiz Question',
+  swapChat(chatId: number) {
+    if (chatId === this.currentChat().id) return;
+    this.chatService.allchats$.subscribe({
+      next: (chats) => {
+        if (!chats) return;
+        console.log(chats);
+        const chat = chats?.filter((c) => c.id === chatId)[0];
+        if (!chat) return;
+        this.chatService.getChatHistory(chat.id).subscribe({
+          next: (messages) => {
+            chat.messages = messages;
+            this.currentChat.set(chat);
+            if (messages) {
+            }
+            console.log(this.currentChat());
+          },
+        });
       },
     });
 
+    this.chatService.chat$
+      .pipe(
+        filter((chat): chat is ChatModel => chat !== null),
+        take(1),
+      )
+      .subscribe((chat) => {
+        this.currentChat.set(chat);
+        setTimeout(() => {
+          this.scrollToBottom();
+        });
+      });
+  }
+
+  createNewQuestion() {
+    const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {});
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.questionService.createNewQuestion(result, 62).subscribe({
+        this.questionService.createNewQuestion(result, this.currentChat().id).subscribe({
           next: (res) => {
             this.dialog.open(MessageDialogComponent, {
               data: {
@@ -224,5 +325,28 @@ export class Home implements OnInit {
         message: `Unsupported file type: ${file.type}. \nSupported file types: .txt, .md, .json, .csv, .pdf.`,
       },
     });
+  }
+
+  formatQuestionFromJson(input: string): string {
+    try {
+      const data = typeof input === 'string' ? JSON.parse(input) : input;
+
+      if (!data?.questions || !Array.isArray(data.questions)) {
+        return '';
+      }
+
+      return data.questions
+        .map((q: any) => {
+          const question = q?.question ?? '';
+
+          const answers = Array.isArray(q?.answers) ? q.answers : Object.values(q?.answers ?? {});
+
+          return [question, ...answers.map((a: any) => `- ${a}`)].join('\n');
+        })
+        .join('\n\n');
+    } catch (err) {
+      console.error('Invalid JSON:', err);
+      return input;
+    }
   }
 }

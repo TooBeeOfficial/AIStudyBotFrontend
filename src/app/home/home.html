@@ -1,6 +1,6 @@
 <div class="bg-gray-100 w-full h-screen flex flex-col">
   <!-- navbar -->
-  <div class="icon-group w-full flex items-center justify-between gap-3 h-16 bg-cyan-950">
+  <div class="icon-group w-full flex items-center justify-between gap-3 h-16 bg-gray-900">
     <div class="w-18 relative flex items-center">
       @if (!menuOpen) {
         <mat-icon (click)="openMenu()">menu</mat-icon>
@@ -38,11 +38,15 @@
       </div>
       <div class="w-full h-px bg-gray-500"></div>
       <div class="flex-1 grow overflow-y-scroll w-full flex flex-col p-2">
-        @for (item of firstMessages(); track $index) {
+        @for (item of firstMessages(); let i = $index; track $index) {
           <div
+            (click)="swapChat(item.chat_id)"
             class="w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center"
           >
             <span class="truncate min-w-0">{{ item.content }}</span>
+            @if (item.content == 'New Chat') {
+              <span class="truncate min-w-0 pl-1"> {{ i }}</span>
+            }
           </div>
         }
       </div>
@@ -50,22 +54,55 @@
     </div>
 
     <!-- chat -->
-    <div class="flex-1 h-full flex flex-col text-white justify-between">
-      <div class="flex flex-col mx-50 mt-10 overflow-y-scroll overflow-x-hidden">
-        @for (item of [].constructor(50); let i = $index; track $index) {
-          <div
-            class="min-w-0 max-w-full text-base text-gray-700 rounded-2xl px-3 py-2 my-2 transition-all duration-200 flex items-center"
-            [ngClass]="
-              i % 2 == 1 ? 'w-full bg-gray-300 py-4' : 'w-fit self-end bg-gray-900 text-white'
-            "
-          >
-            <span class="min-w-0"> Message {{ i }} </span>
-          </div>
+    <div class="flex-1 h-full flex flex-col text-white justify-between relative">
+      <div
+        class="flex flex-col overflow-y-scroll overflow-x-hidden absolute bottom-16 top-0 left-50 right-50"
+      >
+        @if (currentChat().messages || currentChat().messages?.length > 0) {
+          @for (item of currentChat().messages; let i = $index; track $index) {
+            <div
+              class="min-w-0 max-w-[60%] text-base text-gray-700 rounded-2xl px-3 py-2 my-2 transition-all duration-200 flex flex-col"
+              [ngClass]="{
+                'w-fit self-end bg-gray-900 text-white': item.role === 'user',
+                'w-full bg-gray-300 py-4': item.role !== 'user',
+                hidden: currentChat().messages.length < 1,
+              }"
+            >
+              <div
+                class="text-lg"
+                [ngClass]="item.role == 'user' ? 'text-cyan-200' : 'text-gray-900'"
+              >
+                @if (item.role == 'user') {
+                  Me
+                } @else {
+                  Study Buddy
+                }
+              </div>
+              <span class="min-w-0 wrap-break-word whitespace-pre-line">
+                @if (item.role == 'user') {
+                  {{ item.content }}
+                } @else {
+                  {{ formatQuestionFromJson(item.content) }}
+                }
+              </span>
+            </div>
+          } @empty {
+            <div
+              class="flex text-gray-300 text-3xl self-center items-center text-center h-full absolute"
+            >
+              No messages yet!
+            </div>
+          }
         }
-        <div class="my-12"></div>
+
+        <div #bottom></div>
+        <div class="mt-35"></div>
       </div>
 
-      <div class="flex mx-50 mb-10 rounded-4xl bg-gray-900 items-center">
+      <!-- chatbox -->
+      <div
+        class="flex left-50 right-50 mb-10 rounded-4xl bg-gray-900 items-center absolute bottom-0"
+      >
         <div class="relative inline-block max-w-40 pl-4 hover:bg-gray-800 rounded-l-4xl">
           <div
             class="flex items-center justify-start cursor-pointer relative"
@@ -95,7 +132,7 @@
             </div>
           }
         </div>
-        <div class="h-full w-0.5 bg-gray-500"></div>
+        <div class="h-full w-px bg-gray-500"></div>
         <div
           class="flex h-max max-h-75 items-center grow"
           (dragover)="onDragOver($event)"
@@ -118,7 +155,7 @@
             class="flex-1 resize-none overflow-scroll p-3 outline-none max-h-75 transition-all duration-100 ease-out"
           ></textarea>
         </div>
-        <div class="h-full w-0.5 bg-gray-500"></div>
+        <div class="h-full w-px bg-gray-500"></div>
         <div
           class="py-4 pl-4 whitespace-nowrap w-20 h-full cursor-pointer hover:bg-gray-800 rounded-r-4xl"
           (click)="submitMessage()"

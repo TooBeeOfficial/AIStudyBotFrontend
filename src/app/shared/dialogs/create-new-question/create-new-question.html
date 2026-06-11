@@ -1,35 +1,45 @@
 <div class="bg-white rounded-xl p-6 w-[520px]">
-  <h2 class="text-xl font-semibold mb-4">
-    {{ data?.title || 'Create Question' }}
-  </h2>
-  <input
-    type="text"
-    placeholder="Enter question"
-    class="w-full border rounded-lg px-3 py-2 mb-4"
-    [(ngModel)]="question.question"
-  />
+  <form #form="ngForm" (ngSubmit)="submit(form)">
+    <h2 class="text-xl font-semibold mb-4">
+      {{ data?.title || 'Create Question' }}
+    </h2>
+    <input
+      name="question"
+      required
+      #questionCtrl="ngModel"
+      type="text"
+      placeholder="Enter question"
+      class="w-full border rounded-lg px-3 py-3 mb-4"
+      [(ngModel)]="question.question"
+    />
 
-  <div class="space-y-3">
-    <div class="flex items-center gap-3 flex-col">
-      @for (item of question.answerTable.answers; let i = $index; track $index) {
-        <div class="flex w-full">
-          <input type="radio" name="correct" [value]="i" (click)="setCorrectIndex(i)" />
-          <input
-            type="text"
-            placeholder="Answer {{ i + 1 }}"
-            class="flex-1 w-full border rounded-lg px-3 py-2 ml-3 pb-4"
-            [(ngModel)]="question.answerTable.answers[i].answer"
-          />
-        </div>
-      }
+    <div class="space-y-3">
+      <div class="flex items-center gap-3 flex-col">
+        @for (item of question.answerTable.answers; let i = $index; track $index) {
+          <div class="flex w-full">
+            <input type="radio" name="correct" [value]="i" (click)="setCorrectIndex(i)" />
+            <input
+              type="text"
+              required
+              name="answer{{ i }}"
+              #answerCtrl="ngModel"
+              placeholder="Answer {{ i + 1 }}"
+              class="flex-1 w-full border rounded-lg px-3 py-2 ml-3 pb-4"
+              [(ngModel)]="item.answer"
+            />
+          </div>
+        }
+      </div>
     </div>
-  </div>
+    <div class="flex flex-col pt-4 leading-6 text-sm text-red-600">
+      {{ errorMessage }}
+    </div>
 
-  <button
-    (click)="submit()"
-    class="mt-5 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-    [disabled]="!getIfValidQuestion()"
-  >
-    Save Question
-  </button>
+    <button
+      type="submit"
+      class="mt-5 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+    >
+      Save Question
+    </button>
+  </form>
 </div>

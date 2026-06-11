@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, tap } from 'rxjs';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../Components/environments/environment.development';
 import { ChatModel } from '../../models/chatModel';
 import { MessageModel } from '../../models/chatMessageModel';
 
@@ -21,7 +21,7 @@ export class ChatService {
     return this.chatSubject.value;
   }
   get allChats(): ChatModel[] | null {
-    return this.allChats;
+    return this.allchats.value;
   }
   setChat(chat: ChatModel | null) {
     this.chatSubject.next(chat);
@@ -34,27 +34,31 @@ export class ChatService {
   }
 
   getChats() {
-    return this.http.get<ChatModel[]>(this.apiURL + '/me/chats', { withCredentials: true });
+    const result = this.http.get<ChatModel[]>(this.apiURL + '/me/chats', { withCredentials: true });
+    return result;
   }
 
   loadChat() {
-    const chats = this.getChats().pipe(
-      tap((chats) => this.setChats(chats.map((chat: any) => ChatModel.fromApi(chat)))),
+    const chats = this.getChats();
+    chats.subscribe((chats) =>
+      this.setChats(chats.map((chat: ChatModel) => ChatModel.fromApi(chat))),
     );
     return chats;
   }
   createNewChat() {
-    return this.http.post(this.apiURL + '/me/newchat', {}, { withCredentials: true });
+    const result = this.http.post(this.apiURL + '/me/newchat', {}, { withCredentials: true });
+    return result;
   }
+
   getChatHistory(chatId: number) {
     return this.http.get<MessageModel[]>(`${this.apiURL}/chat/history?chatId=${chatId}`, {
       withCredentials: true,
     });
   }
+
   getFirstMessageFromUser(chatId: number) {
-    return this.http
-      .get<MessageModel>(`${this.apiURL}/chat/lastmessage?chatId=${chatId}`, {
-        withCredentials: true,
-      });
+    return this.http.get<MessageModel>(`${this.apiURL}/chat/lastmessage?chatId=${chatId}`, {
+      withCredentials: true,
+    });
   }
 }

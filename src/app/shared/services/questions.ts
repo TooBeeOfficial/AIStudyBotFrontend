@@ -1,10 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../Components/environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { QuestionModel } from '../../models/questionModel';
 import { AnswerTableModel } from '../../models/answerTableModel';
-import { AnswerModel } from '../../models/answerModel';
 
 @Injectable({
   providedIn: 'root',
