@@ -1,11 +1,5 @@
 @import 'tailwindcss';
 
-body {
-  margin: 0;
-  padding: 0;
-  display: block;
-}
-
 * mat-icon {
   @apply size-12.5 m-2 bg-gray-900 text-white  items-center justify-center flex text-3xl cursor-pointer rounded-2xl transition-all duration-200;
 }

@@ -1,1 +1,56 @@
-<p>quiz works!</p>
+<div class="flex flex-col h-screen">
+  <app-navbar>
+    <div sideButton class="w-18 relative flex items-center navSide">
+      @if (!menuOpen) {
+        <mat-icon (click)="openMenu()">menu</mat-icon>
+      } @else {
+        <mat-icon (click)="openMenu()">arrow_back</mat-icon>
+      }
+    </div>
+    <div
+      class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+      (click)="home()"
+    >
+      Home
+    </div>
+  </app-navbar>
+  <div class="flex flex-1 min-h-0">
+    <div
+      class="bg-gray-300 flex flex-col min-h-0 transition-all duration-300 justify-start pb-6 select-none w-80"
+    >
+      <div class="text-2xl text-gray-500 flex self-center my-4 truncate">Quizes</div>
+      <div
+        class="truncate w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
+      >
+        <mat-icon class="overflow-visible mr-2">add_comment</mat-icon>
+        <div class="text-2xl">new chat</div>
+      </div>
+      <div
+        class="truncate w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
+      >
+        <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
+        <div class="text-2xl">new question</div>
+      </div>
+      <div class="w-full h-px bg-gray-500"></div>
+      <div class="flex-1 grow overflow-y-scroll w-full flex flex-col p-2 h-full">
+        @for (item of []; let i = $index; track $index) {
+          <div
+            #chatItem
+            class="w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center"
+          >
+            <span class="truncate min-w-0">{{ item }}</span>
+            @if (item == 'New Chat') {
+              <span class="truncate min-w-0 pl-1"> {{ i }}</span>
+            }
+          </div>
+        } @empty {
+          <div class="text-2xl text-gray-500 flex items-center justify-center h-full">
+            <span>No chats available</span>
+          </div>
+        }
+        <div #chatListEnd></div>
+      </div>
+      <div class="w-full h-px bg-gray-500"></div>
+    </div>
+  </div>
+</div>

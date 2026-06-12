@@ -17,12 +17,12 @@ export class LoginPage implements OnInit {
   loginForm = new FormGroup({
     emailControl: new FormControl('', [Validators.required, Validators.email]),
     /* 
-                At least 8 characters
-                At most 16 characters
-                At least one lowercase letter
-                At least one uppercase letter
-                At least one number
-            */
+      At least 8 characters
+      At most 16 characters
+      At least one lowercase letter
+      At least one uppercase letter
+      At least one number
+    */
     passwordControl: new FormControl('', [
       Validators.required,
       Validators.minLength(8),
@@ -40,10 +40,10 @@ export class LoginPage implements OnInit {
   private signin: boolean = false;
   userService = inject(UserService);
   private router = inject(Router);
-  constructor() {
+
+  ngOnInit(): void {
     this.grabUser();
   }
-  ngOnInit(): void {}
 
   login() {
     if (this.email.invalid || this.password.invalid) {
@@ -56,9 +56,7 @@ export class LoginPage implements OnInit {
           next: (user) => {
             this.userService.setUser(UserModel.fromApi(user));
           },
-          error: (err: any) => {
-            console.error(err);
-          },
+          error: (err: any) => {},
         });
     }
   }
@@ -87,24 +85,17 @@ export class LoginPage implements OnInit {
           this.password.getRawValue() ?? '',
         )
         .subscribe({
-          next: (rseponse) => {
-            console.log('RESPONSE', rseponse);
-          },
-          error: (err: any) => {
-            console.error(err);
+          next: () => {
+            this.grabUser();
           },
         });
-      this.grabUser();
     }
   }
 
   grabUser() {
     this.userService.getUser().subscribe((res) => {
-      console.log(res);
       this.userService.setUser(UserModel.fromApi(res));
-      this.router.navigate(['/home']).then((success) => {
-        console.log('Navigation success:', success);
-      });
+      this.router.navigate(['/home']).then((success) => {});
     });
   }
   googleLogin() {

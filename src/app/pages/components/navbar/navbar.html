@@ -1,0 +1,24 @@
+<!-- navbar -->
+<div class="icon-group w-full flex items-center justify-between gap-3 h-16 bg-gray-900 relative">
+  <ng-content select="[sideButton]"></ng-content>
+
+  <div class="text-right ml-auto text-white text-lg">
+    Welcome {{ (userService.user$ | async)?.name }}!
+  </div>
+  <button (click)="showProfileDropdown = !showProfileDropdown">
+    <mat-icon>person</mat-icon>
+  </button>
+  @if (showProfileDropdown) {
+    <div
+      class="absolute top-full right-0 mr-2 mt-2 w-48 bg-white shadow-lg rounded-lg border text-cyan-950 z-1 p-2"
+    >
+      <ng-content></ng-content>
+      <div
+        class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+        (click)="logoutUser()"
+      >
+        Log Out
+      </div>
+    </div>
+  }
+</div>

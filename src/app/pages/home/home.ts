@@ -1,4 +1,13 @@
-import { Component, effect, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { UserService } from '../../shared/services/user';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
@@ -12,25 +21,27 @@ import { MessageModel } from '../../models/chatMessageModel';
 import { AIBotService } from '../../shared/services/aibot';
 import { signal } from '@angular/core';
 import { AIModel } from '../../models/aiModel';
-import * as pdfjsLib from 'pdfjs-dist';
 import { FormsModule } from '@angular/forms';
 import { TwoButtonDialog } from '../../shared/dialogs/two-button-dialog/two-button-dialog';
 import { ChatModel } from '../../models/chatModel';
 import { Router } from '@angular/router';
-
-(pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.mjs';
+import { RouteServices } from '../../shared/route-services';
+import { ChatOperationServices } from '../../shared/chat-operation-services';
+import { FileService } from '../../shared/file-service';
+import { Navbar } from '../components/navbar/navbar';
 
 @Component({
   selector: 'app-home',
-  imports: [MatIconModule, CommonModule, FormsModule],
+  imports: [MatIconModule, CommonModule, FormsModule, Navbar],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  questionService: QuestionsService = inject(QuestionsService);
   userService: UserService = inject(UserService);
-  chatService: ChatService = inject(ChatService);
+  navigationService: RouteServices = inject(RouteServices);
   aiService: AIBotService = inject(AIBotService);
+  chatOperationService: ChatOperationServices = inject(ChatOperationServices);
+  fileService: FileService = inject(FileService);
 
   currentChat = signal<ChatModel>(new ChatModel());
   selectedModel = signal<AIModel>(new AIModel());
@@ -39,7 +50,6 @@ export class Home implements OnInit {
   models = signal<AIModel[]>([]);
 
   dialog = inject(MatDialog);
-  router = inject(Router);
 
   isDragging: boolean = false;
   showModels: boolean = false;
@@ -47,23 +57,11 @@ export class Home implements OnInit {
   loadingFile: boolean = false;
   showProfileDropdown: boolean = true;
 
-  @ViewChild('bottom')
-  private bottom!: ElementRef<HTMLDivElement>;
+  @ViewChild('chatEnd')
+  private chatEnd!: ElementRef<HTMLDivElement>;
 
-  scrollToBottom() {
-    this.bottom.nativeElement.scrollIntoView({
-      behavior: 'auto',
-      block: 'center',
-    });
-  }
-
-  logoutUser() {
-    this.userService.logout().subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-      },
-    });
-  }
+  @ViewChild('chatListEnd')
+  private chatListEnd!: ElementRef<HTMLDivElement>;
 
   constructor() {
     // Auto resize chat text area
@@ -80,178 +78,26 @@ export class Home implements OnInit {
     });
   }
 
-  submitMessage() {
-    const message = this.textContent();
-    this.textContent.set('');
-
-    this.currentChat.update((chat) => ({
-      ...chat,
-      messages: [...chat.messages, new MessageModel(-1, chat.id, 'user', message)],
-    }));
-
-    setTimeout(() => this.scrollToBottom());
-
-    this.aiService.askAIBot(message, this.currentChat().id, this.selectedModel().id).subscribe({
-      next: async () => {
-        await new Promise((r) => setTimeout(r, 1000));
-        this.swapChat(this.currentChat().id);
-      },
-    });
-  }
-
-  selectModel(model: any) {
-    this.selectedModel.set(model);
-    this.showModels = false;
-  }
-
   ngOnInit(): void {
     this.aiService.AIModels$.subscribe((models) => {
       this.models.set(models.map((m) => AIModel.fromApi(m)));
     });
-    this.setCurrentChat();
-    this.setFirstMessages();
+    this.chatOperationService.setCurrentChat().subscribe((chat) => {
+      this.currentChat.set(chat);
+    });
+    this.chatOperationService.setFirstMessages().subscribe((values: MessageModel[]) => {
+      this.firstMessages.set(values);
+    });
   }
-  setCurrentChat() {
-    this.chatService.chat$
-      .pipe(
-        filter((chat): chat is ChatModel => chat !== null),
-        take(1),
-      )
-      .subscribe((chat) => {
-        this.currentChat.set(chat);
-        setTimeout(() => {
-          this.scrollToBottom();
-        });
-      });
+  ngAfterViewInit() {
+    setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
   }
-  setFirstMessages() {
-    this.chatService.allchats$
-      .pipe(
-        switchMap((chats) => {
-          if (!chats) return of([]);
-
-          return forkJoin(
-            chats.map((chat) =>
-              this.chatService
-                .getFirstMessageFromUser(chat.id)
-                .pipe(
-                  catchError(() => of(new MessageModel(-1, chat.id, 'user', 'Write new Message'))),
-                ),
-            ),
-          );
-        }),
-      )
-      .subscribe({
-        next: (messages: MessageModel[]) => {
-          this.firstMessages.set(messages);
-        },
-      });
-  }
-
   get username() {
     return this.userService.user?.name;
   }
 
   openMenu() {
     this.menuOpen = !this.menuOpen;
-  }
-
-  createNewChat() {
-    this.dialog
-      .open(TwoButtonDialog, {
-        data: {
-          title: 'Create new chat?',
-          message: '',
-          confirmText: 'Confirm',
-          cancelText: 'Cancel',
-          showCancel: true,
-        },
-      })
-      .afterClosed()
-      .subscribe((result) => {
-        if (!result) return;
-        this.chatService.createNewChat().subscribe({
-          next: () => {
-            this.chatService.loadChat().subscribe(() => {
-              this.dialog
-                .open(MessageDialogComponent, {
-                  data: {
-                    title: 'Success!',
-                    message: 'Created new chat!',
-                  },
-                })
-                .afterClosed()
-                .subscribe(() => {
-                  this.chatService.allchats$
-                    .pipe(
-                      filter((chats) => Array.isArray(chats) && chats.length >= 0),
-                      take(1),
-                      switchMap((chats) => {
-                        if (!chats || chats.length === 0) {
-                          return of([]);
-                        }
-
-                        return forkJoin(
-                          chats.map((c) => this.chatService.getFirstMessageFromUser(c.id)),
-                        );
-                      }),
-                    )
-                    .subscribe((messages) => {
-                      this.firstMessages.set([...messages]);
-                    });
-                });
-            });
-          },
-        });
-      });
-  }
-
-  swapChat(chatId: number) {
-    const chats = this.chatService.allChats;
-    if (!chats) return;
-
-    const baseChat = chats.find((c) => c.id === chatId);
-    if (!baseChat) return;
-
-    this.chatService.getChatHistory(chatId).subscribe((messages) => {
-      const updatedChat = {
-        ...baseChat,
-        messages: [...messages],
-      };
-
-      this.chatService.setChat(updatedChat);
-      this.currentChat.set(updatedChat);
-
-      requestAnimationFrame(() => {
-        this.scrollToBottom();
-      });
-    });
-  }
-
-  createNewQuestion() {
-    const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {});
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.questionService.createNewQuestion(result, this.currentChat().id).subscribe({
-          next: (res) => {
-            this.dialog.open(MessageDialogComponent, {
-              data: {
-                title: 'Success!',
-                message: `Created new question!`,
-              },
-            });
-          },
-          error: (res) => {
-            this.dialog.open(MessageDialogComponent, {
-              data: {
-                title: 'Failed!',
-                message: `Couldn't create new question!`,
-              },
-            });
-          },
-        });
-      }
-    });
   }
 
   onDragOver(event: DragEvent) {
@@ -269,7 +115,25 @@ export class Home implements OnInit {
 
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      this.handleFile(files[0]);
+      this.textContent.set('');
+      this.loadingFile = true;
+      this.fileService.handleFile(files[0]).then((extractedText) => {
+        this.textContent.set(extractedText);
+        this.loadingFile = false;
+      });
+    }
+  }
+  @ViewChildren('chatItem')
+  chatItems!: QueryList<ElementRef<HTMLElement>>;
+
+  scrollSelectedChatIntoView() {
+    const index = this.firstMessages().findIndex((m) => m.chat_id === this.currentChat().id);
+
+    if (index >= 0) {
+      this.chatItems.get(index)?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
     }
   }
 
@@ -277,105 +141,92 @@ export class Home implements OnInit {
     const input = event.target as HTMLInputElement;
 
     if (input.files && input.files.length > 0) {
-      this.handleFile(input.files[0]);
-    }
-  }
-
-  readText(file: File) {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      this.textContent.set(reader.result as string);
-    };
-
-    reader.readAsText(file);
-  }
-
-  async extractPdfText(file: File): Promise<string> {
-    const buffer = await file.arrayBuffer();
-
-    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-
-    let fullText = '';
-
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const content = await page.getTextContent();
-
-      const pageText = content.items.map((item: any) => item.str).join(' ');
-
-      fullText += pageText + '\n';
-    }
-
-    return fullText.trim();
-  }
-
-  async handleFile(file: File) {
-    const name = file.name.toLowerCase();
-    const type = file.type;
-
-    console.log(type);
-    this.dialog.open(MessageDialogComponent, {
-      data: {
-        title: 'Loading!',
-        message: `Your file is being processed. You can close this tab.`,
-      },
-    });
-    this.loadingFile = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (type === 'application/pdf' || name.endsWith('.pdf')) {
-      this.extractPdfText(file).then((val) => {
-        this.textContent.set(val);
+      this.textContent.set('');
+      this.loadingFile = true;
+      this.fileService.handleFile(input.files[0]).then((extractedText) => {
+        this.textContent.set(extractedText);
+        this.loadingFile = false;
       });
-      this.loadingFile = false;
-
-      return;
     }
+  }
 
-    if (
-      type.startsWith('text') ||
-      name.endsWith('.txt') ||
-      name.endsWith('.md') ||
-      name.endsWith('.json') ||
-      name.endsWith('.csv') ||
-      name.endsWith('.html') ||
-      name.endsWith('.css') ||
-      name.endsWith('.js') ||
-      name.endsWith('.ts')
-    ) {
-      this.readText(file);
-      this.loadingFile = false;
-      return;
-    }
-    this.loadingFile = false;
-    this.dialog.open(MessageDialogComponent, {
-      data: {
-        title: 'Failed!',
-        message: `Unsupported file type: ${file.type}. \nSupported file types: .txt, .md, .json, .csv, .pdf.`,
+  myQuizes() {
+    this.navigationService.navigateTo(RouteServices.routes.quiz);
+  }
+
+  logoutUser() {
+    this.userService.logout().subscribe({
+      next: () => {
+        this.navigationService.navigateTo('/login');
       },
     });
   }
 
-  formatQuestionFromJson(input: string): string {
-    try {
-      const data = typeof input === 'string' ? JSON.parse(input) : input;
+  submitMessage() {
+    const message = this.textContent();
+    this.textContent.set('');
 
-      if (!data?.questions || !Array.isArray(data.questions)) {
-        return '';
+    this.currentChat.update((chat) => {
+      const messages = chat.messages.slice();
+
+      messages.push(new MessageModel(-1, chat.id, 'user', message));
+      chat.messages = messages;
+
+      return chat;
+    });
+    setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
+
+    this.aiService.askAIBot(message, this.currentChat().id, this.selectedModel().id).subscribe({
+      next: async () => {
+        await new Promise((r) => setTimeout(r, 1000));
+        const chats = this.chatOperationService.chatService.allChats;
+        if (!chats) return;
+
+        const baseChat = chats.find((c) => c.id === this.currentChat().id);
+        if (!baseChat) return;
+
+        this.getNewChat(this.currentChat().id);
+      },
+    });
+  }
+
+  selectModel(model: any) {
+    this.selectedModel.set(model);
+    this.showModels = false;
+  }
+
+  getNewChat(chatId: number, index: number = -1) {
+    const chats = this.chatOperationService.chatService.allChats;
+    if (!chats) return;
+
+    const baseChat = chats.find((c) => c.id === chatId);
+    if (!baseChat) return;
+
+    this.chatOperationService.swapChat(chatId)?.subscribe((messages) => {
+      const updatedChat = baseChat;
+      updatedChat.messages = [...messages];
+
+      this.chatOperationService.chatService.setChat(updatedChat);
+      this.currentChat.set(updatedChat);
+      setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
+      if (index !== -1) {
+        setTimeout(() => {
+          this.chatItems.get(index)?.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        });
+      } else {
+        setTimeout(() => {
+          this.navigationService.scrollToBottom(this.chatListEnd, 'auto');
+        });
       }
+    });
+  }
 
-      return data.questions
-        .map((q: any) => {
-          const question = q?.question ?? '';
-
-          const answers = Array.isArray(q?.answers) ? q.answers : Object.values(q?.answers ?? {});
-
-          return [question, ...answers.map((a: any) => `- ${a}`)].join('\n');
-        })
-        .join('\n\n');
-    } catch (err) {
-      console.error('Invalid JSON:', err);
-      return input;
-    }
+  newChat() {
+    this.chatOperationService.createNewChat().subscribe(() => {
+      this.getNewChat(this.chatOperationService.chatService.chat!.id);
+    });
   }
 }

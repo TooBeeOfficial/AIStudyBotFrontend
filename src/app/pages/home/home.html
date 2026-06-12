@@ -1,29 +1,19 @@
 <div class="bg-gray-100 w-full h-screen flex flex-col">
-  <!-- navbar -->
-  <div class="icon-group w-full flex items-center justify-between gap-3 h-16 bg-gray-900 relative">
-    <div class="w-18 relative flex items-center">
+  <app-navbar>
+    <div sideButton class="w-18 relative flex items-center navSide">
       @if (!menuOpen) {
         <mat-icon (click)="openMenu()">menu</mat-icon>
       } @else {
         <mat-icon (click)="openMenu()">arrow_back</mat-icon>
       }
     </div>
-    <div class="text-right ml-auto text-white text-lg">
-      Welcome {{ (userService.user$ | async)?.name }}!
+    <div
+      class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+      (click)="myQuizes()"
+    >
+      My Quizes
     </div>
-    <button (click)="showProfileDropdown = !showProfileDropdown">
-      <mat-icon>person</mat-icon>
-    </button>
-    @if (showProfileDropdown) {
-      <div
-        class="absolute top-full right-0 mr-2 mt-2 w-48 bg-white shadow-lg rounded-lg border text-cyan-950 z-1 p-2"
-      >
-        <div class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer">My Quizes</div>
-        <div class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
-        (click)="logoutUser()">Log Out</div>
-      </div>
-    }
-  </div>
+  </app-navbar>
 
   <!-- main -->
   <div class="flex flex-1 min-h-0">
@@ -34,14 +24,14 @@
     >
       <div class="text-2xl text-gray-500 flex self-center my-4 truncate">Chats</div>
       <div
-        (click)="createNewChat()"
+        (click)="newChat()"
         class="truncate w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
       >
         <mat-icon class="overflow-visible mr-2">add_comment</mat-icon>
         <div class="text-2xl">new chat</div>
       </div>
       <div
-        (click)="createNewQuestion()"
+        (click)="this.chatOperationService.createNewQuestion(currentChat().id)"
         class="truncate w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
       >
         <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
@@ -51,8 +41,12 @@
       <div class="flex-1 grow overflow-y-scroll w-full flex flex-col p-2">
         @for (item of firstMessages(); let i = $index; track $index) {
           <div
-            (click)="swapChat(item.chat_id)"
+            #chatItem
+            (click)="getNewChat(item.chat_id, i)"
             class="w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center"
+            [ngClass]="
+              currentChat().id == item.chat_id ? 'bg-gray-500 text-white flex items-center' : ''
+            "
           >
             <span class="truncate min-w-0">{{ item.content }}</span>
             @if (item.content == 'New Chat') {
@@ -60,6 +54,7 @@
             }
           </div>
         }
+        <div #chatListEnd></div>
       </div>
       <div class="w-full h-px bg-gray-500"></div>
     </div>
@@ -69,7 +64,7 @@
       <div
         class="flex flex-col overflow-y-scroll overflow-x-hidden absolute bottom-16 top-0 px-50 w-full"
       >
-        @if (currentChat().messages || currentChat().messages?.length > 0) {
+        @if (currentChat().messages) {
           @for (item of currentChat().messages; let i = $index; track $index) {
             <div
               class="min-w-0 max-w-[60%] text-base text-gray-700 rounded-2xl px-3 py-2 my-2 transition-all duration-200 flex flex-col"
@@ -93,7 +88,7 @@
                 @if (item.role == 'user') {
                   {{ item.content }}
                 } @else {
-                  {{ formatQuestionFromJson(item.content) }}
+                  {{ this.fileService.formatQuestionFromJson(item.content) }}
                 }
               </span>
             </div>
@@ -104,8 +99,14 @@
               No messages yet!
             </div>
           }
+        } @else {
+          <div
+            class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full absolute w-full"
+          >
+            No messages yet!
+          </div>
         }
-        <div #bottom></div>
+        <div #chatEnd></div>
         <div class="mt-35"></div>
       </div>
 

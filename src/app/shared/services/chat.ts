@@ -40,9 +40,10 @@ export class ChatService {
 
   loadChat() {
     const chats = this.getChats();
-    chats.subscribe((chats) =>
-      this.setChats(chats.map((chat: ChatModel) => ChatModel.fromApi(chat))),
-    );
+    chats.subscribe((chats) => {
+      this.setChats(chats.map((chat: ChatModel) => ChatModel.fromApi(chat)));
+      this.setChat(chats[chats.length - 1]);
+    });
     return chats;
   }
   createNewChat() {
@@ -56,7 +57,7 @@ export class ChatService {
     });
   }
 
-  getFirstMessageFromUser(chatId: number) {
+  getFirstMessageForChat(chatId: number) {
     return this.http.get<MessageModel>(`${this.apiURL}/chat/lastmessage?chatId=${chatId}`, {
       withCredentials: true,
     });
