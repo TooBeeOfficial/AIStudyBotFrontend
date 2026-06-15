@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { UserService } from '../../../shared/services/user';
+import { UserService } from '../../services/user';
 import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
 
@@ -13,6 +13,13 @@ export class Navbar {
   userService: UserService = inject(UserService);
   menuOpen: any;
   showProfileDropdown: any;
-  
-  logoutUser() {}
+  navigationService: any;
+
+  logoutUser() {
+    this.userService.logout().subscribe({
+      next: () => {
+        this.navigationService.navigateTo('/login');
+      },
+    });
+  }
 }

@@ -1,8 +1,8 @@
 import { Component, ContentChild, Input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { ErrorService } from '../../../error-service';
-import { ShowErrorDirective } from '../../../show-error.directive';
+import { ErrorService } from '../../error-service';
+import { ShowErrorDirective } from '../../show-error.directive';
 
 @Component({
   selector: 'app-text-form',

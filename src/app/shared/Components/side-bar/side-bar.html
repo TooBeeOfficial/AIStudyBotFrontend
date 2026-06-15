@@ -1,0 +1,44 @@
+<div
+  class="bg-gray-300 flex flex-col h-full min-h-0 transition-all duration-300 justify-start pb-6 select-none"
+  [ngClass]="menuOpen ? 'w-0 overflow-hidden' : 'w-80'"
+>
+  <div class="text-2xl text-gray-800 flex self-center my-4">Chats</div>
+  <div
+    (click)="newChat()"
+    class="w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
+  >
+    <mat-icon class="overflow-visible mr-2">add_comment</mat-icon>
+    <div class="text-2xl">new chat</div>
+  </div>
+  <div
+    (click)="
+      this.chatOperationService.createNewQuestion(this.chatOperationService.chatService.chat?.id!)
+    "
+    class="w-full max-w-75 min-w-0 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
+  >
+    <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
+    <div class="text-2xl">new question</div>
+  </div>
+  <div class="w-full border-t border-gray-500"></div>
+  <div class="overflow-y-scroll w-full flex flex-col p-2 max-h-full min-h-0 shrink">
+    @for (item of firstMessages(); let i = $index; track $index) {
+      <div
+        #chatItem
+        (click)="getNewChat(item.chat_id, i)"
+        class="w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center"
+        [ngClass]="
+          this.chatOperationService.chatService.chat?.id! == item.chat_id
+            ? 'bg-gray-500 text-white flex items-center'
+            : ''
+        "
+      >
+        <span class="truncate min-w-0">{{ item.content }}</span>
+        @if (item.content == 'New Chat') {
+          <span class="truncate min-w-0 pl-1"> {{ i }}</span>
+        }
+      </div>
+    }
+    <div #chatListEnd></div>
+  </div>
+  <div class="w-full border-t border-gray-500"></div>
+</div>

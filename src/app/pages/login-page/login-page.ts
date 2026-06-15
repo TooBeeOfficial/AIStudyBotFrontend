@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TextForm } from '../../shared/Components/environments/text-form/text-form';
-import { Button } from '../../shared/Components/environments/button/button';
+import { TextForm } from '../../shared/Components/text-form/text-form';
+import { Button } from '../../shared/Components/button/button';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../shared/services/user';
 import { UserModel } from '../../models/UserModel';

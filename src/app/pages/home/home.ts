@@ -28,11 +28,12 @@ import { Router } from '@angular/router';
 import { RouteServices } from '../../shared/route-services';
 import { ChatOperationServices } from '../../shared/chat-operation-services';
 import { FileService } from '../../shared/file-service';
-import { Navbar } from '../components/navbar/navbar';
+import { Navbar } from '../../shared/Components/navbar/navbar';
+import { SideBar } from '../../shared/Components/side-bar/side-bar';
 
 @Component({
   selector: 'app-home',
-  imports: [MatIconModule, CommonModule, FormsModule, Navbar],
+  imports: [MatIconModule, CommonModule, FormsModule, Navbar, SideBar],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -43,9 +44,7 @@ export class Home implements OnInit {
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   fileService: FileService = inject(FileService);
 
-  currentChat = signal<ChatModel>(new ChatModel());
   selectedModel = signal<AIModel>(new AIModel());
-  firstMessages = signal<MessageModel[]>([]);
   textContent = signal<string>('');
   models = signal<AIModel[]>([]);
 
@@ -62,6 +61,9 @@ export class Home implements OnInit {
 
   @ViewChild('chatListEnd')
   private chatListEnd!: ElementRef<HTMLDivElement>;
+
+  @ViewChildren('chatItem')
+  chatItems!: QueryList<ElementRef<HTMLElement>>;
 
   constructor() {
     // Auto resize chat text area
@@ -82,12 +84,8 @@ export class Home implements OnInit {
     this.aiService.AIModels$.subscribe((models) => {
       this.models.set(models.map((m) => AIModel.fromApi(m)));
     });
-    this.chatOperationService.setCurrentChat().subscribe((chat) => {
-      this.currentChat.set(chat);
-    });
-    this.chatOperationService.setFirstMessages().subscribe((values: MessageModel[]) => {
-      this.firstMessages.set(values);
-    });
+    // TODO: set to singleton chat
+    this.chatOperationService.setCurrentChat();
   }
   ngAfterViewInit() {
     setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
@@ -123,19 +121,6 @@ export class Home implements OnInit {
       });
     }
   }
-  @ViewChildren('chatItem')
-  chatItems!: QueryList<ElementRef<HTMLElement>>;
-
-  scrollSelectedChatIntoView() {
-    const index = this.firstMessages().findIndex((m) => m.chat_id === this.currentChat().id);
-
-    if (index >= 0) {
-      this.chatItems.get(index)?.nativeElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
-  }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -154,79 +139,32 @@ export class Home implements OnInit {
     this.navigationService.navigateTo(RouteServices.routes.quiz);
   }
 
-  logoutUser() {
-    this.userService.logout().subscribe({
-      next: () => {
-        this.navigationService.navigateTo('/login');
-      },
-    });
-  }
-
   submitMessage() {
     const message = this.textContent();
     this.textContent.set('');
+    // TODO: set to singleton chat
 
-    this.currentChat.update((chat) => {
-      const messages = chat.messages.slice();
-
-      messages.push(new MessageModel(-1, chat.id, 'user', message));
-      chat.messages = messages;
-
-      return chat;
-    });
     setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
 
-    this.aiService.askAIBot(message, this.currentChat().id, this.selectedModel().id).subscribe({
-      next: async () => {
-        await new Promise((r) => setTimeout(r, 1000));
-        const chats = this.chatOperationService.chatService.allChats;
-        if (!chats) return;
+    this.aiService
+      .askAIBot(message, this.chatOperationService.chatService.chat?.id!, this.selectedModel().id)
+      .subscribe({
+        next: async () => {
+          await new Promise((r) => setTimeout(r, 1000));
+          const chats = this.chatOperationService.chatService.allChats;
+          if (!chats) return;
 
-        const baseChat = chats.find((c) => c.id === this.currentChat().id);
-        if (!baseChat) return;
-
-        this.getNewChat(this.currentChat().id);
-      },
-    });
+          const baseChat = chats.find(
+            (c) => c.id === this.chatOperationService.chatService.chat?.id!,
+          );
+          if (!baseChat) return;
+          // TODO: set to singleton chat
+        },
+      });
   }
 
   selectModel(model: any) {
     this.selectedModel.set(model);
     this.showModels = false;
-  }
-
-  getNewChat(chatId: number, index: number = -1) {
-    const chats = this.chatOperationService.chatService.allChats;
-    if (!chats) return;
-
-    const baseChat = chats.find((c) => c.id === chatId);
-    if (!baseChat) return;
-
-    this.chatOperationService.swapChat(chatId)?.subscribe((messages) => {
-      const updatedChat = baseChat;
-      updatedChat.messages = [...messages];
-
-      this.chatOperationService.chatService.setChat(updatedChat);
-      this.currentChat.set(updatedChat);
-      setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
-      if (index !== -1) {
-        setTimeout(() => {
-          this.chatItems.get(index)?.nativeElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          });
-        });
-      } else {
-        setTimeout(() => {
-          this.navigationService.scrollToBottom(this.chatListEnd, 'auto');
-        });
-      }
-    });
-  }
-
-  newChat() {
-    this.chatOperationService.createNewChat().subscribe(() => {
-      this.getNewChat(this.chatOperationService.chatService.chat!.id);
-    });
   }
 }
