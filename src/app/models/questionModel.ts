@@ -5,7 +5,7 @@ export class QuestionModel {
   id!: number;
   question!: string;
   correctAnswer!: AnswerModel;
-  answerTable!: AnswerTableModel;
+  answers!: AnswerTableModel;
 
   constructor(
     id: number = 0,
@@ -16,7 +16,7 @@ export class QuestionModel {
     this.id = id;
     this.question = question;
     this.correctAnswer = correctAnswer;
-    this.answerTable = answerTable;
+    this.answers = answerTable;
   }
 
   static fromApi(data: any): QuestionModel {
@@ -25,7 +25,7 @@ export class QuestionModel {
     question.id = data.id;
     question.question = data.question;
     question.correctAnswer = data.correct_answer;
-    question.answerTable = AnswerTableModel.fromApi(data.answers);
+    question.answers = AnswerTableModel.fromApi(data.answers);
 
     return question;
   }

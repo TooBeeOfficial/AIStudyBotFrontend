@@ -1,17 +1,17 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { UserService } from '../../shared/services/user';
+import { AsyncPipe } from '@angular/common';
 import { Navbar } from '../../shared/Components/navbar/navbar';
 import { RouteServices } from '../../shared/route-services';
 import { MatIcon } from '@angular/material/icon';
 import { SideBar } from '../../shared/Components/side-bar/side-bar';
 import { ChatOperationServices } from '../../shared/chat-operation-services';
 import { QuizService } from '../../shared/services/quiz';
-import { Subject, take } from 'rxjs';
-import { QuestionCard } from "../../shared/Components/question-card/question-card";
+import { take } from 'rxjs';
+import { QuestionCard } from '../../shared/Components/question-card/question-card';
 
 @Component({
   selector: 'app-quiz',
-  imports: [Navbar, MatIcon, SideBar, QuestionCard],
+  imports: [Navbar, MatIcon, SideBar, QuestionCard, AsyncPipe],
   templateUrl: './quiz.html',
   styleUrl: './quiz.css',
 })
@@ -29,11 +29,16 @@ export class Quiz implements OnInit {
   ngOnInit(): void {
     this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
       next: (currentChat) => {
-        console.log(currentChat);
         if (!currentChat) return;
-        this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {
-          console.log('QUIZ: ', res);
-        });
+        this.quizService
+          .getQuizFromChat(currentChat.id)
+          .subscribe((res) => {
+            console.log(res)
+            this.quizService.setQuiz(res);
+            this.quizService.quiz$.subscribe((quizes) => {
+              console.log(quizes?.quiz);
+            });
+          });
       },
     });
   }

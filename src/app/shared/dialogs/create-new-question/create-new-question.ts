@@ -35,21 +35,21 @@ export class QuestionBuilderDialogComponent {
     }
 
     // No empty answers
-    for (let index = 0; index < this.question.answerTable.answers.length; index++) {
-      if (this.question.answerTable.answers[index].answer === '') {
+    for (let index = 0; index < this.question.answers.answers.length; index++) {
+      if (this.question.answers.answers[index].answer === '') {
         if (displayError) this.errorMessage = 'Please fill in all answers.';
         return false;
       }
     }
 
     // no duplicate answers.
-    for (let i = 0; i < this.question.answerTable.answers.length; i++) {
+    for (let i = 0; i < this.question.answers.answers.length; i++) {
       let count = 0;
 
-      for (let j = 0; j < this.question.answerTable.answers.length; j++) {
+      for (let j = 0; j < this.question.answers.answers.length; j++) {
         if (
-          this.question.answerTable.answers[i].answer ===
-          this.question.answerTable.answers[j].answer
+          this.question.answers.answers[i].answer ===
+          this.question.answers.answers[j].answer
         ) {
           count++;
         }
@@ -76,13 +76,13 @@ export class QuestionBuilderDialogComponent {
     }
 
     // no duplicate answers.
-    for (let i = 0; i < this.question.answerTable.answers.length; i++) {
+    for (let i = 0; i < this.question.answers.answers.length; i++) {
       let count = 0;
 
-      for (let j = 0; j < this.question.answerTable.answers.length; j++) {
+      for (let j = 0; j < this.question.answers.answers.length; j++) {
         if (
-          this.question.answerTable.answers[i].answer ===
-          this.question.answerTable.answers[j].answer
+          this.question.answers.answers[i].answer ===
+          this.question.answers.answers[j].answer
         ) {
           count++;
         }
@@ -100,11 +100,11 @@ export class QuestionBuilderDialogComponent {
       return;
     }
 
-    const correctAnswer = this.question.answerTable.answers[this.correctIndex];
+    const correctAnswer = this.question.answers.answers[this.correctIndex];
 
     const result = {
       question: this.question,
-      answers: this.question.answerTable.answers,
+      answers: this.question.answers.answers,
       correct: correctAnswer,
     };
 

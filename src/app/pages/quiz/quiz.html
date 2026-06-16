@@ -16,6 +16,14 @@
   </app-navbar>
   <div class="flex flex-1 min-h-0 h-full">
     <app-side-bar [menuOpen]="menuOpen"> </app-side-bar>
-    <app-question-card></app-question-card>
+    <div
+      class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] w-full h-full gap-7 overflow-scroll place-items-center items-stretch justify-items-stretch py-14 px-24"
+    >
+      @if (this.quizService.quiz$ | async; as quiz) {
+        @for (item of (this.quizService.quiz$ |async)?.quiz; track item.id) {
+          <app-question-card [isForQuiz]="true" [question]="item"> </app-question-card>
+        }
+      }
+    </div>
   </div>
 </div>

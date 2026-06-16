@@ -1,21 +1,24 @@
-<div class="min-w-0 max-w-125 bg-gray-200 rounded-xl shadow shadow-gray-500">
+<div class="w-full h-full bg-gray-200 rounded-xl shadow shadow-gray-500">
   <div class="text-xl font-bold py-4 px-2">
-    This is a question, which of the following is the correct answer to the question?
+    {{ question?.question }}
   </div>
   <div class="w-full border-t border-gray-500"></div>
   <div class="AnswersTable grid grid-cols-2 gap-2 my-2 p-2">
-    <button class="answer answerCorrect">A is the correct answer</button>
-    <button class="answer answerWrong">B</button>
-    <button class="answer asnwered">C does fill the criteria</button>
+    <button class="answer answerCorrect">
+      {{ question?.answers?.answers![0].answer }}</button>
+    <button class="answer answerWrong">
+      {{ question?.answers?.answers![1].answer }}</button>
     <button class="answer asnwered">
-      D is an unmistaken correct answer to the question since D is for delta idk.
+      {{ question?.answers?.answers![2].answer }}</button>
+    <button class="answer asnwered">
+      {{ question?.answers?.answers![3].answer }}
     </button>
   </div>
   @if (!isForQuiz) {
     <div class="w-full border-t border-gray-500"></div>
     <div class="hiddenCorrect p-2 flex gap-1 items-center">
       <div class="text-lg text-green-800">
-        D is an unmistaken correct answer to the question since D is for delta idk.
+        {{ question?.correctAnswer }}
       </div>
 
       @if (showAnswer) {

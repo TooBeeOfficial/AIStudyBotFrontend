@@ -1,6 +1,4 @@
 import {
-  afterEveryRender,
-  afterNextRender,
   Component,
   effect,
   ElementRef,
@@ -13,20 +11,13 @@ import {
 import { UserService } from '../../shared/services/user';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { ChatService } from '../../shared/services/chat';
 import { MatDialog } from '@angular/material/dialog';
-import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/success-dialog';
-import { QuestionBuilderDialogComponent } from '../../shared/dialogs/create-new-question/create-new-question';
-import { QuestionsService } from '../../shared/services/questions';
 import { switchMap, forkJoin, map, of, catchError, filter, take, Subject } from 'rxjs';
 import { MessageModel } from '../../models/chatMessageModel';
 import { AIBotService } from '../../shared/services/aibot';
 import { signal } from '@angular/core';
 import { AIModel } from '../../models/aiModel';
 import { FormsModule } from '@angular/forms';
-import { TwoButtonDialog } from '../../shared/dialogs/two-button-dialog/two-button-dialog';
-import { ChatModel } from '../../models/chatModel';
-import { Router } from '@angular/router';
 import { RouteServices } from '../../shared/route-services';
 import { ChatOperationServices } from '../../shared/chat-operation-services';
 import { FileService } from '../../shared/file-service';

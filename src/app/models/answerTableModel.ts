@@ -14,8 +14,8 @@ export class AnswerTableModel {
   static fromApi(data: any): AnswerTableModel {
     const answerList = new AnswerTableModel();
 
-    answerList.answers = Array.isArray(data.answers)
-      ? data.answers.map((a: any) => AnswerModel.fromApi(a))
+    answerList.answers = Array.isArray(data)
+      ? data.map((a: any) => AnswerModel.fromApi(a))
       : [];
     return answerList;
   }

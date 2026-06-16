@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../environments/environment.development';
 import { QuizModel } from '../../models/quizModel';
-import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
+import { QuestionModel } from '../../models/questionModel';
 
 @Injectable({
   providedIn: 'root',
@@ -12,19 +13,23 @@ export class QuizService {
   private http: HttpClient = inject(HttpClient);
   private quizSubject = new BehaviorSubject<QuizModel | null>(null);
 
-  quiz$ = this.quizSubject.asObservable().pipe(
-    distinctUntilChanged((prev, curr) => {
-      if (!prev || !curr) return prev === curr;
+  quiz$ = this.quizSubject.asObservable().pipe(distinctUntilChanged());
 
-      if (prev.quiz.length !== curr.quiz.length) return false;
-
-      return prev.quiz.every((q, index) => q.id === curr.quiz[index].id);
-    }),
-  );
+  setQuiz(quiz: QuizModel) {
+    this.quizSubject.next(quiz);
+  }
 
   getQuizFromChat(chatId: number) {
-    return this.http.get<QuizModel>(this.apiURL + `/quiz?chatId=${chatId}`, {
-      withCredentials: true,
-    });
+    return this.http
+      .get<any[]>(`${this.apiURL}/quiz?chatId=${chatId}`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((data) => {
+          const quiz = new QuizModel();
+          quiz.quiz = data.map((q) => QuestionModel.fromApi(q));
+          return quiz;
+        }),
+      );
   }
 }
