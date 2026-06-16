@@ -18,7 +18,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/success-dialog';
 import { QuestionBuilderDialogComponent } from '../../shared/dialogs/create-new-question/create-new-question';
 import { QuestionsService } from '../../shared/services/questions';
-import { switchMap, forkJoin, map, of, catchError, filter, take } from 'rxjs';
+import { switchMap, forkJoin, map, of, catchError, filter, take, Subject } from 'rxjs';
 import { MessageModel } from '../../models/chatMessageModel';
 import { AIBotService } from '../../shared/services/aibot';
 import { signal } from '@angular/core';
@@ -79,7 +79,7 @@ export class Home implements OnInit {
   }
 
   ngOnInit(): void {
-    this.aiService.AIModels$.subscribe((models) => {
+    this.aiService.AIModels$.pipe(take(1)).subscribe((models) => {
       this.models.set(models.map((m) => AIModel.fromApi(m)));
     });
     this.chatOperationService.chatService.loadChat().subscribe({
@@ -164,14 +164,14 @@ export class Home implements OnInit {
         if (!currentChat) return;
         const mes = new MessageModel(-1, currentChat.id, 'user', message);
         const asNewChat = {
-          ...currentChat
-        }
+          ...currentChat,
+        };
         asNewChat.messages.push(mes);
         if (asNewChat.messages.length < 1) {
           asNewChat.firstMessage = mes;
         }
 
-        setTimeout(() => this.chatOperationService.chatService.setChat(asNewChat),500);
+        setTimeout(() => this.chatOperationService.chatService.setChat(asNewChat), 500);
         this.scrolltoBottom();
       },
     });

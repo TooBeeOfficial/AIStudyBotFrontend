@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+.AnswersTable .answer {
+  @apply bg-gray-300 rounded-2xl p-2 cursor-pointer;
+}
+.AnswersTable .answer:hover {
+  @apply bg-gray-100 rounded-2xl p-2 cursor-pointer;
+}
+
+.AnswersTable .answerCorrect {
+  @apply bg-green-200 rounded-2xl p-2 cursor-pointer text-green-900;
+}
+.AnswersTable .answerWrong {
+  @apply bg-red-300 rounded-2xl p-2 cursor-pointer text-red-900;
+}
+
+.AnswersTable .answerCorrect:hover {
+  @apply bg-green-200 rounded-2xl p-2 cursor-auto text-green-900;
+}
+.AnswersTable .answerWrong:hover {
+  @apply bg-red-300 rounded-2xl p-2 cursor-auto text-red-900;
+}
+
+.AnswersTable .asnwered:hover {
+  @apply bg-gray-300 rounded-2xl p-2 cursor-auto;
+}

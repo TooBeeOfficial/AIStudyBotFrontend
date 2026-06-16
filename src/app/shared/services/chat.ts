@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, take, tap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, take, tap } from 'rxjs';
 import { environment } from '../environments/environment.development';
 import { ChatModel } from '../../models/chatModel';
 import { MessageModel } from '../../models/chatMessageModel';
@@ -14,7 +14,16 @@ export class ChatService {
   private chatSubject = new BehaviorSubject<ChatModel | null>(null);
   private allchatsSubject = new BehaviorSubject<ChatModel[] | null>(null);
 
-  chat$ = this.chatSubject.asObservable();
+  chat$ = this.chatSubject
+    .asObservable()
+    .pipe(
+      distinctUntilChanged(
+        (prev, curr) =>
+          prev?.id === curr?.id &&
+          prev?.messages === curr?.messages &&
+          prev?.firstMessage === curr?.firstMessage,
+      ),
+    );
   allchats$ = this.allchatsSubject.asObservable();
 
   get getChat(): ChatModel | null {
