@@ -1,4 +1,6 @@
 import {
+  afterEveryRender,
+  afterNextRender,
   Component,
   effect,
   ElementRef,
@@ -52,15 +54,12 @@ export class Home implements OnInit {
 
   isDragging: boolean = false;
   showModels: boolean = false;
-  menuOpen: boolean = false;
+  menuOpen: boolean = true;
   loadingFile: boolean = false;
   showProfileDropdown: boolean = true;
 
   @ViewChild('chatEnd')
   private chatEnd!: ElementRef<HTMLDivElement>;
-
-  @ViewChild('chatListEnd')
-  private chatListEnd!: ElementRef<HTMLDivElement>;
 
   @ViewChildren('chatItem')
   chatItems!: QueryList<ElementRef<HTMLElement>>;
@@ -69,7 +68,6 @@ export class Home implements OnInit {
     // Auto resize chat text area
     effect(() => {
       this.textContent();
-
       setTimeout(() => {
         const el = document.querySelector('textarea') as HTMLTextAreaElement;
         if (el) {
@@ -84,12 +82,27 @@ export class Home implements OnInit {
     this.aiService.AIModels$.subscribe((models) => {
       this.models.set(models.map((m) => AIModel.fromApi(m)));
     });
-    // TODO: set to singleton chat
-    this.chatOperationService.setCurrentChat();
+    this.chatOperationService.chatService.loadChat().subscribe({
+      next: () => {
+        setTimeout(() =>
+          this.chatEnd.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          }),
+        );
+      },
+    });
   }
+
   ngAfterViewInit() {
-    setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
+    setTimeout(() =>
+      this.chatEnd.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      }),
+    );
   }
+
   get username() {
     return this.userService.user?.name;
   }
@@ -139,26 +152,50 @@ export class Home implements OnInit {
     this.navigationService.navigateTo(RouteServices.routes.quiz);
   }
 
+  scrolltoBottom() {
+    setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
+  }
+
   submitMessage() {
     const message = this.textContent();
     this.textContent.set('');
-    // TODO: set to singleton chat
+    this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
+      next: (currentChat) => {
+        if (!currentChat) return;
+        const mes = new MessageModel(-1, currentChat.id, 'user', message);
+        const asNewChat = {
+          ...currentChat
+        }
+        asNewChat.messages.push(mes);
+        if (asNewChat.messages.length < 1) {
+          asNewChat.firstMessage = mes;
+        }
 
-    setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
-
+        setTimeout(() => this.chatOperationService.chatService.setChat(asNewChat),500);
+        this.scrolltoBottom();
+      },
+    });
     this.aiService
-      .askAIBot(message, this.chatOperationService.chatService.chat?.id!, this.selectedModel().id)
+      .askAIBot(
+        message,
+        this.chatOperationService.chatService.getChat?.id!,
+        this.selectedModel().id,
+      )
+      .pipe(take(1))
       .subscribe({
-        next: async () => {
-          await new Promise((r) => setTimeout(r, 1000));
-          const chats = this.chatOperationService.chatService.allChats;
-          if (!chats) return;
+        next: (AIresponse) => {
+          console.log('AIresponse:', AIresponse);
+          console.log('type:', typeof AIresponse);
 
-          const baseChat = chats.find(
-            (c) => c.id === this.chatOperationService.chatService.chat?.id!,
-          );
+          const baseChat = this.chatOperationService.chatService.getChat;
           if (!baseChat) return;
-          // TODO: set to singleton chat
+
+          baseChat.messages.push(
+            new MessageModel(-1, baseChat.id, 'assistant', JSON.stringify(AIresponse)),
+          );
+
+          this.chatOperationService.chatService.setChat(baseChat);
+          this.scrolltoBottom();
         },
       });
   }

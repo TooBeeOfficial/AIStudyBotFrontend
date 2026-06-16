@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, take, tap } from 'rxjs';
 import { environment } from '../environments/environment.development';
 import { ChatModel } from '../../models/chatModel';
 import { MessageModel } from '../../models/chatMessageModel';
@@ -12,23 +12,26 @@ export class ChatService {
   private apiURL = environment.apiUrl;
   private http: HttpClient = inject(HttpClient);
   private chatSubject = new BehaviorSubject<ChatModel | null>(null);
-  private allchats = new BehaviorSubject<ChatModel[] | null>(null);
+  private allchatsSubject = new BehaviorSubject<ChatModel[] | null>(null);
 
   chat$ = this.chatSubject.asObservable();
-  allchats$ = this.allchats.asObservable();
+  allchats$ = this.allchatsSubject.asObservable();
 
-  get chat(): ChatModel | null {
+  get getChat(): ChatModel | null {
     return this.chatSubject.value;
   }
-  get allChats(): ChatModel[] | null {
-    return this.allchats.value;
+  get getAllChats(): ChatModel[] | null {
+    return this.allchatsSubject.value;
   }
+
   setChat(chat: ChatModel | null) {
     this.chatSubject.next(chat);
   }
+
   setChats(chat: ChatModel[] | null) {
-    this.allchats.next(chat);
+    this.allchatsSubject.next(chat);
   }
+
   clearChats() {
     this.chatSubject.next(null);
   }
@@ -59,6 +62,12 @@ export class ChatService {
 
   getFirstMessageForChat(chatId: number) {
     return this.http.get<MessageModel>(`${this.apiURL}/chat/lastmessage?chatId=${chatId}`, {
+      withCredentials: true,
+    });
+  }
+
+  getAllFirstMessages() {
+    return this.http.get<MessageModel[]>(`${this.apiURL}/chat/lastmessage/all`, {
       withCredentials: true,
     });
   }

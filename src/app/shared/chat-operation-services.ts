@@ -60,6 +60,7 @@ export class ChatOperationServices {
   }
 
   swapChat(chatId: number) {
+    this.getFirstMessages();
     return this.chatService.getChatHistory(chatId);
   }
 
@@ -89,26 +90,7 @@ export class ChatOperationServices {
     });
   }
 
-  setCurrentChat() {
-    return this.chatService.chat$.pipe(
-      filter((chat): chat is ChatModel => chat !== null),
-      take(1),
-    );
-  }
-
-  setFirstMessages() {
-    return this.chatService.allchats$.pipe(
-      switchMap((chats) => {
-        if (!chats) return of([]);
-
-        return forkJoin(
-          chats.map((chat) =>
-            this.chatService
-              .getFirstMessageForChat(chat.id)
-              .pipe(catchError(() => of(new MessageModel(-1, chat.id, 'user', 'New Chat')))),
-          ),
-        );
-      }),
-    );
+  getFirstMessages() {
+    return this.chatService.getAllFirstMessages();
   }
 }

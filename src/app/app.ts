@@ -13,26 +13,28 @@ import { AIBotService } from './shared/services/aibot';
 })
 export class App implements OnInit {
   ngOnInit(): void {
-    this.userService.loadUser().subscribe();
-    this.chatService.loadChat().subscribe({
-      next: (chats) => {
-        if (!chats?.length) return;
+    this.userService.loadUser().subscribe({
+      next: () => {
+        this.chatService.loadChat().subscribe({
+          next: (chats) => {
+            if (!chats?.length) return;
 
-        const chat = ChatModel.fromApi(chats[0]);
+            const chat = ChatModel.fromApi(chats[0]);
 
-        this.chatService.getChatHistory(chat.id).subscribe({
-          next: (messages) => {
-            chat.messages = messages;
-            this.chatService.setChat(chat);
-            console.log(this.chatService.chat);
+            this.chatService.getChatHistory(chat.id).subscribe({
+              next: (messages) => {
+                chat.messages = messages;
+                this.chatService.setChat(chat);
+              },
+            });
           },
         });
-      },
-    });
-    this.AIBotService.getAIModels().subscribe({
-      next: (models) => {
-        console.log(models);
-        this.AIBotService.setAIModels(models);
+        this.AIBotService.getAIModels().subscribe({
+          next: (models) => {
+            console.log(models);
+            this.AIBotService.setAIModels(models);
+          },
+        });
       },
     });
   }

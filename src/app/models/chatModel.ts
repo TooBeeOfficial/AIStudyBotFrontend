@@ -3,6 +3,7 @@ import { MessageModel } from './chatMessageModel';
 export class ChatModel {
   id!: number;
   messages!: MessageModel[];
+  firstMessage?:MessageModel;
 
   static fromApi(data: any): ChatModel {
     const chat = new ChatModel();

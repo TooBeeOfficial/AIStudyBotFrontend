@@ -84,9 +84,10 @@ export class FileService {
     return '';
   }
 
-  formatQuestionFromJson(input: string): string {
+  formatQuestionFromJson(input: string | any): string {
     try {
-      const data = typeof input === 'string' ? JSON.parse(input) : input;
+      const data =
+        typeof input === 'string' ? JSON.parse(input) : JSON.parse(JSON.stringify(input));
 
       if (!data?.questions || !Array.isArray(data.questions)) {
         return '';
@@ -103,7 +104,7 @@ export class FileService {
         .join('\n\n');
     } catch (err) {
       console.error('Invalid JSON:', err);
-      return input;
+      return typeof input === 'string' ? input : JSON.stringify(input);
     }
   }
 }
