@@ -50,9 +50,11 @@ export class SideBar implements OnInit {
     );
 
     if (index >= 0) {
-      this.chatItems.get(index)?.nativeElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
+      setTimeout(() => {
+        this.chatItems.get(index)?.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
       });
     }
   }
@@ -63,8 +65,6 @@ export class SideBar implements OnInit {
 
     const baseChat = chats.find((c) => c.id === chatId);
     if (!baseChat) return;
-    console.log(baseChat);
-    console.log(chatId);
 
     this.chatOperationService.swapChat(chatId)?.subscribe((messages) => {
       const updatedChat = {
@@ -74,6 +74,7 @@ export class SideBar implements OnInit {
 
       this.chatOperationService.chatService.setChat(updatedChat);
       if (index !== -1) {
+        this.scrollSelectedChatIntoView();
       } else {
         setTimeout(() => {
           this.navigationService.scrollToBottom(this.chatListEnd, 'auto');

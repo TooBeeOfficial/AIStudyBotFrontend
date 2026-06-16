@@ -20,7 +20,6 @@ export class RouteServices {
   }
 
   scrollToBottom(targetToScroll: ElementRef<HTMLDivElement>, behaviour: ScrollBehavior = 'auto') {
-    console.log(targetToScroll);
     targetToScroll.nativeElement.scrollIntoView({
       behavior: behaviour,
       block: 'center',
