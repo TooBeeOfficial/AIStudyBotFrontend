@@ -30,20 +30,32 @@ export class Quiz implements OnInit {
     this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
       next: (currentChat) => {
         if (!currentChat) return;
-        this.quizService
-          .getQuizFromChat(currentChat.id)
-          .subscribe((res) => {
-            console.log(res)
-            this.quizService.setQuiz(res);
-            this.quizService.quiz$.subscribe((quizes) => {
-              console.log(quizes?.quiz);
-            });
-          });
+
+        this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {
+          console.log(res);
+          this.quizService.setQuiz(res);
+        });
       },
     });
   }
 
   openMenu() {
     this.menuOpen = !this.menuOpen;
+  }
+
+  swapNewQuiz(chatId: number) {
+    this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
+      next: (currentChat) => {
+        if (!currentChat) return;
+
+        this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {
+          console.log(res);
+          this.quizService.setQuiz(res);
+          this.quizService.quiz$.subscribe((quizes) => {
+            console.log(quizes?.quiz);
+          });
+        });
+      },
+    });
   }
 }

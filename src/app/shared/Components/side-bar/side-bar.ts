@@ -31,9 +31,13 @@ export class SideBar implements OnInit, AfterViewInit {
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   navigationService: RouteServices = inject(RouteServices);
   @Output() onChangeChatEvent: EventEmitter<any> = new EventEmitter();
+  @Output() onChangeChatEventChatId: EventEmitter<number> = new EventEmitter();
 
   changeChatEvent() {
     this.onChangeChatEvent.emit();
+  }
+  changeChatEventChatID(chatId: number) {
+    this.onChangeChatEventChatId.emit(chatId);
   }
 
   @Input() menuOpen: boolean = true;
@@ -55,12 +59,17 @@ export class SideBar implements OnInit, AfterViewInit {
             }
           }
         });
-        this.getNewChat(chats[0].id, 0);
-        setTimeout(() => {
-          this.chatItems.get(0)?.nativeElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          });
+        this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
+          next: (currectChat) => {
+            if (!currectChat) return;
+            this.getNewChat(currectChat?.id);
+            setTimeout(() => {
+              this.chatItems.get(0)?.nativeElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+              });
+            });
+          },
         });
       });
     });
@@ -111,6 +120,7 @@ export class SideBar implements OnInit, AfterViewInit {
             });
           }
           this.changeChatEvent();
+          this.changeChatEventChatID(updatedChat.id);
         },
       });
     });

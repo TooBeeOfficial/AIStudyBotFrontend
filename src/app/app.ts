@@ -4,6 +4,7 @@ import { UserService } from './shared/services/user';
 import { ChatService } from './shared/services/chat';
 import { ChatModel } from './models/chatModel';
 import { AIBotService } from './shared/services/aibot';
+import { QuizService } from './shared/services/quiz';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,8 @@ import { AIBotService } from './shared/services/aibot';
   styleUrl: './app.css',
 })
 export class App implements OnInit {
+  quizService: QuizService = inject(QuizService);
+
   ngOnInit(): void {
     this.userService.loadUser().subscribe({
       next: () => {
@@ -25,6 +28,13 @@ export class App implements OnInit {
               next: (messages) => {
                 chat.messages = messages;
                 this.chatService.setChat(chat);
+                this.quizService.getQuizFromChat(chat.id).subscribe((res) => {
+                  console.log(res);
+                  this.quizService.setQuiz(res);
+                  this.quizService.quiz$.subscribe((quizes) => {
+                    console.log(quizes?.quiz);
+                  });
+                });
               },
             });
           },

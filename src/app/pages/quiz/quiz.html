@@ -1,7 +1,7 @@
 <div class="bg-gray-100 w-full h-screen flex flex-col">
   <app-navbar>
     <div sideButton class="w-18 relative flex items-center navSide">
-      @if (menuOpen) {
+      @if (!menuOpen) {
         <mat-icon (click)="openMenu()">menu</mat-icon>
       } @else {
         <mat-icon (click)="openMenu()">arrow_back</mat-icon>
@@ -15,13 +15,31 @@
     </div>
   </app-navbar>
   <div class="flex flex-1 min-h-0 h-full">
-    <app-side-bar [menuOpen]="menuOpen"> </app-side-bar>
+    <app-side-bar [menuOpen]="menuOpen" (onChangeChatEventChatId)="swapNewQuiz($event)">
+    </app-side-bar>
     <div
-      class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] w-full h-full gap-7 overflow-scroll place-items-center items-stretch justify-items-stretch py-14 px-24"
+      class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] w-full h-full gap-7 overflow-scroll place-items-start justify-items-stretch py-14 px-24"
     >
       @if (this.quizService.quiz$ | async; as quiz) {
-        @for (item of (this.quizService.quiz$ |async)?.quiz; track item.id) {
+        @for (item of (this.quizService.quiz$ | async)?.quiz; track item.id) {
           <app-question-card [isForQuiz]="true" [question]="item"> </app-question-card>
+        } @empty {
+          <div
+            class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full w-full flex-col"
+          >
+            No questions yet!
+            <div
+              (click)="
+                this.chatOperationService.createNewQuestion(
+                  this.chatOperationService.chatService.getChat?.id!
+                )
+              "
+              class="w-full max-w-75 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-4 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center justify-center self-center"
+            >
+              <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
+              <div class="text-2xl whitespace-nowrap">Create a question</div>
+            </div>
+          </div>
         }
       }
     </div>
