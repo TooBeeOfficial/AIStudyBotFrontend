@@ -1,5 +1,5 @@
 import { inject, Injectable, Service } from '@angular/core';
-import { filter, take, switchMap, of, forkJoin, catchError } from 'rxjs';
+import { filter, take, switchMap, of, forkJoin, catchError, tap } from 'rxjs';
 import { QuestionBuilderDialogComponent } from './dialogs/create-new-question/create-new-question';
 import { MessageDialogComponent } from './dialogs/success-dialog/success-dialog';
 import { TwoButtonDialog } from './dialogs/two-button-dialog/two-button-dialog';
@@ -10,6 +10,7 @@ import { QuestionsService } from './services/questions';
 import { MessageModel } from '../models/chatMessageModel';
 import { ChatModel } from '../models/chatModel';
 import { QuestionModel } from '../models/questionModel';
+import { QuizService } from './services/quiz';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,7 @@ export class ChatOperationServices {
   chatService: ChatService = inject(ChatService);
   navigationService: RouteServices = inject(RouteServices);
   questionService: QuestionsService = inject(QuestionsService);
+  quizService: QuizService = inject(QuizService);
 
   createNewChat() {
     return this.dialog
@@ -122,6 +124,37 @@ export class ChatOperationServices {
         });
       }
     });
+  }
+
+  deleteExistingQuestion(questionId: number, chatId: number) {
+    this.dialog
+      .open(TwoButtonDialog, {
+        data: {
+          title: 'Delete Question?',
+          message: '',
+          confirmText: 'Confirm',
+          cancelText: 'Cancel',
+          showCancel: true,
+        },
+      })
+      .afterClosed()
+      .pipe(
+        filter(Boolean),
+        switchMap(() => this.questionService.deleteQuestion(questionId)),
+        switchMap(() => this.quizService.getQuizFromChat(chatId)),
+        tap((quiz) => this.quizService.setQuiz(quiz)),
+        switchMap(() =>
+          this.dialog
+            .open(MessageDialogComponent, {
+              data: {
+                title: 'Success!',
+                message: 'Deleted question!',
+              },
+            })
+            .afterClosed(),
+        ),
+      )
+      .subscribe();
   }
 
   getFirstMessages() {

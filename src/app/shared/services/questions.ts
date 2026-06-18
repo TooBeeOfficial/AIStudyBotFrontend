@@ -18,10 +18,10 @@ export class QuestionsService {
   get question(): QuestionModel | null {
     return this.questionSubject.value;
   }
-  setUser(question: QuestionModel | null) {
+  setQuestion(question: QuestionModel | null) {
     this.questionSubject.next(question);
   }
-  clearUser() {
+  clearQuestion() {
     this.questionSubject.next(null);
   }
   createNewQuestion(question: any, chatId: number) {
@@ -43,8 +43,7 @@ export class QuestionsService {
     const answers = AnswerTableModel.toStringArray(question.answers);
     const correct = question.correct.answer;
     return this.http.put(
-      this.apiURL +
-        `/question/update?questionId=${(question).id}`,
+      this.apiURL + `/question/update?questionId=${question.id}`,
       {
         question: question.question.question,
         answers: answers,
@@ -52,5 +51,12 @@ export class QuestionsService {
       },
       { withCredentials: true },
     );
+  }
+
+  deleteQuestion(questionId: number) {
+    console.log(questionId);
+    return this.http.delete(this.apiURL + `/question/delete?questionId=${questionId}`, {
+      withCredentials: true,
+    });
   }
 }

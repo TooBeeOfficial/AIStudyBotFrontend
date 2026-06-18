@@ -1,10 +1,11 @@
 <div class="w-full h-full max-w-125 flex flex-col bg-gray-200 rounded-xl shadow shadow-gray-500">
-  <div class="flex items-start justify-between ">
+  <div class="flex items-start justify-between">
     <div class="text-xl font-bold py-4 pl-2 wrap-break-word hyphens-auto overflow-y-scroll">
       {{ question?.question }}
     </div>
     @if (isForQuiz) {
-      <button #dropDownButton
+      <button
+        #dropDownButton
         class="MoreOptionsButton relative p-2 py-5"
         (click)="toggleMenu($event)"
       >
@@ -21,6 +22,7 @@
             </div>
             <div
               class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+              (click)="deleteQuestion()"
             >
               Delete
             </div>

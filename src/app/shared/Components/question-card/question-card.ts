@@ -13,6 +13,7 @@ import { ChatOperationServices } from '../../chat-operation-services';
 import { NgClass, CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../../dialogs/success-dialog/success-dialog';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-question-card',
@@ -55,6 +56,17 @@ export class QuestionCard implements OnInit {
       data: {
         title: 'Correct Answer',
         message: this.question?.correctAnswer,
+      },
+    });
+  }
+
+  deleteQuestion() {
+    this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
+      next: (currentChat) => {
+        console.log('CURRENT CHHAT:', currentChat);
+        if (!currentChat) return;
+        console.log(this.question?.id!);
+        this.chatOperationService.deleteExistingQuestion(this.question?.id!, currentChat.id);
       },
     });
   }
