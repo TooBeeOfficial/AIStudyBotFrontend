@@ -5,6 +5,7 @@
     </h2>
     <input
       name="question"
+      [value]="question.question"
       required
       #questionCtrl="ngModel"
       type="text"
@@ -15,11 +16,18 @@
 
     <div class="space-y-3">
       <div class="flex items-center gap-3 flex-col">
-        @for (item of question.answers.answers; let i = $index; track $index) {
+        @for (item of question.answers; let i = $index; track $index) {
           <div class="flex w-full">
-            <input type="radio" name="correct" [value]="i" (click)="setCorrectIndex(i)" />
+            <input
+              type="radio"
+              name="correct"
+              [value]="i"
+              [(ngModel)]="correctIndex"
+              (click)="setCorrectIndex(i)"
+            />
             <input
               type="text"
+              [value]="item.answer"
               required
               name="answer{{ i }}"
               #answerCtrl="ngModel"

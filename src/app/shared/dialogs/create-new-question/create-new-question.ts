@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { FormControl, FormsModule, NgForm } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AnswerTableModel } from '../../../models/answerTableModel';
@@ -12,13 +12,13 @@ import { CommonModule } from '@angular/common';
   imports: [FormsModule, CommonModule],
   templateUrl: './create-new-question.html',
 })
-export class QuestionBuilderDialogComponent {
-  question: QuestionModel = new QuestionModel(
-    -1,
-    '',
+export class QuestionBuilderDialogComponent implements OnInit {
+  @Input() question: QuestionModel = new QuestionModel(-1, '', '', [
     new AnswerModel(-1, -1, ''),
-    new AnswerTableModel(Array.from({ length: 4 }, () => new AnswerModel(-1, -1, ''))),
-  );
+    new AnswerModel(-1, -1, ''),
+    new AnswerModel(-1, -1, ''),
+    new AnswerModel(-1, -1, ''),
+  ]);
   correctIndex: number = -1;
   errorMessage: string = '';
   formControl: FormControl = new FormControl();
@@ -35,22 +35,19 @@ export class QuestionBuilderDialogComponent {
     }
 
     // No empty answers
-    for (let index = 0; index < this.question.answers.answers.length; index++) {
-      if (this.question.answers.answers[index].answer === '') {
+    for (let index = 0; index < this.question.answers.length; index++) {
+      if (this.question.answers[index].answer === '') {
         if (displayError) this.errorMessage = 'Please fill in all answers.';
         return false;
       }
     }
 
     // no duplicate answers.
-    for (let i = 0; i < this.question.answers.answers.length; i++) {
+    for (let i = 0; i < this.question.answers.length; i++) {
       let count = 0;
 
-      for (let j = 0; j < this.question.answers.answers.length; j++) {
-        if (
-          this.question.answers.answers[i].answer ===
-          this.question.answers.answers[j].answer
-        ) {
+      for (let j = 0; j < this.question.answers.length; j++) {
+        if (this.question.answers[i].answer === this.question.answers[j].answer) {
           count++;
         }
       }
@@ -67,7 +64,18 @@ export class QuestionBuilderDialogComponent {
   constructor(
     private dialogRef: MatDialogRef<QuestionBuilderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
+  ) {
+    if (data instanceof QuestionModel) {
+      this.question = data;
+      this.correctIndex = data.answers.findIndex((answer) => answer.answer === data.correctAnswer);
+      console.log(data.correctAnswer);
+    }
+  }
+
+  ngOnInit(): void {
+    if (this.question.id != -1) {
+    }
+  }
 
   submit(form: NgForm) {
     if (form.invalid) {
@@ -76,14 +84,11 @@ export class QuestionBuilderDialogComponent {
     }
 
     // no duplicate answers.
-    for (let i = 0; i < this.question.answers.answers.length; i++) {
+    for (let i = 0; i < this.question.answers.length; i++) {
       let count = 0;
 
-      for (let j = 0; j < this.question.answers.answers.length; j++) {
-        if (
-          this.question.answers.answers[i].answer ===
-          this.question.answers.answers[j].answer
-        ) {
+      for (let j = 0; j < this.question.answers.length; j++) {
+        if (this.question.answers[i].answer === this.question.answers[j].answer) {
           count++;
         }
       }
@@ -100,11 +105,11 @@ export class QuestionBuilderDialogComponent {
       return;
     }
 
-    const correctAnswer = this.question.answers.answers[this.correctIndex];
+    const correctAnswer = this.question.answers[this.correctIndex];
 
     const result = {
       question: this.question,
-      answers: this.question.answers.answers,
+      answers: this.question.answers,
       correct: correctAnswer,
     };
 

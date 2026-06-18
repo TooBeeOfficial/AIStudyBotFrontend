@@ -37,4 +37,20 @@ export class QuestionsService {
       { withCredentials: true },
     );
   }
+
+  updateQuestion(question: any) {
+    console.log(question);
+    const answers = AnswerTableModel.toStringArray(question.answers);
+    const correct = question.correct.answer;
+    return this.http.put(
+      this.apiURL +
+        `/question/update?questionId=${(question).id}`,
+      {
+        question: question.question.question,
+        answers: answers,
+        correct: correct,
+      },
+      { withCredentials: true },
+    );
+  }
 }

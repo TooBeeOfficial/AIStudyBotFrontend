@@ -1,10 +1,10 @@
 @import 'tailwindcss';
 
 .AnswersTable .answer {
-  @apply bg-gray-300 rounded-2xl p-2 cursor-pointer;
+  @apply rounded-2xl p-2 cursor-pointer transition-all duration-200 border border-gray-500 w-full;
 }
 .AnswersTable .answer:hover {
-  @apply bg-gray-100 rounded-2xl p-2 cursor-pointer;
+  @apply bg-gray-100 rounded-2xl p-2 cursor-pointer transition-all duration-200;
 }
 
 .AnswersTable .answerCorrect {
@@ -23,4 +23,16 @@
 
 .AnswersTable .asnwered:hover {
   @apply bg-gray-300 rounded-2xl p-2 cursor-auto;
+}
+
+.MoreOptionsButton mat-icon {
+  @apply text-gray-500 cursor-pointer;
+}
+.MoreOptionsButton:hover mat-icon {
+  @apply text-gray-700;
+}
+
+.showAnswer {
+  @apply bg-gray-900 py-2 px-6 m-2 text-white rounded-lg transition-colors duration-300 cursor-pointer;
+  @apply hover:bg-cyan-950 ;
 }

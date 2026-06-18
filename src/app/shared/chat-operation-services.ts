@@ -9,6 +9,7 @@ import { RouteServices } from './route-services';
 import { QuestionsService } from './services/questions';
 import { MessageModel } from '../models/chatMessageModel';
 import { ChatModel } from '../models/chatModel';
+import { QuestionModel } from '../models/questionModel';
 
 @Injectable({
   providedIn: 'root',
@@ -78,6 +79,39 @@ export class ChatOperationServices {
             });
           },
           error: (res) => {
+            this.dialog.open(MessageDialogComponent, {
+              data: {
+                title: 'Failed!',
+                message: `Couldn't create new question!`,
+              },
+            });
+          },
+        });
+      }
+    });
+  }
+
+  updateExistingQuestion(question: QuestionModel) {
+    const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {
+      data: question,
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log('QUESTION RESULT ', result);
+        result.id = question.id;
+        console.log('QUESTION RESULT ', result);
+        this.questionService.updateQuestion(result).subscribe({
+          next: (res) => {
+            console.log(res);
+            this.dialog.open(MessageDialogComponent, {
+              data: {
+                title: 'Success!',
+                message: `Created new question!`,
+              },
+            });
+          },
+          error: (res) => {
+            console.log(res);
             this.dialog.open(MessageDialogComponent, {
               data: {
                 title: 'Failed!',

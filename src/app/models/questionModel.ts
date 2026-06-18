@@ -1,17 +1,16 @@
 import { AnswerModel } from './answerModel';
-import { AnswerTableModel } from './answerTableModel';
 
 export class QuestionModel {
   id!: number;
   question!: string;
-  correctAnswer!: AnswerModel;
-  answers!: AnswerTableModel;
+  correctAnswer!: string;
+  answers!: AnswerModel[];
 
   constructor(
     id: number = 0,
     question: string = '',
-    correctAnswer: AnswerModel = {} as AnswerModel,
-    answerTable: AnswerTableModel = new AnswerTableModel(),
+    correctAnswer: string = '',
+    answerTable: AnswerModel[] = [],
   ) {
     this.id = id;
     this.question = question;
@@ -25,7 +24,7 @@ export class QuestionModel {
     question.id = data.id;
     question.question = data.question;
     question.correctAnswer = data.correct_answer;
-    question.answers = AnswerTableModel.fromApi(data.answers);
+    question.answers = data.answers.map(AnswerModel.fromApi);
 
     return question;
   }

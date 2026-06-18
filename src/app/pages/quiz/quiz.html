@@ -18,11 +18,11 @@
     <app-side-bar [menuOpen]="menuOpen" (onChangeChatEventChatId)="swapNewQuiz($event)">
     </app-side-bar>
     <div
-      class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] w-full h-full gap-7 overflow-scroll place-items-start justify-items-stretch py-14 px-24"
+      class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] w-full h-full gap-7 overflow-scroll place-items-start justify-items-stretch py-14 px-24"
     >
       @if (this.quizService.quiz$ | async; as quiz) {
         @for (item of (this.quizService.quiz$ | async)?.quiz; track item.id) {
-          <app-question-card [isForQuiz]="true" [question]="item"> </app-question-card>
+          <app-question-card [isForQuiz]="true" [question]="item" class="h-full" [question]="item"> </app-question-card>
         } @empty {
           <div
             class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full w-full flex-col"
