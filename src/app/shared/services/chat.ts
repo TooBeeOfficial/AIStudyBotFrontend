@@ -58,8 +58,18 @@ export class ChatService {
     });
     return chats;
   }
+
   createNewChat() {
     const result = this.http.post(this.apiURL + '/me/newchat', {}, { withCredentials: true });
+    return result;
+  }
+
+  deleteChat(chatId: number) {
+    console.log(chatId);
+    const result = this.http.delete(this.apiURL + `/chat/delete?chatId=${chatId}`, {
+      withCredentials: true,
+    });
+    console.log(this.apiURL + `/chat/delete?chatId=${chatId}`);
     return result;
   }
 

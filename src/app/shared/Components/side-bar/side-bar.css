@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+
+.chatWithDeleteButton:hover button {
+  @apply flex items-center justify-center transition-all duration-200 w-auto;
+}
+
+.chatWithDeleteButton:hover .chatButton {
+  @apply bg-gray-500 text-white;
+}

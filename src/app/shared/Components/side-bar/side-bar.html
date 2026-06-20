@@ -28,20 +28,28 @@
       let i = $index;
       track $index
     ) {
-      <div
-        #chatItem
-        (click)="getNewChat(item.id, i)"
-        class="w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center"
-        [ngClass]="
-          (this.chatOperationService.chatService.chat$ | async)?.id! == item.id
-            ? 'bg-gray-500 text-white flex items-center'
-            : ''
-        "
-      >
-        <span class="truncate min-w-0">{{ item.firstMessage?.content }}</span>
-        @if (item.firstMessage?.content == 'New Chat') {
-          <span class="truncate min-w-0 pl-1"> {{ i }}</span>
-        }
+      <div class="flex gap-1 px-3 chatWithDeleteButton transition-all duration-200">
+        <div
+          #chatItem
+          (click)="getNewChat(item.id, i)"
+          class="chatButton w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg py-2 px-2 my-0.5 transition-all duration-200 flex items-center"
+          [ngClass]="
+            (this.chatOperationService.chatService.chat$ | async)?.id! == item.id
+              ? 'bg-gray-500 text-white flex items-center'
+              : ''
+          "
+        >
+          <span class="truncate min-w-0">{{ item.firstMessage?.content }}</span>
+          @if (item.firstMessage?.content == 'New Chat') {
+            <span class="truncate min-w-0 pl-1"> {{ i }}</span>
+          }
+        </div>
+        <button
+          class="bg-gray-900 px-2 text-white rounded-lg transition-colors duration-300 cursor-pointer hover:bg-gray-700 hidden"
+          (click)="deleteChat(item.id, i)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
       </div>
     }
     <div #chatListEnd></div>

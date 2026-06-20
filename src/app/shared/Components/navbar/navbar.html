@@ -1,6 +1,7 @@
 <!-- navbar -->
 <div class="icon-group w-full flex items-center justify-between gap-3 h-16 bg-gray-900 relative">
   <ng-content select="[sideButton]"></ng-content>
+  <ng-content select="[center]"></ng-content>
 
   <div class="text-right ml-auto text-white text-lg">
     Welcome {{ (userService.user$ | async)?.name }}!

@@ -19,7 +19,10 @@ import { ChatOperationServices } from '../../chat-operation-services';
 import { ChatModel } from '../../../models/chatModel';
 import { MessageModel } from '../../../models/chatMessageModel';
 import { RouteServices } from '../../route-services';
-import { take } from 'rxjs';
+import { filter, switchMap, take, tap } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { TwoButtonDialog } from '../../dialogs/two-button-dialog/two-button-dialog';
+import { MessageDialogComponent } from '../../dialogs/success-dialog/success-dialog';
 
 @Component({
   selector: 'app-side-bar',
@@ -58,18 +61,6 @@ export class SideBar implements OnInit, AfterViewInit {
               chat.firstMessage = values[index];
             }
           }
-        });
-        this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
-          next: (currectChat) => {
-            if (!currectChat) return;
-            this.getNewChat(currectChat?.id);
-            setTimeout(() => {
-              this.chatItems.get(0)?.nativeElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-              });
-            });
-          },
         });
       });
     });
@@ -111,12 +102,16 @@ export class SideBar implements OnInit, AfterViewInit {
           updatedChat.firstMessage = res;
           console.log('FIRST MESSAGE: ', res);
           this.chatOperationService.chatService.setChat(updatedChat);
-
-          if (index !== -1) {
-            this.scrollSelectedChatIntoView();
-          } else {
+          if (index === -1) {
             setTimeout(() => {
-              this.navigationService.scrollToBottom(this.chatListEnd, 'auto');
+              this.navigationService.scrollToBottom(
+                this.chatItems.get(0) ?? this.chatListEnd,
+                'smooth',
+              );
+            });
+          } else if (index >= 0) {
+            setTimeout(() => {
+              this.navigationService.scrollToBottom(this.chatItems.get(index)!, 'smooth');
             });
           }
           this.changeChatEvent();
@@ -130,5 +125,56 @@ export class SideBar implements OnInit, AfterViewInit {
     this.chatOperationService.createNewChat().subscribe(() => {
       this.getNewChat(this.chatOperationService.chatService.getChat!.id);
     });
+  }
+  dialog = inject(MatDialog);
+
+  deleteChat(chatId: number, index: number) {
+    const dialogRef = this.dialog.open(TwoButtonDialog, {
+      data: {
+        title: 'Delete chat?',
+        message: 'This can not be undone.',
+        confirmText: 'Confirm',
+        cancelText: 'Cancel',
+        showCancel: true,
+      },
+    });
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter(Boolean),
+        switchMap(() => this.chatOperationService.chatService.deleteChat(chatId)),
+
+        tap(() => {
+          this.chatOperationService.chatService.allchats$.pipe(take(1)).subscribe({
+            next: (chats) => {
+              if (!chats) return;
+              let newChats = chats;
+              newChats = newChats.filter((ch) => ch.id !== chatId);
+
+              this.chatOperationService.chatService.setChats(newChats);
+
+              this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
+                next: (currentChat) => {
+                  if (!currentChat) return;
+
+                  if (currentChat.id === chatId) {
+                    console.log(currentChat.id === chatId);
+                    this.getNewChat(chats[0].id, 0);
+                  }
+                  this.dialog.open(MessageDialogComponent, {
+                    data: {
+                      title: 'Success',
+                      message: 'Chat has been deleted successfully!',
+                    },
+                  });
+                },
+              });
+            },
+          });
+        }),
+      )
+      .subscribe({
+        error: (err) => console.error(err),
+      });
   }
 }

@@ -19,7 +19,16 @@ export class RouteServices {
     });
   }
 
-  scrollToBottom(targetToScroll: ElementRef<HTMLDivElement>, behaviour: ScrollBehavior = 'auto') {
+  scrollToBottomDiv(
+    targetToScroll: ElementRef<HTMLDivElement>,
+    behaviour: ScrollBehavior = 'auto',
+  ) {
+    targetToScroll.nativeElement.scrollIntoView({
+      behavior: behaviour,
+      block: 'center',
+    });
+  }
+  scrollToBottom(targetToScroll: ElementRef<HTMLElement>, behaviour: ScrollBehavior = 'auto') {
     targetToScroll.nativeElement.scrollIntoView({
       behavior: behaviour,
       block: 'center',

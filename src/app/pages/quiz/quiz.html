@@ -1,11 +1,14 @@
 <div class="bg-gray-100 w-full h-screen flex flex-col">
   <app-navbar>
-    <div sideButton class="w-18 relative flex items-center navSide">
+    <div sideButton class="relative flex items-center navSide">
       @if (!menuOpen) {
         <mat-icon (click)="openMenu()">menu</mat-icon>
       } @else {
         <mat-icon (click)="openMenu()">arrow_back</mat-icon>
       }
+    </div>
+    <div center class="flex items-center navSide">
+      <mat-icon (click)="openMenu()">quiz</mat-icon>
     </div>
     <div
       class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
@@ -18,11 +21,12 @@
     <app-side-bar [menuOpen]="menuOpen" (onChangeChatEventChatId)="swapNewQuiz($event)">
     </app-side-bar>
     <div
-      class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] w-full h-full gap-7 overflow-scroll place-items-start justify-items-stretch py-14 px-24"
+      class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] grid-rows-[repeat(auto-fit,minmax(fit-content,500px))] w-full h-full gap-7 overflow-scroll place-items-start justify-items-stretch py-14 px-24"
     >
       @if (this.quizService.quiz$ | async; as quiz) {
         @for (item of (this.quizService.quiz$ | async)?.quiz; track item.id) {
-          <app-question-card [isForQuiz]="true" [question]="item" class="h-full" [question]="item"> </app-question-card>
+          <app-question-card [isForQuiz]="true" [question]="item" class="h-full" [question]="item">
+          </app-question-card>
         } @empty {
           <div
             class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full w-full flex-col"

@@ -12,7 +12,6 @@ import { UserService } from '../../shared/services/user';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
-import { switchMap, forkJoin, map, of, catchError, filter, take, Subject } from 'rxjs';
 import { MessageModel } from '../../models/chatMessageModel';
 import { AIBotService } from '../../shared/services/aibot';
 import { signal } from '@angular/core';
@@ -23,6 +22,7 @@ import { ChatOperationServices } from '../../shared/chat-operation-services';
 import { FileService } from '../../shared/file-service';
 import { Navbar } from '../../shared/Components/navbar/navbar';
 import { SideBar } from '../../shared/Components/side-bar/side-bar';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -53,46 +53,45 @@ export class Home implements OnInit {
   private chatEnd!: ElementRef<HTMLDivElement>;
 
   @ViewChildren('chatItem')
-  chatItems!: QueryList<ElementRef<HTMLElement>>;
+  private chatItems!: QueryList<ElementRef<HTMLElement>>;
+
+  @ViewChild('textarea')
+  private chatTextArea!: ElementRef<HTMLDivElement>;
 
   constructor() {
     // Auto resize chat text area
     effect(() => {
       this.textContent();
       setTimeout(() => {
-        const el = document.querySelector('textarea') as HTMLTextAreaElement;
-        if (el) {
-          el.style.height = 'auto';
-          el.style.height = el.scrollHeight + 'px';
+        if (this.chatTextArea.nativeElement) {
+          this.chatTextArea.nativeElement.style.height = 'auto';
+          this.chatTextArea.nativeElement.style.height =
+            this.chatTextArea.nativeElement.scrollHeight + 'px';
         }
       });
     });
   }
 
   ngOnInit(): void {
-    this.aiService.AIModels$.pipe(take(1)).subscribe((models) => {
+    this.aiService.AIModels$.pipe().subscribe((models) => {
       this.models.set(models.map((m) => AIModel.fromApi(m)));
     });
-    this.chatOperationService.chatService.loadChat().subscribe({
-      next: () => {
-        setTimeout(() =>
-          this.chatEnd.nativeElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          }),
-        );
-      },
-    });
+    this.chatOperationService.chatService
+      .loadChat()
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          setTimeout(() =>
+            this.chatEnd.nativeElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            }),
+          );
+        },
+      });
   }
 
-  ngAfterViewInit() {
-    setTimeout(() =>
-      this.chatEnd.nativeElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      }),
-    );
-  }
+  ngAfterViewInit() {}
 
   get username() {
     return this.userService.user?.name;
@@ -161,34 +160,40 @@ export class Home implements OnInit {
         if (asNewChat.messages.length < 1) {
           asNewChat.firstMessage = mes;
         }
+        this.chatOperationService.chatService.setChat(asNewChat);
+        setTimeout(() => this.navigationService.scrollToBottom(this.chatEnd, 'smooth'));
+        this.aiService
+          .askAIBot(
+            message,
+            this.chatOperationService.chatService.getChat?.id!,
+            this.selectedModel().id,
+          )
+          .pipe(take(1))
+          .subscribe({
+            next: (AIresponse) => {
+              console.log('AIresponse:', AIresponse);
+              console.log('type:', typeof AIresponse);
 
-        setTimeout(() => this.chatOperationService.chatService.setChat(asNewChat), 500);
-        this.scrolltoBottom();
+              this.chatOperationService.chatService.allchats$.pipe(take(1)).subscribe({
+                next: (chats) => {
+                  if (!chats) return;
+
+                  const newChatIndex = chats.findIndex((c) => c.id === currentChat.id);
+                  const allchats = chats;
+                  allchats[newChatIndex].messages.push(
+                    new MessageModel(-1, currentChat.id, 'assistant', JSON.stringify(AIresponse)),
+                  );
+
+                  this.chatOperationService.chatService.setChats(allchats);
+                  setTimeout(() => {
+                    this.navigationService.scrollToBottom(this.chatEnd, 'smooth');
+                  });
+                },
+              });
+            },
+          });
       },
     });
-    this.aiService
-      .askAIBot(
-        message,
-        this.chatOperationService.chatService.getChat?.id!,
-        this.selectedModel().id,
-      )
-      .pipe(take(1))
-      .subscribe({
-        next: (AIresponse) => {
-          console.log('AIresponse:', AIresponse);
-          console.log('type:', typeof AIresponse);
-
-          const baseChat = this.chatOperationService.chatService.getChat;
-          if (!baseChat) return;
-
-          baseChat.messages.push(
-            new MessageModel(-1, baseChat.id, 'assistant', JSON.stringify(AIresponse)),
-          );
-
-          this.chatOperationService.chatService.setChat(baseChat);
-          this.scrolltoBottom();
-        },
-      });
   }
 
   selectModel(model: any) {

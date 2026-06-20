@@ -94,21 +94,19 @@ export class ChatOperationServices {
   }
 
   updateExistingQuestion(question: QuestionModel) {
+    console.log("UPDATE", question)
     const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {
       data: question,
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log('QUESTION RESULT ', result);
         result.id = question.id;
-        console.log('QUESTION RESULT ', result);
         this.questionService.updateQuestion(result).subscribe({
           next: (res) => {
-            console.log(res);
             this.dialog.open(MessageDialogComponent, {
               data: {
                 title: 'Success!',
-                message: `Created new question!`,
+                message: `Updated question!`,
               },
             });
           },

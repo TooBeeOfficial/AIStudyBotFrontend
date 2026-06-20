@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './create-new-question.html',
 })
 export class QuestionBuilderDialogComponent implements OnInit {
-  @Input() question: QuestionModel = new QuestionModel(-1, '', '', [
+  question: QuestionModel = new QuestionModel(-1, '', '', [
     new AnswerModel(-1, -1, ''),
     new AnswerModel(-1, -1, ''),
     new AnswerModel(-1, -1, ''),
@@ -22,6 +22,7 @@ export class QuestionBuilderDialogComponent implements OnInit {
   correctIndex: number = -1;
   errorMessage: string = '';
   formControl: FormControl = new FormControl();
+  isUpdate: boolean = false;
 
   getIfValidQuestion(displayError: boolean): boolean {
     if (this.question.question === '') {
@@ -34,7 +35,6 @@ export class QuestionBuilderDialogComponent implements OnInit {
       return false;
     }
 
-    // No empty answers
     for (let index = 0; index < this.question.answers.length; index++) {
       if (this.question.answers[index].answer === '') {
         if (displayError) this.errorMessage = 'Please fill in all answers.';
@@ -42,7 +42,6 @@ export class QuestionBuilderDialogComponent implements OnInit {
       }
     }
 
-    // no duplicate answers.
     for (let i = 0; i < this.question.answers.length; i++) {
       let count = 0;
 
@@ -63,12 +62,13 @@ export class QuestionBuilderDialogComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<QuestionBuilderDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: QuestionModel,
   ) {
-    if (data instanceof QuestionModel) {
-      this.question = data;
-      this.correctIndex = data.answers.findIndex((answer) => answer.answer === data.correctAnswer);
-      console.log(data.correctAnswer);
+    this.question = data;
+    if (data.correctAnswer && data.correctAnswer != '') {
+      this.correctIndex = data.answers.findIndex(
+        (answer) => answer.answer === this.question.correctAnswer,
+      );
     }
   }
 

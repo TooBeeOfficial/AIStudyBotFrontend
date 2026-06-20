@@ -70,4 +70,8 @@ export class QuestionCard implements OnInit {
       },
     });
   }
+  clone<T>(value: QuestionModel): QuestionModel {
+    console.log(structuredClone(value))
+    return structuredClone(value);
+  }
 }

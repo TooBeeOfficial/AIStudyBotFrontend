@@ -48,13 +48,12 @@ export class Quiz implements OnInit {
       next: (currentChat) => {
         if (!currentChat) return;
 
-        this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {
-          console.log(res);
-          this.quizService.setQuiz(res);
-          this.quizService.quiz$.subscribe((quizes) => {
-            console.log(quizes?.quiz);
+        this.quizService
+          .getQuizFromChat(chatId)
+          .pipe(take(1))
+          .subscribe((res) => {
+            this.quizService.setQuiz(res);
           });
-        });
       },
     });
   }
