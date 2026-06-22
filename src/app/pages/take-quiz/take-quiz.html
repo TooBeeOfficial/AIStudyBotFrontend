@@ -1,47 +1,48 @@
 <div
   class="h-screen w-screen flex flex-col items-center justify-center bg-gray-200 transition-all duration-200"
 >
-  <div class="w-fit h-fit max-w-125 flex flex-col rounded-xl p-5 m-5 bg-gray-100 shadow">
-    @if (showResults) {
-      <div></div>
-    } @else {}
-    <div
-      class="text-xl font-bold py-4 pl-2 wrap-break-word hyphens-auto overflow-y-scroll transition-all duration-200"
-    >
-      {{ currentQuestion?.question }}
-    </div>
-    <div class="AnswersTable flex flex-col gap-2 p-2 w-full transition-all duration-200 my-auto">
-      @for (item of currentQuestion?.answers; let i = $index; track $index) {
-        <button
-          class="answer wrap-break-word hyphens-auto"
-          (click)="setSelectedAnswer(i)"
-          [ngClass]="[
-            showResults && checkCorrectAnswer(item.id) ? 'answerCorrect' : '',
-            i === selectedAnswer
-              ? showResults && !checkCorrectAnswer(item.id)
-                ? 'answerWrong'
-                : 'answerSelected'
-              : '',
-          ]"
-        >
-          {{ item.answer }}
-        </button>
-      }
-    </div>
-    <button
-      class="bg-gray-900 p-2 m-2 text-white rounded-2xl cursor-pointer hover:bg-gray-700 transition-all duration-200"
-      (click)="!showResultsOnEnd && !showResults ? getResult() : getNextQuestion()"
-    >
-      @if (!showResultsOnEnd && !showResults) {
-        Check
-      } @else if (questionsFinished + 1 >= myQuiz.length!) {
-        Finish
-      } @else {
-        Next
-      }
-    </button>
-    <div class="text-xs text-gray-500 transition-all duration-200">
-      Questions {{ questionsFinished + 1 }}/{{ myQuiz.length }}
-    </div>
+  <div class="w-full h-fit max-w-125 flex flex-col rounded-xl p-5 m-5 bg-gray-100 shadow">
+    @if (finish) {
+      <div>FNISHED {{ totalCorrectAnswer }}</div>
+    } @else {
+      <div
+        class="text-xl font-bold py-4 pl-2 wrap-break-word hyphens-auto overflow-y-scroll transition-all duration-200"
+      >
+        {{ currentQuestion?.question }}
+      </div>
+      <div class="AnswersTable flex flex-col gap-2 p-2 w-full transition-all duration-200 my-auto">
+        @for (item of currentQuestion?.answers; let i = $index; track $index) {
+          <button
+            class="answer wrap-break-word hyphens-auto"
+            (click)="setSelectedAnswer(i)"
+            [ngClass]="[
+              showResults && checkCorrectAnswer(item.id) ? 'answerCorrect' : '',
+              i === selectedAnswer
+                ? showResults && !checkCorrectAnswer(item.id)
+                  ? 'answerWrong'
+                  : 'answerSelected'
+                : '',
+            ]"
+          >
+            {{ item.answer }}
+          </button>
+        }
+      </div>
+      <button
+        class="bg-gray-900 p-2 m-2 text-white rounded-2xl cursor-pointer hover:bg-gray-700 transition-all duration-200"
+        (click)="!showResultsOnEnd && !showResults ? getResult() : getNextQuestion()"
+      >
+        @if (!showResultsOnEnd && !showResults) {
+          Check
+        } @else if (questionsFinished + 1 >= myQuiz.length!) {
+          Finish
+        } @else {
+          Next
+        }
+      </button>
+      <div class="text-xs text-gray-500 transition-all duration-200">
+        Questions {{ questionsFinished + 1 }}/{{ myQuiz.length }}
+      </div>
+    }
   </div>
 </div>
