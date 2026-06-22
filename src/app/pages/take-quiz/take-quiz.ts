@@ -17,6 +17,7 @@ export class TakeQuiz implements OnInit {
   currentQuestion: QuestionModel = new QuestionModel();
   questionsFinished: number = 0;
   showResults: boolean = false;
+  showResultsOnEnd: boolean = false;
   selectedAnswer: number = -1;
   dialog: MatDialog = inject(MatDialog);
   totalCorrectAnswer: number = 0;
@@ -47,7 +48,9 @@ export class TakeQuiz implements OnInit {
         },
       });
     } else {
-      this.showResults = true;
+      if (!this.showResultsOnEnd) {
+        this.showResults = true;
+      }
       if (this.checkCorrectAnswer(this.currentQuestion.answers[this.selectedAnswer].id)) {
         this.totalCorrectAnswer += 1;
       }
@@ -55,6 +58,15 @@ export class TakeQuiz implements OnInit {
   }
 
   getNextQuestion() {
+    if (this.selectedAnswer === -1) {
+      this.dialog.open(MessageDialogComponent, {
+        data: {
+          title: 'Fail!',
+          message: `Please select an answer!`,
+        },
+      });
+      return;
+    }
     this.showResults = false;
     this.selectedAnswer = -1;
 

@@ -30,9 +30,9 @@
     </div>
     <button
       class="bg-gray-900 p-2 m-2 text-white rounded-2xl cursor-pointer hover:bg-gray-700 transition-all duration-200"
-      (click)="!showResults ? getResult() : getNextQuestion()"
+      (click)="!showResultsOnEnd && !showResults ? getResult() : getNextQuestion()"
     >
-      @if (!showResults) {
+      @if (!showResultsOnEnd && !showResults) {
         Check
       } @else if (questionsFinished + 1 >= myQuiz.length!) {
         Finish
