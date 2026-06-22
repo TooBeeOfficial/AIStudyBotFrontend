@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+
+.AnswersTable .answerSelected {
+  @apply bg-gray-700 rounded-2xl p-2 cursor-pointer text-white;
+}
+
+.AnswersTable .answer {
+  @apply rounded-2xl p-2 cursor-pointer transition-all duration-200 border border-gray-500 w-full;
+}
+.AnswersTable .answer:hover {
+  @apply bg-gray-100 rounded-2xl p-2 cursor-pointer transition-all duration-200;
+}
+
+.AnswersTable .answerCorrect {
+  @apply bg-green-200 rounded-2xl p-2 cursor-pointer text-green-900;
+}
+.AnswersTable .answerWrong {
+  @apply bg-red-300 rounded-2xl p-2 cursor-pointer text-red-900;
+}
+
+.AnswersTable .answerSelected:hover {
+  @apply bg-gray-700 rounded-2xl p-2 cursor-pointer text-white;
+}
+.AnswersTable .answerCorrect:hover {
+  @apply bg-green-200 rounded-2xl p-2 cursor-auto text-green-900;
+}
+.AnswersTable .answerWrong:hover {
+  @apply bg-red-300 rounded-2xl p-2 cursor-auto text-red-900;
+}
+
+.AnswersTable .asnwered:hover {
+  @apply bg-gray-300 rounded-2xl p-2 cursor-auto;
+}
+
+.MoreOptionsButton mat-icon {
+  @apply text-gray-500 cursor-pointer;
+}
+.MoreOptionsButton:hover mat-icon {
+  @apply text-gray-700;
+}
+
+.showAnswer {
+  @apply bg-gray-900 py-2 px-6 m-2 text-white rounded-lg transition-colors duration-300 cursor-pointer;
+  @apply hover:bg-gray-700;
+}

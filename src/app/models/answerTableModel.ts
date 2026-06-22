@@ -7,16 +7,14 @@ export class AnswerTableModel {
     this.answers = answers;
   }
 
-  static toStringArray(table:AnswerModel[]): string[] {
+  static toStringArray(table: AnswerModel[]): string[] {
     return table.map((a) => a.answer);
   }
 
   static fromApi(data: any): AnswerTableModel {
     const answerList = new AnswerTableModel();
 
-    answerList.answers = Array.isArray(data)
-      ? data.map((a: any) => AnswerModel.fromApi(a))
-      : [];
+    answerList.answers = Array.isArray(data) ? data.map((a: any) => AnswerModel.fromApi(a)) : [];
     return answerList;
   }
 }

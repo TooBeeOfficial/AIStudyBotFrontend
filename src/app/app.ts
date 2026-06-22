@@ -32,7 +32,7 @@ export class App implements OnInit {
                   console.log(res);
                   this.quizService.setQuiz(res);
                   this.quizService.quiz$.subscribe((quizes) => {
-                    console.log(quizes?.quiz);
+                    console.log(quizes?.questions);
                   });
                 });
               },

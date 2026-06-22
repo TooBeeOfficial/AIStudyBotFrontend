@@ -40,13 +40,13 @@ export class QuestionsService {
 
   updateQuestion(question: any) {
     console.log(question);
-    const answers = AnswerTableModel.toStringArray(question.answers);
-    const correct = question.correct.answer;
+    console.log(question.answers);
+    const correct = question.correct.id;
     return this.http.put(
       this.apiURL + `/question/update?questionId=${question.id}`,
       {
         question: question.question.question,
-        answers: answers,
+        answers: question.answers,
         correct: correct,
       },
       { withCredentials: true },

@@ -27,7 +27,7 @@ export class QuizService {
       .pipe(
         map((data) => {
           const quiz = new QuizModel();
-          quiz.quiz = data.map((q) => QuestionModel.fromApi(q));
+          quiz.questions = data.map((q) => QuestionModel.fromApi(q));
           return quiz;
         }),
       );

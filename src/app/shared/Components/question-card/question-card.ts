@@ -55,7 +55,7 @@ export class QuestionCard implements OnInit {
     this.dialog.open(MessageDialogComponent, {
       data: {
         title: 'Correct Answer',
-        message: this.question?.correctAnswer,
+        message: this.question?.answers.filter((ans) => ans.id === this.question?.correctAnswer)[0].answer,
       },
     });
   }
@@ -70,8 +70,9 @@ export class QuestionCard implements OnInit {
       },
     });
   }
+
   clone<T>(value: QuestionModel): QuestionModel {
-    console.log(structuredClone(value))
+    console.log(structuredClone(value));
     return structuredClone(value);
   }
 }

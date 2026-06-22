@@ -3,13 +3,13 @@ import { AnswerModel } from './answerModel';
 export class QuestionModel {
   id!: number;
   question!: string;
-  correctAnswer!: string;
+  correctAnswer!: number;
   answers!: AnswerModel[];
 
   constructor(
     id: number = 0,
     question: string = '',
-    correctAnswer: string = '',
+    correctAnswer: number = -1,
     answerTable: AnswerModel[] = [],
   ) {
     this.id = id;

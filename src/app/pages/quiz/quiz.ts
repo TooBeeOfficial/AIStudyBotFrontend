@@ -57,4 +57,8 @@ export class Quiz implements OnInit {
       },
     });
   }
+
+  takeQuiz() {
+    this.navigationService.navigateTo(RouteServices.routes.takeQuiz);
+  }
 }

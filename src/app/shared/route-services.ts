@@ -9,14 +9,21 @@ export class RouteServices {
     login: '/login',
     home: '/home',
     quiz: '/quizes',
+    takeQuiz: '/takeQuiz',
   };
 
   router = inject(Router);
 
-  navigateTo(route: string) {
-    this.router.navigate([route]).then((success) => {
-      console.log('Navigation success:', success);
-    });
+  navigateTo(route: string, data: any = "") {
+    this.router
+      .navigate([route], {
+        state: {
+          quiz: data,
+        },
+      })
+      .then((success) => {
+        console.log('Navigation success: ', route, success);
+      });
   }
 
   scrollToBottomDiv(

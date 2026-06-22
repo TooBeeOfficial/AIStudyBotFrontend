@@ -1,4 +1,6 @@
-<div class="w-full h-full max-w-125 max-h-120 flex flex-col bg-gray-200 rounded-xl shadow shadow-gray-500">
+<div
+  class="w-full h-full max-w-125 max-h-120 flex flex-col bg-gray-200 rounded-xl shadow shadow-gray-500"
+>
   <div class="flex items-start justify-between">
     <div class="text-xl font-bold py-4 pl-2 wrap-break-word hyphens-auto overflow-y-scroll">
       {{ question?.question }}
@@ -32,18 +34,11 @@
     }
   </div>
   <div class="AnswersTable grid grid-cols-2 gap-2 p-2 w-full transition-all duration-200 my-auto">
-    <button class="answer wrap-break-word hyphens-auto">
-      {{ question?.answers![0].answer }}
-    </button>
-    <button class="answer wrap-break-word hyphens-auto">
-      {{ question?.answers![1].answer }}
-    </button>
-    <button class="answer wrap-break-word hyphens-auto">
-      {{ question?.answers![2].answer }}
-    </button>
-    <button class="answer wrap-break-word hyphens-auto">
-      {{ question?.answers![3].answer }}
-    </button>
+    @for (item of question?.answers; track $index) {
+      <button class="answer wrap-break-word hyphens-auto">
+        {{ item.answer }}
+      </button>
+    }
   </div>
   @if (isForQuiz) {
     <button class="showAnswer" (click)="showCorrectAnswer()">Show Answer</button>

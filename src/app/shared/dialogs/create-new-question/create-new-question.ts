@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './create-new-question.html',
 })
 export class QuestionBuilderDialogComponent implements OnInit {
-  question: QuestionModel = new QuestionModel(-1, '', '', [
+  question: QuestionModel = new QuestionModel(-1, '', -1, [
     new AnswerModel(-1, -1, ''),
     new AnswerModel(-1, -1, ''),
     new AnswerModel(-1, -1, ''),
@@ -64,11 +64,13 @@ export class QuestionBuilderDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<QuestionBuilderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: QuestionModel,
   ) {
-    this.question = data;
-    if (data.correctAnswer && data.correctAnswer != '') {
-      this.correctIndex = data.answers.findIndex(
-        (answer) => answer.answer === this.question.correctAnswer,
-      );
+    if (data) {
+      this.question = data;
+      if (this.question.correctAnswer && this.question.correctAnswer != -1) {
+        this.correctIndex = this.question.answers.findIndex(
+          (answer) => answer.id === this.question.correctAnswer,
+        );
+      }
     }
   }
 
