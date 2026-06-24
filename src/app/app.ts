@@ -5,6 +5,8 @@ import { ChatService } from './shared/services/chat';
 import { ChatModel } from './models/chatModel';
 import { AIBotService } from './shared/services/aibot';
 import { QuizService } from './shared/services/quiz';
+import { ChatOperationServices } from './shared/chat-operation-services';
+import { MessageModel } from './models/chatMessageModel';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +16,7 @@ import { QuizService } from './shared/services/quiz';
 })
 export class App implements OnInit {
   quizService: QuizService = inject(QuizService);
+  chatOperationService: ChatOperationServices = inject(ChatOperationServices);
 
   ngOnInit(): void {
     this.userService.loadUser().subscribe({
@@ -36,6 +39,18 @@ export class App implements OnInit {
                   });
                 });
               },
+            });
+            this.chatOperationService.getFirstMessages().subscribe((values: MessageModel[]) => {
+              this.chatOperationService.chatService.allchats$.subscribe((chats) => {
+                if (!chats) return;
+                chats.forEach((chat) => {
+                  for (let index = 0; index < values.length; index++) {
+                    if (chat.id === values[index].chat_id) {
+                      chat.firstMessage = values[index];
+                    }
+                  }
+                });
+              });
             });
           },
         });

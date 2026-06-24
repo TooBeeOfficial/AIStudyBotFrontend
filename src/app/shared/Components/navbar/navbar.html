@@ -6,7 +6,7 @@
   <div class="text-right ml-auto text-white text-lg">
     Welcome {{ (userService.user$ | async)?.name }}!
   </div>
-  <button (click)="showProfileDropdown = !showProfileDropdown">
+  <button class="z-1" (click)="showProfileDropdown = !showProfileDropdown">
     <mat-icon>person</mat-icon>
   </button>
   @if (showProfileDropdown) {

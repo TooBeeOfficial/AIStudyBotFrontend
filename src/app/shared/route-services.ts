@@ -14,7 +14,7 @@ export class RouteServices {
 
   router = inject(Router);
 
-  navigateTo(route: string, data: any = "") {
+  navigateTo(route: string, data: any = '') {
     this.router
       .navigate([route], {
         state: {
@@ -23,6 +23,9 @@ export class RouteServices {
       })
       .then((success) => {
         console.log('Navigation success: ', route, success);
+      })
+      .catch((err) => {
+        console.log('Navigation fail: ', route, err);
       });
   }
 

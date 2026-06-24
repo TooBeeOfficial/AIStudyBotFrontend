@@ -43,3 +43,21 @@
   @apply bg-gray-900 py-2 px-6 m-2 text-white rounded-lg transition-colors duration-300 cursor-pointer;
   @apply hover:bg-gray-700;
 }
+
+.resultIcons mat-icon {
+  @apply text-8xl size-fit my-5;
+}
+
+.resultIcons {
+  @apply flex flex-col items-center justify-center text-xl;
+}
+
+.resultIconsFail mat-icon {
+  @apply text-red-500;
+}
+.resultIconsPassing mat-icon {
+  @apply text-yellow-500;
+}
+.resultIconsSuccess mat-icon {
+  @apply text-green-500;
+}

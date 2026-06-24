@@ -1,14 +1,14 @@
 <div class="bg-gray-100 w-full h-screen flex flex-col">
   <app-navbar>
-    <div sideButton class="relative flex items-center navSide">
+    <div sideButton class="relative flex items-center navSide z-1">
       @if (!menuOpen) {
         <mat-icon (click)="openMenu()">menu</mat-icon>
       } @else {
         <mat-icon (click)="openMenu()">arrow_back</mat-icon>
       }
     </div>
-    <div center class="flex items-center navSide">
-      <mat-icon (click)="takeQuiz()">quiz</mat-icon>
+    <div center class="flex items-center navSide absolute justify-center w-full">
+      <mat-icon (click)="quizFormOpen = !quizFormOpen">quiz</mat-icon>
     </div>
     <div
       class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
@@ -17,6 +17,60 @@
       Home
     </div>
   </app-navbar>
+  @if (quizFormOpen) {
+    <div class="absolute w-full h-full z-2 bg-black/30 flex items-center justify-center">
+      <div #quizOptions class="w-full h-fit max-w-125 max-h-125 bg-gray-300 rounded-2xl shadow-2xl p-4">
+        <form class="w-full h-full flex flex-col justify-between gap-10">
+          <h2 class="text-4xl text-gray-900">Quiz Settings</h2>
+
+          <div class="flex flex-col">
+            <label for="maxQuestions" class="text-2xl text-gray-700">Maximum Questions</label>
+            <input
+              id="maxQuestions"
+              type="number"
+              name="maxQuestions"
+              [(ngModel)]="maxQuestions"
+              min="1"
+              [max]="'(this.quizService.quiz$ | async)?.questions?.length'"
+              placeholder="e.g. 10"
+              class="p-2 rounded-xl outline outline-solid outline-gray-700 focus:outline-gray-950 focus:outline-2 mt-2"
+            />
+          </div>
+
+          <fieldset class="">
+            <label class="text-2xl text-gray-700">Results Mode</label>
+
+            <div>
+              <input type="radio" id="resultsEnd" name="mode" [(ngModel)]="mode" value="end" />
+              <label for="resultsEnd"> Show final results at the end </label>
+            </div>
+
+            <div>
+              <input
+                type="radio"
+                id="resultsImmediate"
+                name="mode"
+                [(ngModel)]="mode"
+                value="immediate"
+              />
+              <label for="resultsImmediate">
+                Show whether each answer is correct immediately
+              </label>
+            </div>
+          </fieldset>
+
+          <button
+            class="bg-gray-900 p-2 text-white rounded-xl cursor-pointer hover:bg-gray-700 transition-all duration-200 w-full"
+            type="submit"
+            (click)="takeQuiz()"
+          >
+            Start Quiz
+          </button>
+        </form>
+      </div>
+    </div>
+  }
+
   <div class="flex flex-1 min-h-0 h-full">
     <app-side-bar [menuOpen]="menuOpen" (onChangeChatEventChatId)="swapNewQuiz($event)">
     </app-side-bar>

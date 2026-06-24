@@ -1,42 +1,52 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { QuizService } from '../../shared/services/quiz';
 import { QuestionModel } from '../../models/questionModel';
 import { NgClass } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/success-dialog';
+import { MatIcon } from '@angular/material/icon';
+import { RouteServices } from '../../shared/route-services';
 
 @Component({
   selector: 'app-take-quiz',
-  imports: [NgClass],
+  imports: [NgClass, MatIcon],
   templateUrl: './take-quiz.html',
   styleUrl: './take-quiz.css',
 })
 export class TakeQuiz implements OnInit {
+  @Input() showResultsOnEnd: boolean = true;
+  @Input() showResults: boolean = false;
+  @Input() maxQuestionsForQuiz: number = 2;
+
+  routeService: RouteServices = inject(RouteServices);
   quizService: QuizService = inject(QuizService);
   dialog: MatDialog = inject(MatDialog);
 
   currentQuestion: QuestionModel = new QuestionModel();
   myQuiz: QuestionModel[] = [];
 
-  showResultsOnEnd: boolean = false;
-  showResults: boolean = false;
   finish: boolean = false;
 
   totalCorrectAnswer: number = 0;
   questionsFinished: number = 0;
   selectedAnswer: number = -1;
-  maxQuestionsForQuiz: number = 3;
 
   ngOnInit(): void {
+    const state = history.state.quiz;
+    console.log(state.maxQuestions);
     this.quizService.quiz$.subscribe({
       next: (quiz) => {
         if (!quiz) return;
-        this.currentQuestion = quiz.questions[0];
+        this.maxQuestionsForQuiz = state.maxQuestions;
+        if (state.mode !== 'end') {
+          this.showResultsOnEnd = false;
+        }
         if (this.maxQuestionsForQuiz === -1 && this.maxQuestionsForQuiz >= quiz.questions.length) {
           this.myQuiz = quiz.questions;
         } else {
           this.myQuiz = this.getRandomItems(quiz.questions, this.maxQuestionsForQuiz);
         }
+        this.currentQuestion = this.myQuiz[0];
       },
     });
   }
@@ -110,5 +120,35 @@ export class TakeQuiz implements OnInit {
       return;
     }
     this.selectedAnswer = index;
+  }
+
+  getPercentOfResult() {
+    const numberOfQuestions =
+      this.maxQuestionsForQuiz === -1 ? this.myQuiz.length : this.maxQuestionsForQuiz;
+    console.log((this.totalCorrectAnswer / numberOfQuestions) * 100);
+    return (this.totalCorrectAnswer / numberOfQuestions) * 100;
+  }
+
+  retryTest() {
+    this.quizService.quiz$.subscribe({
+      next: (quiz) => {
+        if (!quiz) return;
+        this.currentQuestion = quiz.questions[0];
+        if (this.maxQuestionsForQuiz === -1 && this.maxQuestionsForQuiz >= quiz.questions.length) {
+          this.myQuiz = quiz.questions;
+        } else {
+          this.myQuiz = this.getRandomItems(quiz.questions, this.maxQuestionsForQuiz);
+        }
+        this.currentQuestion = this.myQuiz[0];
+        this.finish = false;
+        this.questionsFinished = 0;
+        this.totalCorrectAnswer = 0;
+        this.selectedAnswer = -1;
+      },
+    });
+  }
+
+  endTest() {
+    this.routeService.navigateTo(RouteServices.routes.quiz);
   }
 }

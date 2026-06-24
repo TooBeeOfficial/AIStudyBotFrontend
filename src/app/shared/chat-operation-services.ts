@@ -115,7 +115,7 @@ export class ChatOperationServices {
             this.dialog.open(MessageDialogComponent, {
               data: {
                 title: 'Failed!',
-                message: `Couldn't create new question!`,
+                message: `Couldn't update question!`,
               },
             });
           },
