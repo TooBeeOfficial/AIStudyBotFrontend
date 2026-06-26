@@ -59,4 +59,19 @@ export class QuestionsService {
       withCredentials: true,
     });
   }
+
+  questionCorrect(questionId: number) {
+    return this.http.get(this.apiURL + `/question/correct?questionId=${questionId}`, {
+      withCredentials: true,
+    });
+  }
+
+  questionCheckCorrect(questionId: number, answerId: number) {
+    return this.http.get(
+      this.apiURL + `/question/checkAnswer?questionId=${questionId}&answerID=${answerId}`,
+      {
+        withCredentials: true,
+      },
+    );
+  }
 }

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   afterNextRender,
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -51,6 +52,8 @@ export class SideBar implements OnInit, AfterViewInit {
   @ViewChildren('chatItem')
   chatItems!: QueryList<ElementRef<HTMLElement>>;
 
+  constructor(private cdr: ChangeDetectorRef) {}
+
   ngOnInit(): void {
     this.chatOperationService.getFirstMessages().subscribe((values: MessageModel[]) => {
       this.chatOperationService.chatService.allchats$.subscribe((chats) => {
@@ -66,7 +69,9 @@ export class SideBar implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
+  }
 
   scrollSelectedChatIntoView() {
     const index = this.chatOperationService.chatService.getAllChats?.findIndex(

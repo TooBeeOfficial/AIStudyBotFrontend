@@ -37,7 +37,7 @@ export class ChatOperationServices {
       .pipe(
         filter(Boolean),
         switchMap(() => this.chatService.createNewChat()),
-        switchMap(() => this.chatService.loadChat()),
+        switchMap(() => this.chatService.loadChats()),
         switchMap(() =>
           this.dialog
             .open(MessageDialogComponent, {

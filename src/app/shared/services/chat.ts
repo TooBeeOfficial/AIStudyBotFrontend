@@ -50,13 +50,15 @@ export class ChatService {
     return result;
   }
 
-  loadChat() {
-    const chats = this.getChats();
-    chats.subscribe((chats) => {
-      this.setChats(chats.map((chat: ChatModel) => ChatModel.fromApi(chat)));
-      this.setChat(chats[chats.length - 1]);
-    });
-    return chats;
+  loadChats() {
+    return this.getChats().pipe(
+      tap((chats) => {
+        const mappedChats = chats.map((chat: ChatModel) => ChatModel.fromApi(chat));
+
+        this.setChats(mappedChats);
+        this.setChat(mappedChats[0] ?? null);
+      }),
+    );
   }
 
   createNewChat() {

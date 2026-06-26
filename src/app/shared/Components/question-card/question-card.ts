@@ -14,6 +14,8 @@ import { NgClass, CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../../dialogs/success-dialog/success-dialog';
 import { take } from 'rxjs';
+import { QuestionsService } from '../../services/questions';
+import { AnswerModel } from '../../../models/answerModel';
 
 @Component({
   selector: 'app-question-card',
@@ -28,6 +30,7 @@ export class QuestionCard implements OnInit {
   openOptionsMenu: boolean = false;
   dialog = inject(MatDialog);
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
+  questionService: QuestionsService = inject(QuestionsService);
 
   @ViewChild('dropDownButton') dropDown!: ElementRef;
 
@@ -52,10 +55,16 @@ export class QuestionCard implements OnInit {
   }
 
   showCorrectAnswer() {
-    this.dialog.open(MessageDialogComponent, {
-      data: {
-        title: 'Correct Answer',
-        message: this.question?.answers.filter((ans) => ans.id === this.question?.correctAnswer)[0].answer,
+    this.questionService.questionCorrect(this.question?.id!).subscribe({
+      next: (ans) => {
+        if (!ans) return;
+
+        this.dialog.open(MessageDialogComponent, {
+          data: {
+            title: 'Correct Answer',
+            message: AnswerModel.fromApi(ans).answer,
+          },
+        });
       },
     });
   }

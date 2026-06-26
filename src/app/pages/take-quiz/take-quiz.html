@@ -53,14 +53,11 @@
           <button
             class="answer wrap-break-word hyphens-auto"
             (click)="setSelectedAnswer(i)"
-            [ngClass]="[
-              showResults && checkCorrectAnswer(item.id) ? 'answerCorrect' : '',
-              i === selectedAnswer
-                ? showResults && !checkCorrectAnswer(item.id)
-                  ? 'answerWrong'
-                  : 'answerSelected'
-                : '',
-            ]"
+            [ngClass]="{
+              answerWrong: showResults && i === selectedAnswer && item.id !== isCorrectAnswerID,
+              answerCorrect: showResults && item.id === isCorrectAnswerID,
+              answerSelected: !showResults && i === selectedAnswer,
+            }"
           >
             {{ item.answer }}
           </button>

@@ -21,7 +21,7 @@ export class App implements OnInit {
   ngOnInit(): void {
     this.userService.loadUser().subscribe({
       next: () => {
-        this.chatService.loadChat().subscribe({
+        this.chatService.loadChats().subscribe({
           next: (chats) => {
             if (!chats?.length) return;
 

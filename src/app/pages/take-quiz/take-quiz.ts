@@ -1,11 +1,13 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { QuizService } from '../../shared/services/quiz';
 import { QuestionModel } from '../../models/questionModel';
-import { NgClass } from '@angular/common';
+import { NgClass, AsyncPipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/success-dialog';
 import { MatIcon } from '@angular/material/icon';
 import { RouteServices } from '../../shared/route-services';
+import { QuestionsService } from '../../shared/services/questions';
+import { AnswerModel } from '../../models/answerModel';
 
 @Component({
   selector: 'app-take-quiz',
@@ -18,6 +20,7 @@ export class TakeQuiz implements OnInit {
   @Input() showResults: boolean = false;
   @Input() maxQuestionsForQuiz: number = 2;
 
+  questionService: QuestionsService = inject(QuestionsService);
   routeService: RouteServices = inject(RouteServices);
   quizService: QuizService = inject(QuizService);
   dialog: MatDialog = inject(MatDialog);
@@ -30,6 +33,8 @@ export class TakeQuiz implements OnInit {
   totalCorrectAnswer: number = 0;
   questionsFinished: number = 0;
   selectedAnswer: number = -1;
+  isCorrectAnswerID: number | null = null;
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     const state = history.state.quiz;
@@ -69,13 +74,6 @@ export class TakeQuiz implements OnInit {
     return copy.slice(0, numberOfQuestions);
   }
 
-  checkCorrectAnswer(answer: number) {
-    if (answer === this.currentQuestion.correctAnswer) {
-      return true;
-    }
-    return false;
-  }
-
   getResult() {
     if (this.selectedAnswer === -1) {
       this.dialog.open(MessageDialogComponent, {
@@ -88,10 +86,27 @@ export class TakeQuiz implements OnInit {
       if (!this.showResultsOnEnd) {
         this.showResults = true;
       }
-      if (this.checkCorrectAnswer(this.currentQuestion.answers[this.selectedAnswer].id)) {
-        this.totalCorrectAnswer += 1;
-      }
+      this.checkCorrectAnswer();
     }
+  }
+
+  checkCorrectAnswer() {
+    this.questionService
+      .questionCheckCorrect(
+        this.currentQuestion.id,
+        this.currentQuestion.answers[this.selectedAnswer].id,
+      )
+      .subscribe({
+        next: (res) => {
+          this.isCorrectAnswerID = res as number;
+
+          if (res === this.currentQuestion.answers[this.selectedAnswer].id) {
+            this.totalCorrectAnswer += 1;
+          }
+
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   getNextQuestion() {

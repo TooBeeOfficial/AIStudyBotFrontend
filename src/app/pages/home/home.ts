@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   effect,
   ElementRef,
@@ -58,7 +59,7 @@ export class Home implements OnInit {
   @ViewChild('textarea')
   private chatTextArea!: ElementRef<HTMLDivElement>;
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     // Auto resize chat text area
     effect(() => {
       this.textContent();
@@ -76,19 +77,16 @@ export class Home implements OnInit {
     this.aiService.AIModels$.pipe().subscribe((models) => {
       this.models.set(models.map((m) => AIModel.fromApi(m)));
     });
-    this.chatOperationService.chatService
-      .loadChat()
-      .pipe(take(1))
-      .subscribe({
-        next: () => {
-          setTimeout(() =>
-            this.chatEnd.nativeElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-            }),
-          );
-        },
-      });
+    this.chatOperationService.chatService.chat$.subscribe({
+      next: (currChat) => {
+        setTimeout(() =>
+          this.chatEnd.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          }),
+        );
+      },
+    });
   }
 
   ngAfterViewInit() {}
@@ -199,5 +197,6 @@ export class Home implements OnInit {
   selectModel(model: any) {
     this.selectedModel.set(model);
     this.showModels = false;
+    console.log();
   }
 }
