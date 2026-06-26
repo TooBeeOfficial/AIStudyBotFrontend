@@ -10,6 +10,9 @@ import { take } from 'rxjs';
 import { QuestionCard } from '../../shared/Components/question-card/question-card';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ExportServices } from '../../shared/services/export-services';
+import { QuestionModel } from '../../models/questionModel';
+import { QuizModel } from '../../models/quizModel';
 
 @Component({
   selector: 'app-quiz',
@@ -20,27 +23,91 @@ import { FormsModule } from '@angular/forms';
 export class Quiz implements OnInit {
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   navigationService: RouteServices = inject(RouteServices);
+  exportService: ExportServices = inject(ExportServices);
   quizService: QuizService = inject(QuizService);
   router = inject(Router);
 
-  menuOpen: boolean = true;
+  filteredQuestions: QuizModel = new QuizModel();
+  forExportQuestions: QuestionModel[] = [];
+  showExportScreen: boolean = false;
   quizFormOpen: boolean = false;
   maxQuestions: number = 10;
+  menuOpen: boolean = true;
+  searchTerm: string = '';
   mode: string = 'end';
 
   @ViewChild('quizOptions') quizOpts!: ElementRef;
 
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (!this.quizOpts) {
-      return;
-    }
-    const clickedInside = event.target as Node;
+  onClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
 
-    const clickedInsideButton = this.quizOpts.nativeElement.contains(clickedInside);
-
-    if (!clickedInsideButton) {
+    if (!target.closest('.extraForms') && !target.closest('.export-button')) {
+      this.showExportScreen = false;
       this.quizFormOpen = false;
+    }
+  }
+
+  getFilteredQuestions() {
+    const keywords = this.searchTerm
+      .toLowerCase()
+      .split(',')
+      .map((k) => k.trim())
+      .filter((k) => k.length > 0);
+
+    this.quizService.quiz$.subscribe({
+      next: (quiz) => {
+        if (!quiz?.questions) return;
+
+        this.filteredQuestions.questions = quiz.questions.filter((q) => {
+          const text = q.question.toLowerCase();
+
+          return keywords.some((keyword) => text.includes(keyword));
+        });
+      },
+    });
+  }
+
+  handleExportList(question: QuestionModel, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+
+    if (checked) {
+      if (this.forExportQuestions.find((q) => q.id == question.id) === undefined)
+        this.forExportQuestions.push(question);
+    } else {
+      this.forExportQuestions = this.forExportQuestions.filter((q) => q.id != question.id);
+    }
+  }
+
+  exportQuizAsPDF() {
+    if (this.forExportQuestions.length > 0) {
+      this.exportService.exportQuizPdf(new QuizModel(this.forExportQuestions));
+      this.forExportQuestions = [];
+    } else {
+      this.quizService.quiz$
+        .subscribe({
+          next: (currentQuiz) => {
+            if (!currentQuiz) return;
+            this.exportService.exportQuizPdf(currentQuiz);
+          },
+        })
+        .unsubscribe();
+    }
+  }
+
+  exportQuizAsDOC() {
+    if (this.forExportQuestions.length > 0) {
+      this.exportService.exportQuizDoc(new QuizModel(this.forExportQuestions));
+      this.forExportQuestions = [];
+    } else {
+      this.quizService.quiz$
+        .subscribe({
+          next: (currentQuiz) => {
+            if (!currentQuiz) return;
+            this.exportService.exportQuizDoc(currentQuiz);
+          },
+        })
+        .unsubscribe();
     }
   }
 
@@ -81,7 +148,6 @@ export class Quiz implements OnInit {
   }
 
   takeQuiz() {
-    console.log('ROUTING');
     this.navigationService.navigateTo(RouteServices.routes.takeQuiz, {
       maxQuestions: this.maxQuestions,
       mode: this.mode,

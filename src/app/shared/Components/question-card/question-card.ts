@@ -16,6 +16,7 @@ import { MessageDialogComponent } from '../../dialogs/success-dialog/success-dia
 import { take } from 'rxjs';
 import { QuestionsService } from '../../services/questions';
 import { AnswerModel } from '../../../models/answerModel';
+import { ExportServices } from '../../services/export-services';
 
 @Component({
   selector: 'app-question-card',
@@ -23,7 +24,7 @@ import { AnswerModel } from '../../../models/answerModel';
   templateUrl: './question-card.html',
   styleUrl: './question-card.css',
 })
-export class QuestionCard implements OnInit {
+export class QuestionCard {
   @Input() question?: QuestionModel;
   @Input() isForQuiz: boolean = false;
   showAnswer: boolean = true;
@@ -31,27 +32,18 @@ export class QuestionCard implements OnInit {
   dialog = inject(MatDialog);
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   questionService: QuestionsService = inject(QuestionsService);
+  exportService: ExportServices = inject(ExportServices);
 
-  @ViewChild('dropDownButton') dropDown!: ElementRef;
-
-  constructor(private elementRef: ElementRef) {}
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const clickedInside = event.target as Node;
-
-    const clickedInsideButton = this.dropDown.nativeElement.contains(clickedInside);
-
-    if (!clickedInsideButton) {
-      this.openOptionsMenu = false;
-    }
+  toggleMenu() {
+    this.openOptionsMenu = !this.openOptionsMenu;
   }
 
-  ngOnInit(): void {}
+  exportQuestionAsPDF(event: MouseEvent) {
+    if (this.question) this.exportService.exportQuestionPdf(this.question);
+  }
 
-  toggleMenu(event: MouseEvent) {
-    event.stopPropagation();
-    this.openOptionsMenu = !this.openOptionsMenu;
+  exportQuestionAsDOC(event: MouseEvent) {
+    if (this.question) this.exportService.exportQuestionDoc(this.question);
   }
 
   showCorrectAnswer() {
@@ -81,7 +73,6 @@ export class QuestionCard implements OnInit {
   }
 
   clone<T>(value: QuestionModel): QuestionModel {
-    console.log(structuredClone(value));
     return structuredClone(value);
   }
 }

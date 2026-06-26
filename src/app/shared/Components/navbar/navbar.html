@@ -6,12 +6,13 @@
   <div class="text-right ml-auto text-white text-lg">
     Welcome {{ (userService.user$ | async)?.name }}!
   </div>
-  <button class="z-1" (click)="showProfileDropdown = !showProfileDropdown">
+  <button class="profile-button z-1" (click)="openDropDownMenu()">
     <mat-icon>person</mat-icon>
   </button>
   @if (showProfileDropdown) {
     <div
       class="absolute top-full right-0 mr-2 mt-2 w-48 bg-white shadow-lg rounded-lg border text-cyan-950 z-1 p-2"
+      (blur)="openDropDownMenu()"
     >
       <ng-content></ng-content>
       <div

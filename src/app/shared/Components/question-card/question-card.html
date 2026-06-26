@@ -9,7 +9,8 @@
       <button
         #dropDownButton
         class="MoreOptionsButton relative p-2 py-5"
-        (click)="toggleMenu($event)"
+        (click)="toggleMenu()"
+        (blur)="toggleMenu()"
       >
         <mat-icon>more_vert</mat-icon>
         @if (openOptionsMenu) {
@@ -21,6 +22,18 @@
               (click)="this.chatOperationService.updateExistingQuestion(clone(question!))"
             >
               Update
+            </div>
+            <div
+              class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+              (click)="exportQuestionAsPDF($event)"
+            >
+              Export as PDF
+            </div>
+            <div
+              class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+              (click)="exportQuestionAsDOC($event)"
+            >
+              Export as DOC
             </div>
             <div
               class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
