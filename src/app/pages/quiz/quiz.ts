@@ -121,7 +121,6 @@ export class Quiz implements OnInit {
         if (!currentChat) return;
 
         this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {
-          console.log(res);
           this.quizService.setQuiz(res);
         });
       },

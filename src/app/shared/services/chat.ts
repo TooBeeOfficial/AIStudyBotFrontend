@@ -67,11 +67,9 @@ export class ChatService {
   }
 
   deleteChat(chatId: number) {
-    console.log(chatId);
     const result = this.http.delete(this.apiURL + `/chat/delete?chatId=${chatId}`, {
       withCredentials: true,
     });
-    console.log(this.apiURL + `/chat/delete?chatId=${chatId}`);
     return result;
   }
 

@@ -169,8 +169,6 @@ export class Home implements OnInit {
           .pipe(take(1))
           .subscribe({
             next: (AIresponse) => {
-              console.log('AIresponse:', AIresponse);
-              console.log('type:', typeof AIresponse);
 
               this.chatOperationService.chatService.allchats$.pipe(take(1)).subscribe({
                 next: (chats) => {
@@ -197,6 +195,5 @@ export class Home implements OnInit {
   selectModel(model: any) {
     this.selectedModel.set(model);
     this.showModels = false;
-    console.log();
   }
 }

@@ -23,23 +23,28 @@ export class App implements OnInit {
       next: () => {
         this.chatService.loadChats().subscribe({
           next: (chats) => {
-            if (!chats?.length) return;
+            if (!chats) return;
+            this.chatService.chat$.subscribe({
+              next: (currChat) => {
+                let chat: ChatModel = new ChatModel();
+                if (currChat) {
+                  chat = currChat;
+                } else {
+                  chat = ChatModel.fromApi(chats[0]);
+                }
 
-            const chat = ChatModel.fromApi(chats[0]);
-
-            this.chatService.getChatHistory(chat.id).subscribe({
-              next: (messages) => {
-                chat.messages = messages;
-                this.chatService.setChat(chat);
-                this.quizService.getQuizFromChat(chat.id).subscribe((res) => {
-                  console.log(res);
-                  this.quizService.setQuiz(res);
-                  this.quizService.quiz$.subscribe((quizes) => {
-                    console.log(quizes?.questions);
-                  });
+                this.chatService.getChatHistory(chat.id).subscribe({
+                  next: (messages) => {
+                    chat.messages = messages;
+                    this.chatService.setChat(chat);
+                    this.quizService.getQuizFromChat(chat.id).subscribe((res) => {
+                      this.quizService.setQuiz(res);
+                    });
+                  },
                 });
               },
             });
+
             this.chatOperationService.getFirstMessages().subscribe((values: MessageModel[]) => {
               this.chatOperationService.chatService.allchats$.subscribe((chats) => {
                 if (!chats) return;
@@ -56,7 +61,6 @@ export class App implements OnInit {
         });
         this.AIBotService.getAIModels().subscribe({
           next: (models) => {
-            console.log(models);
             this.AIBotService.setAIModels(models);
           },
         });

@@ -38,7 +38,6 @@ export class TakeQuiz implements OnInit {
 
   ngOnInit(): void {
     const state = history.state.quiz;
-    console.log(state.maxQuestions);
     this.quizService.quiz$.subscribe({
       next: (quiz) => {
         if (!quiz) return;
@@ -140,7 +139,6 @@ export class TakeQuiz implements OnInit {
   getPercentOfResult() {
     const numberOfQuestions =
       this.maxQuestionsForQuiz === -1 ? this.myQuiz.length : this.maxQuestionsForQuiz;
-    console.log((this.totalCorrectAnswer / numberOfQuestions) * 100);
     return (this.totalCorrectAnswer / numberOfQuestions) * 100;
   }
 

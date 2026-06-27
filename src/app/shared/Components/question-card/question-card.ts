@@ -64,9 +64,7 @@ export class QuestionCard {
   deleteQuestion() {
     this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
       next: (currentChat) => {
-        console.log('CURRENT CHHAT:', currentChat);
         if (!currentChat) return;
-        console.log(this.question?.id!);
         this.chatOperationService.deleteExistingQuestion(this.question?.id!, currentChat.id);
       },
     });

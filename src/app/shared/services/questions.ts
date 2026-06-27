@@ -39,8 +39,6 @@ export class QuestionsService {
   }
 
   updateQuestion(question: any) {
-    console.log(question);
-    console.log(question.answers);
     const correct = question.correct.id;
     return this.http.put(
       this.apiURL + `/question/update?questionId=${question.id}`,
@@ -54,7 +52,6 @@ export class QuestionsService {
   }
 
   deleteQuestion(questionId: number) {
-    console.log(questionId);
     return this.http.delete(this.apiURL + `/question/delete?questionId=${questionId}`, {
       withCredentials: true,
     });

@@ -105,7 +105,6 @@ export class SideBar implements OnInit, AfterViewInit {
             messages: [...messages],
           };
           updatedChat.firstMessage = res;
-          console.log('FIRST MESSAGE: ', res);
           this.chatOperationService.chatService.setChat(updatedChat);
           if (index === -1) {
             setTimeout(() => {
@@ -163,7 +162,6 @@ export class SideBar implements OnInit, AfterViewInit {
                   if (!currentChat) return;
 
                   if (currentChat.id === chatId) {
-                    console.log(currentChat.id === chatId);
                     this.getNewChat(chats[0].id, 0);
                   }
                   this.dialog.open(MessageDialogComponent, {
@@ -177,9 +175,6 @@ export class SideBar implements OnInit, AfterViewInit {
             },
           });
         }),
-      )
-      .subscribe({
-        error: (err) => console.error(err),
-      });
+      );
   }
 }
