@@ -1,5 +1,5 @@
-import { inject, Injectable, Service } from '@angular/core';
-import { filter, take, switchMap, of, forkJoin, catchError, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { filter, switchMap, tap } from 'rxjs';
 import { QuestionBuilderDialogComponent } from './dialogs/create-new-question/create-new-question';
 import { MessageDialogComponent } from './dialogs/success-dialog/success-dialog';
 import { TwoButtonDialog } from './dialogs/two-button-dialog/two-button-dialog';
@@ -7,8 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ChatService } from './services/chat';
 import { RouteServices } from './route-services';
 import { QuestionsService } from './services/questions';
-import { MessageModel } from '../models/chatMessageModel';
-import { ChatModel } from '../models/chatModel';
 import { QuestionModel } from '../models/questionModel';
 import { QuizService } from './services/quiz';
 
@@ -48,17 +46,7 @@ export class ChatOperationServices {
             })
             .afterClosed(),
         ),
-
-        switchMap(() =>
-          this.chatService.allchats$.pipe(
-            take(1),
-            switchMap((chats) => {
-              if (!chats?.length) return of([]);
-
-              return forkJoin(chats.map((c) => this.chatService.getFirstMessageForChat(c.id)));
-            }),
-          ),
-        ),
+        switchMap(() => this.chatService.getAllFirstMessages()),
       );
   }
 
@@ -94,7 +82,7 @@ export class ChatOperationServices {
   }
 
   updateExistingQuestion(question: QuestionModel) {
-    console.log("UPDATE", question)
+    console.log('UPDATE', question);
     const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {
       data: question,
     });

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, distinctUntilChanged, take, tap } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../environments/environment.development';
 import { ChatModel } from '../../models/chatModel';
 import { MessageModel } from '../../models/chatMessageModel';
@@ -14,16 +14,7 @@ export class ChatService {
   private chatSubject = new BehaviorSubject<ChatModel | null>(null);
   private allchatsSubject = new BehaviorSubject<ChatModel[] | null>(null);
 
-  chat$ = this.chatSubject
-    .asObservable()
-    .pipe(
-      distinctUntilChanged(
-        (prev, curr) =>
-          prev?.id === curr?.id &&
-          prev?.messages === curr?.messages &&
-          prev?.firstMessage === curr?.firstMessage,
-      ),
-    );
+  chat$ = this.chatSubject.asObservable();
   allchats$ = this.allchatsSubject.asObservable();
 
   get getChat(): ChatModel | null {
@@ -46,8 +37,7 @@ export class ChatService {
   }
 
   getChats() {
-    const result = this.http.get<ChatModel[]>(this.apiURL + '/me/chats', { withCredentials: true });
-    return result;
+    return this.http.get<ChatModel[]>(this.apiURL + '/me/chats', { withCredentials: true });
   }
 
   loadChats() {
@@ -67,10 +57,9 @@ export class ChatService {
   }
 
   deleteChat(chatId: number) {
-    const result = this.http.delete(this.apiURL + `/chat/delete?chatId=${chatId}`, {
+    return this.http.delete(this.apiURL + `/chat/delete?chatId=${chatId}`, {
       withCredentials: true,
     });
-    return result;
   }
 
   getChatHistory(chatId: number) {

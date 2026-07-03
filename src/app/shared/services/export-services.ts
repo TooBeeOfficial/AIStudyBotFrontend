@@ -1,15 +1,19 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Document, Packer, Paragraph, HeadingLevel } from 'docx';
 import { saveAs } from 'file-saver';
 import { QuestionModel } from '../../models/questionModel';
 import jsPDF from 'jspdf';
 import { AnswerModel } from '../../models/answerModel';
 import { QuizModel } from '../../models/quizModel';
+import { MatDialog } from '@angular/material/dialog';
+import { MessageDialogComponent } from '../dialogs/success-dialog/success-dialog';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExportServices {
+  dialog = inject(MatDialog);
+
   async exportQuestionDoc(question: QuestionModel) {
     const doc = new Document({
       sections: [
@@ -34,7 +38,7 @@ export class ExportServices {
         },
       ],
     });
-    
+
     const blob = await Packer.toBlob(doc);
     saveAs(blob, `${question.question}.docx`);
   }
@@ -63,6 +67,15 @@ export class ExportServices {
   }
 
   async exportQuizDoc(quiz: QuizModel) {
+    if (quiz.questions.length === 0) {
+      this.dialog.open(MessageDialogComponent, {
+        data: {
+          title: 'Error',
+          message: 'No questions to export!',
+        },
+      });
+      return;
+    }
     const children: Paragraph[] = [];
 
     children.push(
@@ -104,6 +117,12 @@ export class ExportServices {
   }
 
   exportQuizPdf(quiz: QuizModel) {
+    this.dialog.open(MessageDialogComponent, {
+        data: {
+          title: 'Error',
+          message: 'No questions to export!',
+        },
+      });
     const pdf = new jsPDF();
 
     const pageHeight = pdf.internal.pageSize.height;

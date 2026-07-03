@@ -1,4 +1,4 @@
-<div class="bg-gray-100 w-full h-screen flex flex-col">
+<div class="bg-gray-100 w-full h-screen flex flex-col overflow-hidden relative">
   <app-navbar>
     <div sideButton class="relative flex items-center navSide z-1">
       @if (!menuOpen) {
@@ -7,20 +7,41 @@
         <mat-icon (click)="openMenu()">arrow_back</mat-icon>
       }
     </div>
-    <div center class="export-button flex items-center navSide absolute justify-center w-full">
-      <button (click)="quizFormOpen = !quizFormOpen" title="takeQuiz">
-        <mat-icon>quiz</mat-icon>
-      </button>
-      <button (click)="exportQuizAsPDF()" title="Export PDF">
-        <mat-icon>picture_as_pdf</mat-icon>
-      </button>
-      <button (click)="exportQuizAsDOC()" title="Export Document">
-        <mat-icon>description</mat-icon>
-      </button>
-      <button (click)="showExportScreen = !showExportScreen" title="Select for export">
-        <mat-icon>search</mat-icon>
-      </button>
-    </div>
+    @if (!isMobile()) {
+      <div center class="export-button flex items-center navSide absolute justify-center w-full">
+        <button (click)="quizFormOpen = !quizFormOpen" title="takeQuiz">
+          <mat-icon>quiz</mat-icon>
+        </button>
+        <button (click)="exportQuizAsPDF()" title="Export PDF">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </button>
+        <button (click)="exportQuizAsDOC()" title="Export Document">
+          <mat-icon>description</mat-icon>
+        </button>
+        <button (click)="showExportScreen = !showExportScreen" title="Select for export">
+          <mat-icon>search</mat-icon>
+        </button>
+      </div>
+    } @else {
+      <div
+        sideButton
+        class="export-button flex items-center navSide absolute justify-start w-full max-[850px]:pl-15"
+      >
+        <button (click)="quizFormOpen = !quizFormOpen" title="takeQuiz">
+          <mat-icon>quiz</mat-icon>
+        </button>
+        <button (click)="exportQuizAsPDF()" title="Export PDF">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </button>
+        <button (click)="exportQuizAsDOC()" title="Export Document">
+          <mat-icon>description</mat-icon>
+        </button>
+        <button (click)="showExportScreen = !showExportScreen" title="Select for export">
+          <mat-icon>search</mat-icon>
+        </button>
+      </div>
+    }
+
     <div
       class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
       (click)="home()"
@@ -157,14 +178,17 @@
   }
 
   <div class="flex flex-1 min-h-0 h-full">
-    <app-side-bar [menuOpen]="menuOpen" (onChangeChatEventChatId)="swapNewQuiz($event)">
+    <app-side-bar
+      [menuOpen]="menuOpen"
+      (onChangeChatEventChatId)="swapNewQuiz($event)"
+    >
     </app-side-bar>
     <div
-      class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] grid-rows-[repeat(auto-fit,minmax(fit-content,500px))] w-full h-full gap-7 overflow-scroll place-items-start justify-items-stretch py-14 px-24"
+      class="grid min-[600px]:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] min-[1050px]:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] grid-rows-[repeat(auto-fit,minmax(fit-content,500px))] w-full h-full gap-7 overflow-y-scroll overflow-x-hidden place-content-stretch justify-center py-14 min-[600px]:px-24 max-[600px]:px-12"
     >
       @if (this.quizService.quiz$ | async; as quiz) {
         @for (item of (this.quizService.quiz$ | async)?.questions; track item.id) {
-          <app-question-card [isForQuiz]="true" [question]="item" class="h-full" [question]="item">
+          <app-question-card [isForQuiz]="true" [question]="item" class="w-full" [question]="item">
           </app-question-card>
         } @empty {
           <div

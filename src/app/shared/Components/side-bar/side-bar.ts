@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-  afterNextRender,
   AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -11,7 +10,6 @@ import {
   OnInit,
   Output,
   QueryList,
-  signal,
   ViewChild,
   ViewChildren,
 } from '@angular/core';
@@ -126,7 +124,9 @@ export class SideBar implements OnInit, AfterViewInit {
   }
 
   newChat() {
-    this.chatOperationService.createNewChat().subscribe(() => {
+    this.chatOperationService.createNewChat().subscribe((res) => {
+      console.log(res)
+      this.chatOperationService.getFirstMessages()
       this.getNewChat(this.chatOperationService.chatService.getChat!.id);
     });
   }
@@ -147,34 +147,50 @@ export class SideBar implements OnInit, AfterViewInit {
       .pipe(
         filter(Boolean),
         switchMap(() => this.chatOperationService.chatService.deleteChat(chatId)),
-
         tap(() => {
           this.chatOperationService.chatService.allchats$.pipe(take(1)).subscribe({
             next: (chats) => {
               if (!chats) return;
               let newChats = chats;
-              newChats = newChats.filter((ch) => ch.id !== chatId);
+              if (chats.length <= 1) {
+                newChats = [];
+              } else {
+                newChats = newChats.filter((ch) => ch.id !== chatId);
+              }
 
               this.chatOperationService.chatService.setChats(newChats);
 
               this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
                 next: (currentChat) => {
                   if (!currentChat) return;
-
-                  if (currentChat.id === chatId) {
+                  if (chats.length <= 1) {
+                    this.chatOperationService.chatService.setChat(new ChatModel());
+                  } else if (currentChat.id === chatId) {
                     this.getNewChat(chats[0].id, 0);
                   }
-                  this.dialog.open(MessageDialogComponent, {
-                    data: {
-                      title: 'Success',
-                      message: 'Chat has been deleted successfully!',
-                    },
-                  });
                 },
               });
             },
           });
         }),
-      );
+      )
+      .subscribe({
+        next: () => {
+          this.dialog.open(MessageDialogComponent, {
+            data: {
+              title: 'Success',
+              message: 'Chat has been deleted successfully!',
+            },
+          });
+        },
+        error: (err) => {
+          this.dialog.open(MessageDialogComponent, {
+            data: {
+              title: 'Error',
+              message: 'Chat couldn`t be deleted!',
+            },
+          });
+        },
+      });
   }
 }

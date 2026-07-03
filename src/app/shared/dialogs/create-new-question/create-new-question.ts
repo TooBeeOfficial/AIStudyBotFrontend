@@ -1,7 +1,6 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
 import { FormControl, FormsModule, NgForm } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AnswerTableModel } from '../../../models/answerTableModel';
 import { QuestionModel } from '../../../models/questionModel';
 import { AnswerModel } from '../../../models/answerModel';
 import { CommonModule } from '@angular/common';

@@ -2,7 +2,7 @@ export class AIModel {
   id: number;
   modelName: string;
 
-  constructor(id: number = 1, modelName: string = 'Default') {
+  constructor(id: number = 1, modelName: string = 'No models') {
     this.id = id;
     this.modelName = modelName;
   }

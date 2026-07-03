@@ -1,4 +1,12 @@
-import { Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { Navbar } from '../../shared/Components/navbar/navbar';
 import { RouteServices } from '../../shared/route-services';
@@ -13,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { ExportServices } from '../../shared/services/export-services';
 import { QuestionModel } from '../../models/questionModel';
 import { QuizModel } from '../../models/quizModel';
+import { UserService } from '../../shared/services/user';
 
 @Component({
   selector: 'app-quiz',
@@ -25,6 +34,7 @@ export class Quiz implements OnInit {
   navigationService: RouteServices = inject(RouteServices);
   exportService: ExportServices = inject(ExportServices);
   quizService: QuizService = inject(QuizService);
+  userService: UserService = inject(UserService);
   router = inject(Router);
 
   filteredQuestions: QuizModel = new QuizModel();
@@ -35,6 +45,13 @@ export class Quiz implements OnInit {
   menuOpen: boolean = true;
   searchTerm: string = '';
   mode: string = 'end';
+
+  isMobile = signal(window.innerWidth < 850);
+
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobile.set(window.innerWidth < 850);
+  }
 
   @ViewChild('quizOptions') quizOpts!: ElementRef;
 
@@ -118,6 +135,7 @@ export class Quiz implements OnInit {
   ngOnInit(): void {
     this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
       next: (currentChat) => {
+        console.log(currentChat);
         if (!currentChat) return;
 
         this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {

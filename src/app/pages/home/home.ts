@@ -5,9 +5,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  QueryList,
   ViewChild,
-  ViewChildren,
 } from '@angular/core';
 import { UserService } from '../../shared/services/user';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,29 +30,25 @@ import { take } from 'rxjs';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  userService: UserService = inject(UserService);
-  navigationService: RouteServices = inject(RouteServices);
-  aiService: AIBotService = inject(AIBotService);
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
+  navigationService: RouteServices = inject(RouteServices);
+  userService: UserService = inject(UserService);
+  aiService: AIBotService = inject(AIBotService);
   fileService: FileService = inject(FileService);
 
   selectedModel = signal<AIModel>(new AIModel());
   textContent = signal<string>('');
-  models = signal<AIModel[]>([]);
 
   dialog = inject(MatDialog);
 
+  showProfileDropdown: boolean = true;
+  loadingFile: boolean = false;
   isDragging: boolean = false;
   showModels: boolean = false;
   menuOpen: boolean = true;
-  loadingFile: boolean = false;
-  showProfileDropdown: boolean = true;
 
   @ViewChild('chatEnd')
   private chatEnd!: ElementRef<HTMLDivElement>;
-
-  @ViewChildren('chatItem')
-  private chatItems!: QueryList<ElementRef<HTMLElement>>;
 
   @ViewChild('textarea')
   private chatTextArea!: ElementRef<HTMLDivElement>;
@@ -74,22 +68,26 @@ export class Home implements OnInit {
   }
 
   ngOnInit(): void {
-    this.aiService.AIModels$.pipe().subscribe((models) => {
-      this.models.set(models.map((m) => AIModel.fromApi(m)));
-    });
-    this.chatOperationService.chatService.chat$.subscribe({
-      next: (currChat) => {
-        setTimeout(() =>
-          this.chatEnd.nativeElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          }),
-        );
-      },
-    });
+    this.chatOperationService.chatService.chat$
+      .subscribe({
+        next: (currChat) => {
+          setTimeout(() =>
+            this.chatEnd.nativeElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            }),
+          );
+        },
+      })
+      .unsubscribe();
   }
 
-  ngAfterViewInit() {}
+  ngAfterViewInit() {
+    this.aiService.AIModels$.pipe().subscribe((models) => {
+      const model = models[0];
+      this.selectedModel.set(model);
+    });
+  }
 
   get username() {
     return this.userService.user?.name;
@@ -169,22 +167,13 @@ export class Home implements OnInit {
           .pipe(take(1))
           .subscribe({
             next: (AIresponse) => {
+              asNewChat.messages.push(
+                new MessageModel(-1, currentChat.id, 'assistant', JSON.stringify(AIresponse)),
+              );
 
-              this.chatOperationService.chatService.allchats$.pipe(take(1)).subscribe({
-                next: (chats) => {
-                  if (!chats) return;
-
-                  const newChatIndex = chats.findIndex((c) => c.id === currentChat.id);
-                  const allchats = chats;
-                  allchats[newChatIndex].messages.push(
-                    new MessageModel(-1, currentChat.id, 'assistant', JSON.stringify(AIresponse)),
-                  );
-
-                  this.chatOperationService.chatService.setChats(allchats);
-                  setTimeout(() => {
-                    this.navigationService.scrollToBottom(this.chatEnd, 'smooth');
-                  });
-                },
+              this.chatOperationService.chatService.setChat(asNewChat);
+              setTimeout(() => {
+                this.navigationService.scrollToBottom(this.chatEnd, 'smooth');
               });
             },
           });

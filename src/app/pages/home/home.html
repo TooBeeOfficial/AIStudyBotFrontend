@@ -1,10 +1,10 @@
 <div class="bg-gray-100 w-full h-screen flex flex-col">
   <app-navbar>
-    <div sideButton class="w-18 relative flex items-center navSide">
+    <div sideButton class="w-18 relative flex items-center navSide" (click)="openMenu()">
       @if (!menuOpen) {
-        <mat-icon (click)="openMenu()">menu</mat-icon>
+        <mat-icon>menu</mat-icon>
       } @else {
-        <mat-icon (click)="openMenu()">arrow_back</mat-icon>
+        <mat-icon>arrow_back</mat-icon>
       }
     </div>
     <div
@@ -16,70 +16,84 @@
   </app-navbar>
 
   <!-- main -->
-  <div class="flex flex-1 min-h-0 h-full">
+  <div class="flex flex-1 min-h-0 h-full relative overflow-x-hidden">
     <!-- chat logs -->
-    <app-side-bar [menuOpen]="menuOpen" (onChangeChatEvent)="scrolltoBottom()"> </app-side-bar>
-
+    <app-side-bar
+      [menuOpen]="menuOpen"
+      (onChangeChatEvent)="scrolltoBottom()"
+    >
+    </app-side-bar>
     <!-- chat -->
-    <div class="flex-1 h-full flex flex-col text-white justify-between relative">
+    <div
+      class="flex-1 h-full flex flex-col text-white items-center justify-between relative w-full"
+    >
       <div
-        class="flex flex-col overflow-y-scroll overflow-x-hidden absolute bottom-16 top-0 px-50 w-full"
+        class="flex flex-col overflow-y-scroll overflow-x-hidden absolute bottom-16 top-0 w-full"
       >
-        @for (
-          item of (this.chatOperationService.chatService.chat$ | async)?.messages ?? [];
-          let i = $index;
-          track $index
-        ) {
-          <div
-            class="min-w-0 max-w-[60%] text-base text-gray-700 rounded-2xl px-3 py-2 my-2 transition-all duration-200 flex flex-col"
-            [ngClass]="{
-              'w-fit self-end bg-gray-900 text-white': item.role === 'user',
-              'w-full bg-gray-300 py-4': item.role !== 'user',
-              hidden: (this.chatOperationService.chatService.chat$ | async)?.messages!.length < 1,
-            }"
-          >
+        @if (this.chatOperationService.chatService.chat$ | async; as chat) {
+          @for (
+            item of (this.chatOperationService.chatService.chat$ | async)?.messages;
+            let i = $index;
+            track $index
+          ) {
             <div
-              class="text-lg"
-              [ngClass]="item.role == 'user' ? 'text-cyan-200' : 'text-gray-900'"
+              class="min-w-0 max-w-[60%] text-base text-gray-700 rounded-2xl px-3 py-2 my-2 transition-all duration-200 flex flex-col"
+              [ngClass]="{
+                'w-fit ml-auto max-[970px]:mr-10 min-[970px]:mr-50 bg-gray-900 text-white':
+                  item.role === 'user',
+                'w-full mr-auto max-[970px]:ml-10 min-[970px]:ml-50 bg-gray-300 py-4':
+                  item.role !== 'user',
+                hidden: chat?.messages!.length < 1,
+              }"
             >
-              @if (item.role == 'user') {
-                Me
-              } @else {
-                Study Buddy
-              }
+              <div
+                class="text-lg"
+                [ngClass]="item.role == 'user' ? 'text-cyan-200' : 'text-gray-900'"
+              >
+                @if (item.role == 'user') {
+                  Me
+                } @else {
+                  Study Buddy
+                }
+              </div>
+              <span class="min-w-0 wrap-break-word whitespace-pre-line max-[600px]:text-sm">
+                @if (item.role == 'user') {
+                  {{ item.content }}
+                } @else {
+                  {{ this.fileService.formatQuestionFromJson(item.content) }}
+                }
+              </span>
             </div>
-            <span class="min-w-0 wrap-break-word whitespace-pre-line">
-              @if (item.role == 'user') {
-                {{ item.content }}
-              } @else {
-                {{ this.fileService.formatQuestionFromJson(item.content) }}
-              }
-            </span>
-          </div>
-        } @empty {
-          <div
-            class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full absolute w-full"
-          >
-            No messages yet!
-          </div>
+          } @empty {
+            <div
+              class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full absolute w-full"
+            >
+              No messages yet!
+            </div>
+          }
         }
+
         <div #chatEnd></div>
         <div class="mt-35"></div>
       </div>
 
       <!-- chatbox -->
       <div
-        class="flex left-50 right-50 mb-10 rounded-4xl bg-gray-900 items-center absolute bottom-0"
+        class="flex mb-10 rounded-4xl bg-gray-900 items-stretch absolute bottom-0 max-[970px]:left-10 max-[970px]:right-10 min-[970px]:left-50 min-[970px]:right-50 max-[970px]:flex-col no-scrollbar"
       >
-        <div class="flex h-full grow relative max-w-40 pl-4 hover:bg-gray-800 rounded-l-4xl">
-          <div
-            class="flex items-center justify-start cursor-pointer relative w-full"
-            (click)="showModels = !showModels"
-          >
+        <div
+          class="flex h-full grow relative pl-4 hover:bg-gray-800 max-[970px]:rounded-t-4xl min-[970px]:max-w-40"
+          (click)="showModels = !showModels"
+        >
+          <div class="flex self-stretch items-center justify-start cursor-pointer relative w-full">
             <div
-              class="flex py-4 pr-4 truncate whitespace-nowrap transition-all duration-300 mr-7 max-w-30"
+              class="flex py-4 pr-4 min-[970px]:truncate whitespace-nowrap transition-all duration-300 mr-7 max-w-30 max-[600px]:text-sm"
             >
-              {{ selectedModel().modelName }}
+              @if (selectedModel()) {
+                {{ selectedModel().modelName }}
+              } @else {
+                Loading models...
+              }
             </div>
             @if (showModels) {
               <mat-icon class="flex size-1.25 absolute right-1">expand_more</mat-icon>
@@ -89,11 +103,11 @@
           </div>
           @if (showModels) {
             <div
-              class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-white shadow-lg rounded-lg border p-2 z-50 text-cyan-950"
+              class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-white shadow-lg rounded-lg border p-2 z-2 text-cyan-950"
             >
-              @for (model of models(); track $index) {
+              @for (model of this.aiService.AIModels$ | async; track $index) {
                 <div
-                  class="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer"
+                  class="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer max-[600px]:text-sm"
                   (click)="selectModel(model)"
                 >
                   {{ model.modelName }}
@@ -103,13 +117,13 @@
           }
         </div>
         <div
-          class="flex h-max max-h-75 items-center grow"
+          class="flex items-center grow min-w-max"
           (dragover)="onDragOver($event)"
           (drop)="onFileDrop($event)"
         >
           <button
             type="button"
-            class="px-3 text-gray-500 hover:text-gray-700 cursor-pointer"
+            class="px-3 pt-1 text-gray-500 hover:text-gray-700 cursor-pointer flex items-center justify-center"
             (click)="fileInput.click()"
           >
             <mat-icon class="">attach_file</mat-icon>
@@ -121,14 +135,15 @@
             maxlength="3000"
             rows="1"
             [placeholder]="loadingFile ? 'Loading...' : 'Type or drop pdf/text file...'"
-            class="flex-1 resize-none overflow-scroll p-3 outline-none max-h-75 transition-all duration-100 ease-out"
+            class="flex flex-1 grow p-3 outline-none transition-all duration-100 ease-out max-[600px]:text-sm"
+            [ngClass]="textContent() === '' ? 'truncate' : ''"
           ></textarea>
         </div>
         <div
-          class="py-4 pl-4 whitespace-nowrap w-20 h-full cursor-pointer hover:bg-gray-800 rounded-r-4xl"
+          class="flex items-center justify-center py-4 min-[970px]:pl-4 whitespace-nowrap w-20 h-full cursor-pointer hover:bg-gray-800 min-[970px]:rounded-r-4xl self-end max-[970px]:rounded-4xl"
           (click)="submitMessage()"
         >
-          send
+          <span>send</span>
         </div>
       </div>
     </div>

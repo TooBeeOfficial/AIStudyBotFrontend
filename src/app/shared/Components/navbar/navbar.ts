@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { UserService } from '../../services/user';
 import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
@@ -11,10 +11,18 @@ import { RouteServices } from '../../route-services';
   styleUrl: './navbar.css',
 })
 export class Navbar {
-  userService: UserService = inject(UserService);
-  menuOpen: boolean = false;
-  showProfileDropdown: boolean = false;
   navigationService: RouteServices = inject(RouteServices);
+  userService: UserService = inject(UserService);
+
+  showProfileDropdown: boolean = false;
+  menuOpen: boolean = false;
+
+  isMobile = signal(window.innerWidth < 850);
+
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobile.set(window.innerWidth < 850);
+  }
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
@@ -30,10 +38,15 @@ export class Navbar {
   }
 
   logoutUser() {
-    this.userService.logout().subscribe({
-      next: () => {
-        this.navigationService.navigateTo('/login');
-      },
-    });
+    this.userService
+      .logout()
+      .subscribe({
+        next: () => {
+          this.navigationService.navigateTo('/login');
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
   }
 }

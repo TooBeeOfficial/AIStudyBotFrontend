@@ -5,7 +5,15 @@ import { Button } from '../../shared/Components/button/button';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../shared/services/user';
 import { UserModel } from '../../models/UserModel';
-import { Router } from '@angular/router';
+import { RouteServices } from '../../shared/route-services';
+import { take } from 'rxjs';
+import { AIModel } from '../../models/aiModel';
+import { MessageModel } from '../../models/chatMessageModel';
+import { ChatModel } from '../../models/chatModel';
+import { ChatOperationServices } from '../../shared/chat-operation-services';
+import { AIBotService } from '../../shared/services/aibot';
+import { ChatService } from '../../shared/services/chat';
+import { QuizService } from '../../shared/services/quiz';
 
 @Component({
   selector: 'app-login-page',
@@ -37,9 +45,14 @@ export class LoginPage implements OnInit {
     ]),
     usernameControl: new FormControl(''),
   });
+  routeService: RouteServices = inject(RouteServices);
+  chatOperationService: ChatOperationServices = inject(ChatOperationServices);
+  navigationService: RouteServices = inject(RouteServices);
+  AIBotService: AIBotService = inject(AIBotService);
+  quizService: QuizService = inject(QuizService);
+  userService: UserService = inject(UserService);
+  chatService: ChatService = inject(ChatService);
   private signin: boolean = false;
-  userService = inject(UserService);
-  private router = inject(Router);
 
   ngOnInit(): void {
     this.grabUser();
@@ -55,6 +68,58 @@ export class LoginPage implements OnInit {
         .subscribe({
           next: (user) => {
             this.userService.setUser(UserModel.fromApi(user));
+            this.chatService.loadChats().subscribe({
+              next: (chats) => {
+                if (!chats) return;
+                this.chatService.chat$.pipe(take(1)).subscribe({
+                  next: (currChat) => {
+                    if (!currChat?.id) {
+                      return;
+                    }
+                    let chat: ChatModel = new ChatModel();
+                    if (currChat) {
+                      chat = currChat;
+                    } else {
+                      chat = ChatModel.fromApi(chats[0]);
+                    }
+
+                    this.chatService.getChatHistory(chat.id).subscribe({
+                      next: (messages) => {
+                        chat.messages = [...messages];
+                        console.log(chat);
+                        this.chatService.setChat(chat);
+                        this.quizService.getQuizFromChat(chat.id).subscribe((res) => {
+                          this.quizService.setQuiz(res);
+                        });
+                      },
+                    });
+                  },
+                });
+
+                this.chatOperationService.getFirstMessages().subscribe((values: MessageModel[]) => {
+                  this.chatOperationService.chatService.allchats$.subscribe((chats) => {
+                    if (!chats) return;
+                    chats.forEach((chat) => {
+                      for (let index = 0; index < values.length; index++) {
+                        if (chat.id === values[index].chat_id) {
+                          chat.firstMessage = values[index];
+                        }
+                      }
+                    });
+                  });
+                });
+              },
+            });
+            this.AIBotService.getAIModels().subscribe({
+              next: (models) => {
+                let modes: AIModel[] = [];
+                models.forEach((model) => {
+                  modes.push(AIModel.fromApi(model));
+                });
+
+                this.AIBotService.setAIModels(modes);
+              },
+            });
           },
           error: (err: any) => {},
         });
@@ -93,9 +158,11 @@ export class LoginPage implements OnInit {
   }
 
   grabUser() {
-    this.userService.getUser().subscribe((res) => {
-      this.userService.setUser(UserModel.fromApi(res));
-      this.router.navigate(['/home']).then((success) => {});
+    this.userService.user$.subscribe({
+      next: (user) => {
+        if (!user) return;
+        this.routeService.navigateTo(RouteServices.routes.home);
+      },
     });
   }
   googleLogin() {

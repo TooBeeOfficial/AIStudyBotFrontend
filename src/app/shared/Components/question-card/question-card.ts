@@ -1,16 +1,12 @@
 import {
   Component,
-  ElementRef,
-  HostListener,
   inject,
   Input,
-  OnInit,
-  ViewChild,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { QuestionModel } from '../../../models/questionModel';
 import { ChatOperationServices } from '../../chat-operation-services';
-import { NgClass, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../../dialogs/success-dialog/success-dialog';
 import { take } from 'rxjs';

@@ -62,3 +62,26 @@
     }
   }
 }
+
+.no-scrollbar ::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-elegant::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar-elegant::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 9999px;
+}
+
+.scrollbar-elegant {
+  scrollbar-width: thin;
+  scrollbar-color: #374151 transparent;
+}

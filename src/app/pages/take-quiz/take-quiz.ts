@@ -1,13 +1,12 @@
 import { Component, inject, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { QuizService } from '../../shared/services/quiz';
 import { QuestionModel } from '../../models/questionModel';
-import { NgClass, AsyncPipe } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/success-dialog';
 import { MatIcon } from '@angular/material/icon';
 import { RouteServices } from '../../shared/route-services';
 import { QuestionsService } from '../../shared/services/questions';
-import { AnswerModel } from '../../models/answerModel';
 
 @Component({
   selector: 'app-take-quiz',
@@ -34,6 +33,7 @@ export class TakeQuiz implements OnInit {
   questionsFinished: number = 0;
   selectedAnswer: number = -1;
   isCorrectAnswerID: number | null = null;
+
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -85,11 +85,10 @@ export class TakeQuiz implements OnInit {
       if (!this.showResultsOnEnd) {
         this.showResults = true;
       }
-      this.checkCorrectAnswer();
     }
   }
 
-  checkCorrectAnswer() {
+  async checkCorrectAnswer() {
     this.questionService
       .questionCheckCorrect(
         this.currentQuestion.id,
@@ -99,16 +98,21 @@ export class TakeQuiz implements OnInit {
         next: (res) => {
           this.isCorrectAnswerID = res as number;
 
-          if (res === this.currentQuestion.answers[this.selectedAnswer].id) {
+          console.log(this.selectedAnswer);
+          if ((res as number) === this.currentQuestion.answers[this.selectedAnswer].id) {
+            console.log('correct');
             this.totalCorrectAnswer += 1;
+          } else {
+            console.log(res as number);
           }
 
+          this.selectedAnswer = -1;
           this.cdr.detectChanges();
         },
       });
   }
 
-  getNextQuestion() {
+  async getNextQuestion() {
     if (this.selectedAnswer === -1) {
       this.dialog.open(MessageDialogComponent, {
         data: {
@@ -117,9 +121,10 @@ export class TakeQuiz implements OnInit {
         },
       });
       return;
+    } else {
+      await this.checkCorrectAnswer();
     }
     this.showResults = false;
-    this.selectedAnswer = -1;
 
     if (this.questionsFinished + 1 < this.myQuiz.length) {
       this.questionsFinished += 1;
@@ -130,10 +135,9 @@ export class TakeQuiz implements OnInit {
   }
 
   setSelectedAnswer(index: number) {
-    if (this.showResults) {
-      return;
-    }
     this.selectedAnswer = index;
+    console.log(index);
+    console.log(this.selectedAnswer);
   }
 
   getPercentOfResult() {

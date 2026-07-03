@@ -1,28 +1,26 @@
 <div
-  class="bg-gray-300 flex flex-col h-full min-h-0 transition-all duration-300 justify-start pb-6 select-none"
+  class="bg-gray-300 flex flex-col h-full min-h-0 transition-all duration-300 justify-start pb-6 select-none z-1 max-[1350px]:absolute max-[1350px]:h-full max-[1350px]:shadow"
   [ngClass]="menuOpen ? 'w-80' : 'w-0 overflow-hidden'"
 >
-  <div class="text-2xl text-gray-800 flex self-center my-4">Chats</div>
+  <div class="text-gray-800 flex self-center my-4 max-[600px]:text-xl min-[600px]:text-2xl">
+    Chats
+  </div>
   <div
     (click)="newChat()"
     class="w-full max-w-75 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
   >
     <mat-icon class="overflow-visible mr-2">add_comment</mat-icon>
-    <div class="text-2xl whitespace-nowrap">new chat</div>
+    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl">new chat</div>
   </div>
   <div
-    (click)="
-      this.chatOperationService.createNewQuestion(
-        this.chatOperationService.chatService.getChat?.id!
-      )
-    "
-    class="w-full max-w-75 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
+    (click)="newChat()"
+    class="w-full max-w-75 text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
   >
     <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
-    <div class="text-2xl whitespace-nowrap">new question</div>
+    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl">new question</div>
   </div>
   <div class="w-full border-t border-gray-500"></div>
-  <div class="overflow-y-scroll w-full flex flex-col p-2 max-h-full min-h-0 shrink">
+  <div class="overflow-y-auto w-full flex flex-col p-2 max-h-full min-h-0 grow scrollbar-elegant">
     @for (
       item of this.chatOperationService.chatService.allchats$! | async;
       let i = $index;
@@ -32,16 +30,26 @@
         <div
           #chatItem
           (click)="getNewChat(item.id, i)"
-          class="chatButton w-full min-w-0 text-base text-gray-700 cursor-pointer rounded-lg py-2 px-2 my-0.5 transition-all duration-200 flex items-center"
+          class="chatButton w-full min-w-0 text-gray-700 cursor-pointer rounded-lg py-2 px-2 my-0.5 transition-all duration-200 flex items-center"
           [ngClass]="
             (this.chatOperationService.chatService.chat$ | async)?.id! == item.id
               ? 'bg-gray-500 text-white flex items-center'
               : ''
           "
         >
-          <span class="truncate min-w-0">{{ item.firstMessage?.content }}</span>
-          @if (item.firstMessage?.content == 'New Chat') {
-            <span class="truncate min-w-0 pl-1"> {{ i }}</span>
+          @if (!item.firstMessage?.content || item.firstMessage?.content == '') {
+            <span class="truncate min-w-0 max-[600px]:text-sm min-[600px]:text-base"
+              >Loading chat...</span
+            >
+          } @else {
+            <span class="truncate min-w-0 max-[600px]:text-sm min-[600px]:text-base">{{
+              item.firstMessage?.content
+            }}</span>
+          }
+          @if (item.firstMessage?.content == 'New Chat' || item.firstMessage?.content == '') {
+            <span class="truncate min-w-0 pl-1 max-[600px]:text-sm min-[600px]:text-base">
+              {{ i + 1 }}</span
+            >
           }
         </div>
         <button
@@ -50,6 +58,19 @@
         >
           <mat-icon>delete</mat-icon>
         </button>
+      </div>
+    } @empty {
+      <div
+        class="flex text-gray-500 text-xl self-center items-center justify-center text-center h-full w-full flex-col mt-5"
+      >
+        No chats yet!
+        <div
+          (click)="newChat()"
+          class="w-full max-w-75 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-4 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center justify-center self-center"
+        >
+          <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
+          <div class="text-lg whitespace-nowrap">Create a chat</div>
+        </div>
       </div>
     }
     <div #chatListEnd></div>

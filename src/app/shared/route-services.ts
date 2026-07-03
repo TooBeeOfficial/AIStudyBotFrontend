@@ -1,4 +1,4 @@
-import { ElementRef, inject, Injectable, Service } from '@angular/core';
+import { ElementRef, inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Injectable({
