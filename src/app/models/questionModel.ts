@@ -7,7 +7,7 @@ export class QuestionModel {
   answers!: AnswerModel[];
 
   constructor(
-    id: number = 0,
+    id: number = -1,
     question: string = '',
     correctAnswer: number = -1,
     answerTable: AnswerModel[] = [],

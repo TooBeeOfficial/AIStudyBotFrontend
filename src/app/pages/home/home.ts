@@ -56,7 +56,7 @@ export class Home implements OnInit {
   loadingFile: boolean = false;
   isDragging: boolean = false;
   showModels: boolean = false;
-  menuOpen: boolean = true;
+  menuOpen: boolean = false;
 
   @ViewChild('chatEnd')
   private chatEnd!: ElementRef<HTMLDivElement>;
@@ -86,6 +86,7 @@ export class Home implements OnInit {
       });
     });
   }
+
   ngOnInit(): void {
     this.aiService
       .getAIModels()
@@ -93,6 +94,7 @@ export class Home implements OnInit {
         tap((models) => {
           this.aiService.setAIModels(models);
           const model = models[0];
+          console.log(models);
           this.selectedModel.set(model);
         }),
       )
@@ -192,7 +194,7 @@ export class Home implements OnInit {
   }
 
   selectModel(model: any) {
-    this.selectedModel.set(model);
     this.showModels = false;
+    this.selectedModel.set(model);
   }
 }
