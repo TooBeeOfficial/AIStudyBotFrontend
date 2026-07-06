@@ -178,13 +178,10 @@
   }
 
   <div class="flex flex-1 min-h-0 h-full">
-    <app-side-bar
-      [menuOpen]="menuOpen"
-      (onChangeChatEventChatId)="swapNewQuiz($event)"
-    >
+    <app-side-bar [menuOpen]="menuOpen" (onChangeChatEventChatId)="swapNewQuiz($event)">
     </app-side-bar>
     <div
-      class="grid min-[600px]:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] min-[1050px]:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] grid-rows-[repeat(auto-fit,minmax(fit-content,500px))] w-full h-full gap-7 overflow-y-scroll overflow-x-hidden place-content-stretch justify-center py-14 min-[600px]:px-24 max-[600px]:px-12"
+      class="grid min-[600px]:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] min-[1050px]:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] max-[600px]:grid-cols-1 w-full h-full gap-7 overflow-y-scroll overflow-x-hidden place-content-stretch justify-center py-14 min-[600px]:px-24 max-[600px]:px-6"
     >
       @if (this.quizService.quiz$ | async; as quiz) {
         @for (item of (this.quizService.quiz$ | async)?.questions; track item.id) {

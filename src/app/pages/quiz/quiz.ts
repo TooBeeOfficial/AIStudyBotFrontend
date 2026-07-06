@@ -42,7 +42,7 @@ export class Quiz implements OnInit {
   showExportScreen: boolean = false;
   quizFormOpen: boolean = false;
   maxQuestions: number = 10;
-  menuOpen: boolean = true;
+  menuOpen: boolean = false;
   searchTerm: string = '';
   mode: string = 'end';
 
