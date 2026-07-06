@@ -40,20 +40,27 @@ export class ChatService {
     return this.http.get<ChatModel[]>(this.apiURL + '/me/chats', { withCredentials: true });
   }
 
-  loadChats() {
+  loadChats(chatId: number = -1) {
     return this.getChats().pipe(
       tap((chats) => {
         const mappedChats = chats.map((chat: ChatModel) => ChatModel.fromApi(chat));
-
         this.setChats(mappedChats);
-        this.setChat(mappedChats[0] ?? null);
+        if (chatId === -1) {
+          this.setChat(mappedChats[0] ?? null);
+        } else {
+          const newChat = mappedChats.find((chat) => chat.id === chatId);
+          this.setChat(newChat ?? null);
+        }
       }),
     );
   }
 
   createNewChat() {
-    const result = this.http.post(this.apiURL + '/me/newchat', {}, { withCredentials: true });
-    return result;
+    return this.http.post<{ id: number }>(
+      this.apiURL + '/me/newchat',
+      {},
+      { withCredentials: true },
+    );
   }
 
   deleteChat(chatId: number) {
@@ -63,6 +70,7 @@ export class ChatService {
   }
 
   getChatHistory(chatId: number) {
+    console.log('HISTORY CHAT ID: ', chatId);
     return this.http.get<MessageModel[]>(`${this.apiURL}/chat/history?chatId=${chatId}`, {
       withCredentials: true,
     });

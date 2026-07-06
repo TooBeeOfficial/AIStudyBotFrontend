@@ -65,6 +65,17 @@ export class Quiz implements OnInit {
     }
   }
 
+  ngOnInit(): void {
+    this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
+      next: (currentChat) => {
+        if (!currentChat) return;
+        this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {
+          this.quizService.setQuiz(res);
+        });
+      },
+    });
+  }
+
   getFilteredQuestions() {
     const keywords = this.searchTerm
       .toLowerCase()
@@ -130,19 +141,6 @@ export class Quiz implements OnInit {
 
   home() {
     this.navigationService.navigateTo(RouteServices.routes.home);
-  }
-
-  ngOnInit(): void {
-    this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
-      next: (currentChat) => {
-        console.log(currentChat);
-        if (!currentChat) return;
-
-        this.quizService.getQuizFromChat(currentChat.id).subscribe((res) => {
-          this.quizService.setQuiz(res);
-        });
-      },
-    });
   }
 
   openMenu() {

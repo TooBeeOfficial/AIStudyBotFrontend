@@ -118,11 +118,11 @@ export class ExportServices {
 
   exportQuizPdf(quiz: QuizModel) {
     this.dialog.open(MessageDialogComponent, {
-        data: {
-          title: 'Error',
-          message: 'No questions to export!',
-        },
-      });
+      data: {
+        title: 'Error',
+        message: 'No questions to export!',
+      },
+    });
     const pdf = new jsPDF();
 
     const pageHeight = pdf.internal.pageSize.height;
@@ -165,5 +165,13 @@ export class ExportServices {
     });
 
     pdf.save(`${quiz.questions[0].question}.pdf`);
+  }
+
+  async copyToClipboard(text:string) {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch (err) {
+      console.error('Copy failed', err);
+    }
   }
 }

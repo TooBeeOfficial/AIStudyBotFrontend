@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { CanActivate } from '@angular/router';
-import { Observable, map, take } from 'rxjs';
+import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
+import { Observable, map, take, tap } from 'rxjs';
 import { UserService } from './shared/services/user';
 import { RouteServices } from './shared/route-services';
 
@@ -12,16 +12,18 @@ export class AuthGuard implements CanActivate {
 
   constructor(private userService: UserService) {}
 
-  canActivate(): Observable<boolean> {
-    return this.userService.user$.pipe(
-      take(1),
-      map((user) => {
-        console.log(user);
-        if (!user) {
-          this.navigationService.navigateTo(RouteServices.routes.login);
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    return this.userService.getUser().pipe(
+      tap((activate) => {
+        console.log(activate);
+        if (!activate) {
+          this.navigationService.navigateTo(RouteServices.routes.login, {
+            queryParams: { returnUrl: state.url },
+          });
           return false;
+        } else {
+          return true;
         }
-        return true;
       }),
     );
   }

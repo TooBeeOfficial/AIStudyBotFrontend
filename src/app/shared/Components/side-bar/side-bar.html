@@ -2,40 +2,41 @@
   class="bg-gray-300 flex flex-col h-full min-h-0 transition-all duration-300 justify-start pb-6 select-none z-1 max-[1350px]:absolute max-[1350px]:h-full max-[1350px]:shadow"
   [ngClass]="menuOpen ? 'w-80' : 'w-0 overflow-hidden'"
 >
-  <div class="text-gray-800 flex self-center my-4 max-[600px]:text-xl min-[600px]:text-2xl">
+  <div
+    class="text-gray-800 flex my-4 mx-4 max-[600px]:text-xl min-[600px]:text-2xl overflow-x-clip text-ellipsis whitespace-nowrap"
+  >
     Chats
   </div>
   <div
     (click)="newChat()"
-    class="w-full max-w-75 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
+    class="w-full max-w-75 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center mx-2 overflow-clip"
   >
     <mat-icon class="overflow-visible mr-2">add_comment</mat-icon>
-    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl">new chat</div>
+    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl truncate">new chat</div>
   </div>
   <div
-    (click)="newChat()"
-    class="w-full max-w-75 text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center self-center"
+    (click)="createNewQuestionFromDialog()"
+    class="w-full max-w-75 text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center mx-2 overflow-clip"
   >
     <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
-    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl">new question</div>
+    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl truncate">
+      new question
+    </div>
   </div>
   <div class="w-full border-t border-gray-500"></div>
   <div class="overflow-y-auto w-full flex flex-col p-2 max-h-full min-h-0 grow scrollbar-elegant">
+    @let selectedChat = this.chatOperationService.chatService.chat$ | async;
     @for (
       item of this.chatOperationService.chatService.allchats$! | async;
       let i = $index;
-      track $index
+      track item.id
     ) {
       <div class="flex gap-1 px-3 chatWithDeleteButton transition-all duration-200">
         <div
           #chatItem
           (click)="getNewChat(item.id, i)"
           class="chatButton w-full min-w-0 text-gray-700 cursor-pointer rounded-lg py-2 px-2 my-0.5 transition-all duration-200 flex items-center"
-          [ngClass]="
-            (this.chatOperationService.chatService.chat$ | async)?.id! == item.id
-              ? 'bg-gray-500 text-white flex items-center'
-              : ''
-          "
+          [ngClass]="selectedChat?.id! == item.id ? 'bg-gray-500 text-white flex items-center' : ''"
         >
           @if (!item.firstMessage?.content || item.firstMessage?.content == '') {
             <span class="truncate min-w-0 max-[600px]:text-sm min-[600px]:text-base"

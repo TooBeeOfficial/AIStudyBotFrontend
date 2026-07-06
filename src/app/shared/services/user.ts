@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../environments/environment.development';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 import { UserModel } from '../../models/UserModel';
 
 @Injectable({
@@ -52,11 +52,20 @@ export class UserService {
   }
 
   getUser() {
-    return this.http.get(this.apiURL + '/me', { withCredentials: true });
-  }
-
-  loadUser() {
-    return this.getUser().pipe(tap((user) => this.setUser(UserModel.fromApi(user))));
+    return this.http.get(this.apiURL + '/me', { withCredentials: true }).pipe(
+      tap((user) => this.setUser(UserModel.fromApi(user))),
+      map((user) => {
+        if (user) {
+          return true;
+        } else {
+          return false;
+        }
+      }),
+      catchError((err) => {
+        console.error('getUser error:', err);
+        return of(false);
+      }),
+    );
   }
 
   logout() {

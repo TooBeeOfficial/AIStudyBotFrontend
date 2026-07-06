@@ -22,6 +22,7 @@ import { filter, switchMap, take, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { TwoButtonDialog } from '../../dialogs/two-button-dialog/two-button-dialog';
 import { MessageDialogComponent } from '../../dialogs/success-dialog/success-dialog';
+import { QuizService } from '../../services/quiz';
 
 @Component({
   selector: 'app-side-bar',
@@ -32,8 +33,11 @@ import { MessageDialogComponent } from '../../dialogs/success-dialog/success-dia
 export class SideBar implements OnInit, AfterViewInit {
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   navigationService: RouteServices = inject(RouteServices);
-  @Output() onChangeChatEvent: EventEmitter<any> = new EventEmitter();
+  quizService: QuizService = inject(QuizService);
+  dialog: MatDialog = inject(MatDialog);
+
   @Output() onChangeChatEventChatId: EventEmitter<number> = new EventEmitter();
+  @Output() onChangeChatEvent: EventEmitter<any> = new EventEmitter();
 
   changeChatEvent() {
     this.onChangeChatEvent.emit();
@@ -53,23 +57,30 @@ export class SideBar implements OnInit, AfterViewInit {
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.chatOperationService.getFirstMessages().subscribe((values: MessageModel[]) => {
-      this.chatOperationService.chatService.allchats$.subscribe((chats) => {
-        if (!chats) return;
-        chats.forEach((chat) => {
-          for (let index = 0; index < values.length; index++) {
-            if (chat.id === values[index].chat_id) {
-              chat.firstMessage = values[index];
-            }
-          }
-        });
-      });
-    });
+    this.chatOperationService.chatService
+      .loadChats()
+      .pipe(
+        switchMap((chats) =>
+          this.chatOperationService.chatService.getAllFirstMessages().pipe(
+            tap((allChatsFirstMessages) => {
+              chats.forEach((chat) => {
+                for (let index = 0; index < allChatsFirstMessages.length; index++) {
+                  if (chat.id === allChatsFirstMessages[index].chat_id) {
+                    chat.firstMessage = allChatsFirstMessages[index];
+                  }
+                }
+              });
+              this.chatOperationService.chatService.setChats(chats);
+
+              this.getNewChat(chats[0].id);
+            }),
+          ),
+        ),
+      )
+      .subscribe();
   }
 
-  ngAfterViewInit(): void {
-    this.cdr.detectChanges();
-  }
+  ngAfterViewInit(): void {}
 
   scrollSelectedChatIntoView() {
     const index = this.chatOperationService.chatService.getAllChats?.findIndex(
@@ -87,22 +98,30 @@ export class SideBar implements OnInit, AfterViewInit {
   }
 
   getNewChat(chatId: number, index: number = -1) {
-    const chats = this.chatOperationService.chatService.getAllChats;
-    if (!chats) return;
+    const currChats = this.chatOperationService.chatService.getAllChats;
+    if (!currChats) return;
 
-    const baseChat = chats.find((c) => c.id === chatId);
-    if (!baseChat) return;
+    const chatToSwap = currChats.find((c) => c.id === chatId);
+    if (!chatToSwap) return;
+    let messagesToSwap: MessageModel[];
+    this.chatOperationService.chatService
+      .getChatHistory(chatId)
+      .pipe(
+        tap((messages) => {
+          messagesToSwap = messages;
+        }),
+        switchMap(() => this.chatOperationService.chatService.getFirstMessageForChat(chatId)),
+      )
+      .subscribe({
+        next: (firstMessage) => {
+          this.chatOperationService.chatService.setChat(chatToSwap);
 
-    this.chatOperationService.chatService.setChat(baseChat);
-
-    this.chatOperationService.swapChat(chatId)?.subscribe((messages) => {
-      this.chatOperationService.chatService.getFirstMessageForChat(chatId).subscribe({
-        next: (res) => {
           let updatedChat = {
-            ...baseChat,
-            messages: [...messages],
+            ...chatToSwap,
+            messages: messagesToSwap,
+            firstMessage: firstMessage,
           };
-          updatedChat.firstMessage = res;
+
           this.chatOperationService.chatService.setChat(updatedChat);
           if (index === -1) {
             setTimeout(() => {
@@ -119,18 +138,36 @@ export class SideBar implements OnInit, AfterViewInit {
           this.changeChatEvent();
           this.changeChatEventChatID(updatedChat.id);
         },
+        error: (err) => console.error('getNewChat failed:', err),
       });
-    });
   }
 
   newChat() {
-    this.chatOperationService.createNewChat().subscribe((res) => {
-      console.log(res)
-      this.chatOperationService.getFirstMessages()
-      this.getNewChat(this.chatOperationService.chatService.getChat!.id);
-    });
+    console.log('Creating new chat');
+    this.chatOperationService
+      .createNewChat()
+      .pipe(
+        tap((chatId) => {
+          if (chatId) this.getNewChat(chatId);
+        }),
+      )
+      .subscribe({
+        next: () => console.log('Created!'),
+        error: () => {
+          console.log('fail!');
+        },
+      });
   }
-  dialog = inject(MatDialog);
+
+  createNewQuestionFromDialog() {
+    this.chatOperationService.chatService.chat$
+      .pipe(
+        tap((currChat) => {
+          if (currChat) this.chatOperationService.createNewQuestion(currChat.id);
+        }),
+      )
+      .subscribe();
+  }
 
   deleteChat(chatId: number, index: number) {
     const dialogRef = this.dialog.open(TwoButtonDialog, {

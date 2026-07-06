@@ -28,4 +28,8 @@ export class QuestionModel {
 
     return question;
   }
+
+  toFormattedString(): string {
+    return `${this.question}\n` + this.answers.map((a) => `- ${a.answer}`).join('\n');
+  }
 }

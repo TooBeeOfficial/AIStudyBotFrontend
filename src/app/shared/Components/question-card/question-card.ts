@@ -1,8 +1,4 @@
-import {
-  Component,
-  inject,
-  Input,
-} from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { QuestionModel } from '../../../models/questionModel';
 import { ChatOperationServices } from '../../chat-operation-services';
@@ -23,12 +19,15 @@ import { ExportServices } from '../../services/export-services';
 export class QuestionCard {
   @Input() question?: QuestionModel;
   @Input() isForQuiz: boolean = false;
-  showAnswer: boolean = true;
-  openOptionsMenu: boolean = false;
-  dialog = inject(MatDialog);
+
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   questionService: QuestionsService = inject(QuestionsService);
   exportService: ExportServices = inject(ExportServices);
+  dialog: MatDialog = inject(MatDialog);
+
+  openOptionsMenu: boolean = false;
+  showAnswer: boolean = true;
+  copied = signal(false);
 
   toggleMenu() {
     this.openOptionsMenu = !this.openOptionsMenu;
@@ -64,6 +63,20 @@ export class QuestionCard {
         this.chatOperationService.deleteExistingQuestion(this.question?.id!, currentChat.id);
       },
     });
+  }
+
+  copyToClipboard() {
+    this.exportService
+      .copyToClipboard(this.question!.toFormattedString())
+      .then(() => {
+        this.copied.set(true);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.copied.set(false);
+          console.log(this.copied);
+        }, 1000);
+      });
   }
 
   clone<T>(value: QuestionModel): QuestionModel {

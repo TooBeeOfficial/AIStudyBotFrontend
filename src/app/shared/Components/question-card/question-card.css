@@ -32,7 +32,11 @@
   @apply text-gray-700;
 }
 
+.MoreOptionsButtonGreen mat-icon {
+  @apply text-green-700 text-shadow-sm;
+}
+
 .showAnswer {
   @apply bg-gray-900 py-2 px-6 m-2 text-white rounded-lg transition-colors duration-300 cursor-pointer;
-  @apply hover:bg-gray-700 ;
+  @apply hover:bg-gray-700;
 }

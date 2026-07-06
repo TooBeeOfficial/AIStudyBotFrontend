@@ -79,15 +79,15 @@
 
       <!-- chatbox -->
       <div
-        class="flex mb-10 rounded-4xl bg-gray-900 items-stretch absolute bottom-0 max-[970px]:left-10 max-[970px]:right-10 min-[970px]:left-50 min-[970px]:right-50 max-[970px]:flex-col no-scrollbar"
+        class="flex mb-10 rounded-4xl bg-gray-900 items-stretch absolute max-h-150 bottom-0 max-[970px]:left-10 max-[970px]:right-10 min-[970px]:left-50 min-[970px]:right-50 max-[970px]:flex-col no-scrollbar"
       >
         <div
-          class="flex h-full grow relative pl-4 hover:bg-gray-800 max-[970px]:rounded-t-4xl min-[970px]:max-w-40"
+          class="flex models flex-1 h-max grow relative pl-4 hover:bg-gray-800 max-[970px]:rounded-t-4xl min-[970px]:rounded-l-4xl min-[970px]:max-w-40"
           (click)="showModels = !showModels"
         >
-          <div class="flex self-stretch items-center justify-start cursor-pointer relative w-full">
+          <div class="flex items-center justify-start cursor-pointer relative w-full">
             <div
-              class="flex py-4 pr-4 min-[970px]:truncate whitespace-nowrap transition-all duration-300 mr-7 max-w-30 max-[600px]:text-sm"
+              class="flex py-4 pr-4 truncate whitespace-nowrap transition-all duration-300 mr-7 max-w-30 max-[600px]:text-sm"
             >
               @if (selectedModel()) {
                 {{ selectedModel().modelName }}
@@ -117,7 +117,7 @@
           }
         </div>
         <div
-          class="flex items-center grow min-w-max"
+          class="flex items-center flex-1 min-w-0"
           (dragover)="onDragOver($event)"
           (drop)="onFileDrop($event)"
         >
@@ -135,8 +135,9 @@
             maxlength="3000"
             rows="1"
             [placeholder]="loadingFile ? 'Loading...' : 'Type or drop pdf/text file...'"
-            class="flex flex-1 grow p-3 outline-none transition-all duration-100 ease-out max-[600px]:text-sm"
+            class="flex-1 min-w-0 max-h-144 overflow-y-auto resize-none p-3 outline-none transition-all duration-100 ease-out max-[600px]:text-sm"
             [ngClass]="textContent() === '' ? 'truncate' : ''"
+            (keydown.enter)="onEnter($event)"
           ></textarea>
         </div>
         <div

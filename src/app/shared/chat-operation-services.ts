@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { filter, switchMap, tap } from 'rxjs';
+import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { QuestionBuilderDialogComponent } from './dialogs/create-new-question/create-new-question';
 import { MessageDialogComponent } from './dialogs/success-dialog/success-dialog';
 import { TwoButtonDialog } from './dialogs/two-button-dialog/two-button-dialog';
@@ -20,7 +20,9 @@ export class ChatOperationServices {
   questionService: QuestionsService = inject(QuestionsService);
   quizService: QuizService = inject(QuizService);
 
-  createNewChat() {
+  createNewChat(): Observable<number> {
+    let newChatId: number = -1;
+
     return this.dialog
       .open(TwoButtonDialog, {
         data: {
@@ -33,9 +35,26 @@ export class ChatOperationServices {
       })
       .afterClosed()
       .pipe(
+        tap((val) => console.log(val)),
         filter(Boolean),
         switchMap(() => this.chatService.createNewChat()),
-        switchMap(() => this.chatService.loadChats()),
+        tap((result) => {
+          newChatId = result.id;
+        }),
+        switchMap((result) => this.chatService.loadChats(result.id)),
+        switchMap(() => this.chatService.getAllFirstMessages()),
+        tap((firstMessages) => {
+          let chats = this.chatService.getAllChats;
+          if (chats && firstMessages) {
+            chats.forEach((chat, index) => {
+              chat.firstMessage = firstMessages[index];
+              if (chat.id === newChatId) {
+                this.chatService.setChat(chat);
+              }
+            });
+            this.chatService.setChats(chats);
+          }
+        }),
         switchMap(() =>
           this.dialog
             .open(MessageDialogComponent, {
@@ -46,13 +65,8 @@ export class ChatOperationServices {
             })
             .afterClosed(),
         ),
-        switchMap(() => this.chatService.getAllFirstMessages()),
+        map(() => newChatId),
       );
-  }
-
-  swapChat(chatId: number) {
-    this.getFirstMessages();
-    return this.chatService.getChatHistory(chatId);
   }
 
   createNewQuestion(currentChatId: number) {
@@ -141,9 +155,5 @@ export class ChatOperationServices {
         ),
       )
       .subscribe();
-  }
-
-  getFirstMessages() {
-    return this.chatService.getAllFirstMessages();
   }
 }

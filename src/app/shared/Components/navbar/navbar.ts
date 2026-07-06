@@ -38,15 +38,13 @@ export class Navbar {
   }
 
   logoutUser() {
-    this.userService
-      .logout()
-      .subscribe({
-        next: () => {
-          this.navigationService.navigateTo('/login');
-        },
-        error: (err) => {
-          console.log(err);
-        },
-      });
+    this.userService.logout().subscribe({
+      next: () => {
+        this.navigationService.navigateTo('/login');
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 }

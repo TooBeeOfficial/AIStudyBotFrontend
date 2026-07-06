@@ -1,8 +1,10 @@
 import {
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   effect,
   ElementRef,
+  HostListener,
   inject,
   OnInit,
   ViewChild,
@@ -21,7 +23,7 @@ import { ChatOperationServices } from '../../shared/chat-operation-services';
 import { FileService } from '../../shared/file-service';
 import { Navbar } from '../../shared/Components/navbar/navbar';
 import { SideBar } from '../../shared/Components/side-bar/side-bar';
-import { take } from 'rxjs';
+import { distinctUntilChanged, filter, map, switchMap, take, tap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -30,6 +32,15 @@ import { take } from 'rxjs';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
+  onEnter(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+
+    if (keyboardEvent.key !== 'Enter') return;
+    if (keyboardEvent.shiftKey) return;
+
+    keyboardEvent.preventDefault();
+    this.submitMessage();
+  }
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   navigationService: RouteServices = inject(RouteServices);
   userService: UserService = inject(UserService);
@@ -53,6 +64,15 @@ export class Home implements OnInit {
   @ViewChild('textarea')
   private chatTextArea!: ElementRef<HTMLDivElement>;
 
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+
+    if (!target.closest('.models')) {
+      this.showModels = false;
+    }
+  }
+
   constructor(private cdr: ChangeDetectorRef) {
     // Auto resize chat text area
     effect(() => {
@@ -66,27 +86,17 @@ export class Home implements OnInit {
       });
     });
   }
-
   ngOnInit(): void {
-    this.chatOperationService.chatService.chat$
-      .subscribe({
-        next: (currChat) => {
-          setTimeout(() =>
-            this.chatEnd.nativeElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-            }),
-          );
-        },
-      })
-      .unsubscribe();
-  }
-
-  ngAfterViewInit() {
-    this.aiService.AIModels$.pipe().subscribe((models) => {
-      const model = models[0];
-      this.selectedModel.set(model);
-    });
+    this.aiService
+      .getAIModels()
+      .pipe(
+        tap((models) => {
+          this.aiService.setAIModels(models);
+          const model = models[0];
+          this.selectedModel.set(model);
+        }),
+      )
+      .subscribe();
   }
 
   get username() {

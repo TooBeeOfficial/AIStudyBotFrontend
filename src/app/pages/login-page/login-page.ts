@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../../shared/services/user';
 import { UserModel } from '../../models/UserModel';
 import { RouteServices } from '../../shared/route-services';
-import { take } from 'rxjs';
+import { switchMap, take, tap } from 'rxjs';
 import { AIModel } from '../../models/aiModel';
 import { MessageModel } from '../../models/chatMessageModel';
 import { ChatModel } from '../../models/chatModel';
@@ -14,6 +14,7 @@ import { ChatOperationServices } from '../../shared/chat-operation-services';
 import { AIBotService } from '../../shared/services/aibot';
 import { ChatService } from '../../shared/services/chat';
 import { QuizService } from '../../shared/services/quiz';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login-page',
@@ -21,7 +22,7 @@ import { QuizService } from '../../shared/services/quiz';
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
 })
-export class LoginPage implements OnInit {
+export class LoginPage {
   loginForm = new FormGroup({
     emailControl: new FormControl('', [Validators.required, Validators.email]),
     /* 
@@ -45,18 +46,14 @@ export class LoginPage implements OnInit {
     ]),
     usernameControl: new FormControl(''),
   });
-  routeService: RouteServices = inject(RouteServices);
+
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   navigationService: RouteServices = inject(RouteServices);
+  routeService: RouteServices = inject(RouteServices);
   AIBotService: AIBotService = inject(AIBotService);
-  quizService: QuizService = inject(QuizService);
   userService: UserService = inject(UserService);
-  chatService: ChatService = inject(ChatService);
-  private signin: boolean = false;
 
-  ngOnInit(): void {
-    this.grabUser();
-  }
+  private signin: boolean = false;
 
   login() {
     if (this.email.invalid || this.password.invalid) {
@@ -65,64 +62,36 @@ export class LoginPage implements OnInit {
     } else {
       this.userService
         .loginUser(this.email.getRawValue() ?? '', this.password.getRawValue() ?? '')
-        .subscribe({
-          next: (user) => {
-            this.userService.setUser(UserModel.fromApi(user));
-            this.chatService.loadChats().subscribe({
-              next: (chats) => {
+        .pipe(
+          tap((user) => this.userService.setUser(UserModel.fromApi(user))),
+          switchMap(() => this.chatOperationService.chatService.loadChats()),
+          switchMap(() => this.chatOperationService.chatService.getAllFirstMessages()),
+          switchMap((values) =>
+            this.chatOperationService.chatService.allchats$.pipe(
+              tap((chats) => {
                 if (!chats) return;
-                this.chatService.chat$.pipe(take(1)).subscribe({
-                  next: (currChat) => {
-                    if (!currChat?.id) {
-                      return;
+                chats.forEach((chat) => {
+                  for (let index = 0; index < chats.length; index++) {
+                    if (chat.id === values[index].chat_id) {
+                      chat.firstMessage = values[index];
                     }
-                    let chat: ChatModel = new ChatModel();
-                    if (currChat) {
-                      chat = currChat;
-                    } else {
-                      chat = ChatModel.fromApi(chats[0]);
-                    }
-
-                    this.chatService.getChatHistory(chat.id).subscribe({
-                      next: (messages) => {
-                        chat.messages = [...messages];
-                        console.log(chat);
-                        this.chatService.setChat(chat);
-                        this.quizService.getQuizFromChat(chat.id).subscribe((res) => {
-                          this.quizService.setQuiz(res);
-                        });
-                      },
-                    });
-                  },
+                  }
                 });
-
-                this.chatOperationService.getFirstMessages().subscribe((values: MessageModel[]) => {
-                  this.chatOperationService.chatService.allchats$.subscribe((chats) => {
-                    if (!chats) return;
-                    chats.forEach((chat) => {
-                      for (let index = 0; index < values.length; index++) {
-                        if (chat.id === values[index].chat_id) {
-                          chat.firstMessage = values[index];
-                        }
-                      }
-                    });
-                  });
-                });
-              },
+                this.routeService.navigateTo(RouteServices.routes.home);
+              }),
+            ),
+          ),
+          switchMap(() => this.AIBotService.getAIModels()),
+          tap((models) => {
+            let modes: AIModel[] = [];
+            models.forEach((model) => {
+              modes.push(AIModel.fromApi(model));
             });
-            this.AIBotService.getAIModels().subscribe({
-              next: (models) => {
-                let modes: AIModel[] = [];
-                models.forEach((model) => {
-                  modes.push(AIModel.fromApi(model));
-                });
 
-                this.AIBotService.setAIModels(modes);
-              },
-            });
-          },
-          error: (err: any) => {},
-        });
+            this.AIBotService.setAIModels(modes);
+          }),
+        )
+        .subscribe();
     }
   }
 
@@ -150,24 +119,13 @@ export class LoginPage implements OnInit {
           this.password.getRawValue() ?? '',
         )
         .subscribe({
-          next: () => {
-            this.grabUser();
-          },
+          next: () => {},
         });
     }
   }
 
-  grabUser() {
-    this.userService.user$.subscribe({
-      next: (user) => {
-        if (!user) return;
-        this.routeService.navigateTo(RouteServices.routes.home);
-      },
-    });
-  }
   googleLogin() {
     this.userService.googleLoginSignUp();
-    this.grabUser();
   }
   get email() {
     return this.loginForm.controls.emailControl;
