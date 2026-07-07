@@ -3,7 +3,7 @@
 >
   <div class="flex items-start justify-between">
     <span
-      class="font-bold py-4 pl-2 truncate hyphens-auto max-[600px]:text-lg min-[600px]:text-xl"
+      class="font-bold my-4 pl-2 line-clamp-4 hyphens-auto text-ellipsis max-[600px]:text-base min-[600px]:text-xl"
     >
       {{ question?.question }}
     </span>
@@ -64,7 +64,7 @@
   </div>
   <div class="AnswersTable grid grid-cols-2 gap-2 p-2 w-full transition-all duration-200 my-auto">
     @for (item of question?.answers; track $index) {
-      <button class="answer wrap-break-word hyphens-auto">
+      <button class="answer wrap-break-word hyphens-auto max-[600px]:text-xs">
         {{ item.answer }}
       </button>
     }

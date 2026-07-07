@@ -85,3 +85,11 @@
   scrollbar-width: thin;
   scrollbar-color: #374151 transparent;
 }
+
+.navSide mat-icon {
+  @apply min-[600px]:size-12.5 min-[600px]:text-3xl max-[600px]:text-xl max-[600px]:size-9.5 m-2 text-white items-center justify-center flex  cursor-pointer rounded-2xl transition-all duration-200;
+}
+
+.navSide mat-icon:hover {
+  @apply min-[600px]:text-4xl max-[600px]:text-2xl text-cyan-950 bg-white;
+}

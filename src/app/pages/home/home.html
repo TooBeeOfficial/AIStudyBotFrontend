@@ -28,7 +28,7 @@
           @for (
             item of (this.chatOperationService.chatService.chat$ | async)?.messages;
             let i = $index;
-            track item.content
+            track item.id 
           ) {
             <div
               class="relative min-w-0 min-[600px]:max-w-[60%] max-[600px]:max-w-[90%] text-base text-gray-700 rounded-2xl px-3 py-2 my-2 transition-all duration-200 flex flex-col"
@@ -71,10 +71,10 @@
 
       <!-- chatbox -->
       <div
-        class="flex mb-10 rounded-4xl bg-gray-900 absolute h-min max-h-40 bottom-0 max-[970px]:flex-col no-scrollbar max-[600px]:inset-x-5 max-[970px]:inset-x-10 min-[970px]:inset-x-50"
+        class="flex mb-10 rounded-4xl bg-gray-900 absolute h-min max-h-70 bottom-0 max-[970px]:flex-col no-scrollbar max-[600px]:inset-x-5 max-[970px]:inset-x-10 min-[970px]:inset-x-50"
       >
         <button
-          class="flex models flex-1 h-max grow relative pl-4 hover:bg-gray-800 max-[970px]:rounded-t-4xl min-[970px]:rounded-l-4xl min-[970px]:max-w-40"
+          class="flex models flex-1 grow relative pl-4 hover:bg-gray-800 max-[970px]:rounded-t-4xl min-[970px]:rounded-l-4xl min-[970px]:max-w-40"
           (click)="showModels = !showModels"
         >
           <div class="flex items-center justify-start cursor-pointer relative w-full">
@@ -115,7 +115,7 @@
         >
           <button
             type="button"
-            class="px-3 pt-1 text-gray-500 hover:text-gray-700 cursor-pointer flex items-center justify-center"
+            class="px-3 pt-1 text-gray-500 hover:text-gray-700 cursor-pointer flex items-center justify-center h-full hover:bg-gray-800"
             (click)="fileInput.click()"
           >
             <mat-icon class="">attach_file</mat-icon>
@@ -127,13 +127,13 @@
             maxlength="3000"
             rows="1"
             [placeholder]="loadingFile ? 'Loading...' : 'Type or drop pdf/text file...'"
-            class="flex max-h-40 overflow-y-auto resize-none p-3 outline-none transition-all duration-100 ease-out max-[600px]:text-sm"
+            class="flex w-full max-h-40 overflow-y-clip resize-none p-3 outline-none transition-all duration-100 ease-out max-[600px]:text-sm"
             [ngClass]="textContent() === '' ? 'truncate' : ''"
             (keydown.enter)="onEnter($event)"
           ></textarea>
         </div>
         <div
-          class="flex items-center justify-center py-4 min-[970px]:pl-4 whitespace-nowrap max-[970px]:w-full min-[970px]:w-20 h-full cursor-pointer hover:bg-gray-800 min-[970px]:rounded-r-4xl self-end max-[970px]:rounded-b-4xl"
+          class="flex items-center justify-center py-4 min-[970px]:pl-4 whitespace-nowrap max-[970px]:w-full min-[970px]:w-20 cursor-pointer hover:bg-gray-800 min-[970px]:rounded-r-4xl max-[970px]:rounded-b-4xl"
           (click)="submitMessage()"
         >
           <span>send</span>

@@ -7,7 +7,7 @@
       Welcome {{ (userService.user$ | async)?.name }}!
     </div>
   }
-  <button class="profile-button z-1" (click)="openDropDownMenu()">
+  <button class="profile-button navSide z-1" (click)="openDropDownMenu()">
     <mat-icon>person</mat-icon>
   </button>
   @if (showProfileDropdown) {
