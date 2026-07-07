@@ -74,7 +74,6 @@ export class QuestionCard {
       .finally(() => {
         setTimeout(() => {
           this.copied.set(false);
-          console.log(this.copied);
         }, 1000);
       });
   }

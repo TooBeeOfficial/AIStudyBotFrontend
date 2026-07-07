@@ -101,7 +101,6 @@ export class Home implements OnInit {
         tap((models) => {
           this.aiService.setAIModels(models);
           const model = models[0];
-          console.log(models);
           this.selectedModel.set(model);
         }),
       )

@@ -43,7 +43,6 @@ export class Navbar {
         this.navigationService.navigateTo('/login');
       },
       error: (err) => {
-        console.log(err);
       },
     });
   }

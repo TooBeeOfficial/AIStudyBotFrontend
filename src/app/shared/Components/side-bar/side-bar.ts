@@ -154,7 +154,6 @@ export class SideBar implements OnInit, AfterViewInit {
   }
 
   newChat() {
-    console.log('Creating new chat');
     this.chatOperationService
       .createNewChat()
       .pipe(
@@ -162,12 +161,7 @@ export class SideBar implements OnInit, AfterViewInit {
           if (chatId) this.getNewChat(chatId);
         }),
       )
-      .subscribe({
-        next: () => console.log('Created!'),
-        error: () => {
-          console.log('fail!');
-        },
-      });
+      .subscribe();
   }
 
   createNewQuestionFromDialog() {

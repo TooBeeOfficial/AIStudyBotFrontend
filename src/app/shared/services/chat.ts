@@ -70,7 +70,6 @@ export class ChatService {
   }
 
   getChatHistory(chatId: number) {
-    console.log('HISTORY CHAT ID: ', chatId);
     return this.http.get<MessageModel[]>(`${this.apiURL}/chat/history?chatId=${chatId}`, {
       withCredentials: true,
     });

@@ -35,7 +35,6 @@ export class ChatOperationServices {
       })
       .afterClosed()
       .pipe(
-        tap((val) => console.log(val)),
         filter(Boolean),
         switchMap(() => this.chatService.createNewChat()),
         tap((result) => {
@@ -96,7 +95,6 @@ export class ChatOperationServices {
   }
 
   updateExistingQuestion(question: QuestionModel) {
-    console.log('UPDATE', question);
     const dialogRef = this.dialog.open(QuestionBuilderDialogComponent, {
       data: question,
     });
@@ -113,7 +111,6 @@ export class ChatOperationServices {
             });
           },
           error: (res) => {
-            console.log(res);
             this.dialog.open(MessageDialogComponent, {
               data: {
                 title: 'Failed!',

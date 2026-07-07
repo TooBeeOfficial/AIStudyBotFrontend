@@ -20,12 +20,6 @@ export class RouteServices {
         state: {
           quiz: data,
         },
-      })
-      .then((success) => {
-        console.log('Navigation success: ', route, success);
-      })
-      .catch((err) => {
-        console.log('Navigation fail: ', route, err);
       });
   }
 

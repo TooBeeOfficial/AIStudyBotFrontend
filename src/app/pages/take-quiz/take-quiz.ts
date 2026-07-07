@@ -98,12 +98,9 @@ export class TakeQuiz implements OnInit {
         next: (res) => {
           this.isCorrectAnswerID = res as number;
 
-          console.log(this.selectedAnswer);
           if ((res as number) === this.currentQuestion.answers[this.selectedAnswer].id) {
-            console.log('correct');
             this.totalCorrectAnswer += 1;
           } else {
-            console.log(res as number);
           }
 
           this.selectedAnswer = -1;
@@ -136,8 +133,6 @@ export class TakeQuiz implements OnInit {
 
   setSelectedAnswer(index: number) {
     this.selectedAnswer = index;
-    console.log(index);
-    console.log(this.selectedAnswer);
   }
 
   getPercentOfResult() {
