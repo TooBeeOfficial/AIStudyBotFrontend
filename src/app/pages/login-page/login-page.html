@@ -1,3 +1,4 @@
+<title>Study Buddy Login</title>
 <div class="relative flex w-full h-screen flex-row overflow-clip">
   <div
     class="flex flex-col bg-gray-100 gap-1 h-full items-center justify-center transition-all duration-300 ease-in-out min-[750px]:w-1/2 max-[750px]:w-full max-[750px]:absolute"
@@ -10,7 +11,7 @@
     <div
       class="flex flex-col h-screen w-full overflow-scroll items-center justify-start mt-17.5 py-10"
     >
-      <h3 class="mb-10 text-2xl">Welcome!</h3>
+      <h3 class="mb-10 text-2xl">Welcome to Study Buddy!</h3>
       <form
         class="flex flex-col gap-1 justify-center max-w-xs"
         [formGroup]="loginForm"
@@ -24,7 +25,7 @@
           [showHideButton]="true"
         ></app-text-form>
         <app-button (clicked)="login()" variant="primary" [disabled]="signingIn" [fullWidth]="true"
-          ><div class="text-white">Sign In!</div>
+          ><h1 class="text-white">Sign In!</h1>
         </app-button>
         <app-button
           type="button"
@@ -73,13 +74,13 @@
       'translate-x-full': !signingIn,
     }"
   >
-    <div class="text-2xl p-4 text-white font-bold mb-20 text-center z-1">
+    <h1 class="text-2xl p-4 text-white font-bold mb-20 text-center z-1">
       @if (!signingIn) {
         DON'T HAVE AN ACCOUNT?
       } @else {
         ALREADY HAVE AN ACCOUNT?
       }
-    </div>
+    </h1>
     <img
       [class.opacity-0]="signingIn"
       [class.opacity-50]="!signingIn"
@@ -136,7 +137,7 @@
           [disabled]="!signingIn"
           [fullWidth]="true"
           (clicked)="signUp()"
-          ><div class="text-white">Sign up!</div></app-button
+          ><h1 class="text-white">Sign up!</h1></app-button
         >
         <app-button
           type="button"
@@ -168,14 +169,20 @@
       </form>
       <div>
         <span> Have have an account? </span>
-        <button (click)="flipSignIn()" [ngClass]="'ml-1 text-gray-900 hover:text-blue-700 font-medium hover:underline cursor-pointer '">Sign In!</button>
+        <button
+          (click)="flipSignIn()"
+          [ngClass]="'ml-1 text-gray-900 hover:text-blue-700 font-medium hover:underline cursor-pointer '"
+        >
+          Sign In!
+        </button>
       </div>
     </div>
   </div>
-  <div class="flex absolute h-17.5 w-full bg-gray-950 items-center justify-center min-[750px]:hidden!" [ngClass]="' min-[750px]:hidden'">
-    <img src="assets/studybuddy.svg" class="h-full p-4"/>
-    <div class="text-2xl text-white flex items-center justify-center">
-      AI Study Buddy
-    </div>
+  <div
+    class="flex absolute h-17.5 w-full bg-gray-950 items-center justify-center min-[750px]:hidden!"
+    [ngClass]="' min-[750px]:hidden'"
+  >
+    <img src="assets/studybuddy.svg" class="h-full p-4" />
+    <div class="text-2xl text-white flex items-center justify-center">AI Study Buddy</div>
   </div>
 </div>

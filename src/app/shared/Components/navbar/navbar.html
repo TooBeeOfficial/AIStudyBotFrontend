@@ -3,9 +3,9 @@
   <ng-content select="[sideButton]"></ng-content>
   <ng-content select="[center]"></ng-content>
   @if (!isMobile()) {
-    <div class="text-right ml-auto text-white text-lg">
+    <h1 class="text-right ml-auto text-white text-lg">
       Welcome {{ (userService.user$ | async)?.name }}!
-    </div>
+    </h1>
   }
   <button class="profile-button navSide z-1" (click)="openDropDownMenu()">
     <mat-icon>person</mat-icon>
@@ -19,12 +19,12 @@
         <div class="px-3 py-2 rounded bg-transparent">{{ (userService.user$ | async)?.name }}</div>
       }
       <ng-content></ng-content>
-      <div
-        class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
+      <button
+        class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer w-full text-start"
         (click)="logoutUser()"
       >
         Log Out
-      </div>
+      </button>
     </div>
   }
 </div>

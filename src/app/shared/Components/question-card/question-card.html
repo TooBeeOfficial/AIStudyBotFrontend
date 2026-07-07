@@ -32,30 +32,30 @@
             <div
               class="absolute top-9 right-0 mr-2 mt-2 w-48 bg-white shadow-lg rounded-lg border text-cyan-950 z-1 p-2"
             >
-              <div
+              <h3
                 class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
                 (click)="this.chatOperationService.updateExistingQuestion(clone(question!))"
               >
                 Update
-              </div>
-              <div
+              </h3>
+              <h3
                 class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
                 (click)="exportQuestionAsPDF($event)"
               >
                 Export as PDF
-              </div>
-              <div
+              </h3>
+              <h3
                 class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
                 (click)="exportQuestionAsDOC($event)"
               >
                 Export as DOC
-              </div>
-              <div
+              </h3>
+              <h3
                 class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
                 (click)="deleteQuestion()"
               >
                 Delete
-              </div>
+              </h3>
             </div>
           }
         </button>

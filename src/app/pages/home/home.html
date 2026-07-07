@@ -1,3 +1,4 @@
+<title>Study Buddy Home</title>
 <div class="bg-gray-100 w-full h-screen flex flex-col">
   <app-navbar>
     <div sideButton class="w-18 relative flex items-center navSide" (click)="openMenu()">
@@ -7,12 +8,12 @@
         <mat-icon>arrow_back</mat-icon>
       }
     </div>
-    <div
+    <h3
       class="px-3 py-2 rounded bg-transparent hover:bg-gray-300 hover:text-black cursor-pointer"
       (click)="myQuizes()"
     >
       My Quizes
-    </div>
+  </h3>
   </app-navbar>
 
   <!-- main -->
@@ -38,7 +39,7 @@
                 hidden: chat?.messages!.length < 1,
               }"
             >
-              <div
+              <h2
                 class="text-lg"
                 [ngClass]="item.role == 'user' ? 'text-cyan-200' : 'text-gray-900'"
               >
@@ -47,7 +48,7 @@
                 } @else {
                   Study Buddy
                 }
-              </div>
+              </h2>
               <span class="min-w-0 wrap-break-word whitespace-pre-line max-[600px]:text-sm">
                 @if (item.role == 'user') {
                   {{ item.content }}
@@ -57,11 +58,11 @@
               </span>
             </div>
           } @empty {
-            <div
+            <h2
               class="flex text-gray-300 text-3xl self-center items-center justify-center text-center h-full absolute w-full"
             >
               No messages yet!
-            </div>
+          </h2>
           }
         }
 
@@ -78,7 +79,7 @@
           (click)="showModels = !showModels"
         >
           <div class="flex items-center justify-start cursor-pointer relative w-full">
-            <div
+            <h1
               class="flex py-4 pr-4 truncate whitespace-nowrap transition-all duration-300 mr-7 max-w-30 max-[600px]:text-sm"
             >
               @if (selectedModel()) {
@@ -86,7 +87,7 @@
               } @else {
                 Loading models...
               }
-            </div>
+            </h1>
             @if (showModels) {
               <mat-icon class="flex size-1.25 absolute right-1">expand_more</mat-icon>
             } @else if (!showModels) {
@@ -98,12 +99,12 @@
               class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-white shadow-lg rounded-lg border p-2 z-2 text-cyan-950"
             >
               @for (model of this.aiService.AIModels$ | async; track model.modelName) {
-                <div
+                <h1
                   class="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer max-[600px]:text-sm"
                   (click)="selectModel(model); $event.stopPropagation()"
                 >
                   {{ model.modelName }}
-                </div>
+              </h1>
               }
             </div>
           }

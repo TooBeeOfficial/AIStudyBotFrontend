@@ -2,26 +2,26 @@
   class="bg-gray-300 flex flex-col h-full min-h-0 transition-all duration-300 justify-start pb-6 select-none z-1 max-[1350px]:absolute max-[1350px]:h-full max-[1350px]:shadow"
   [ngClass]="menuOpen ? 'w-80' : 'w-0 overflow-hidden'"
 >
-  <div
+  <h1
     class="text-gray-800 flex my-4 mx-4 max-[600px]:text-xl min-[600px]:text-2xl overflow-x-clip text-ellipsis whitespace-nowrap"
   >
     Chats
-  </div>
+  </h1>
   <div
     (click)="newChat()"
     class="w-full max-w-75 text-xl text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center mx-2 overflow-clip"
   >
     <mat-icon class="overflow-visible mr-2">add_comment</mat-icon>
-    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl truncate">new chat</div>
+    <h2 class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl truncate">new chat</h2>
   </div>
   <div
     (click)="createNewQuestionFromDialog()"
     class="w-full max-w-75 text-gray-700 cursor-pointer rounded-lg px-3 py-2 my-0.5 transition-all duration-200 hover:bg-gray-500 hover:text-white flex items-center mx-2 overflow-clip"
   >
     <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
-    <div class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl truncate">
+    <h2 class="whitespace-nowrap max-[600px]:text-xl min-[600px]:text-2xl truncate">
       new question
-    </div>
+    </h2>
   </div>
   <div class="w-full border-t border-gray-500"></div>
   <div class="overflow-y-auto w-full flex flex-col p-2 max-h-full min-h-0 grow scrollbar-elegant">
@@ -61,7 +61,7 @@
         </button>
       </div>
     } @empty {
-      <div
+      <h2
         class="flex text-gray-500 text-xl self-center items-center justify-center text-center h-full w-full flex-col mt-5"
       >
         No chats yet!
@@ -72,7 +72,7 @@
           <mat-icon class="overflow-visible mr-2">edit_square</mat-icon>
           <div class="text-lg whitespace-nowrap">Create a chat</div>
         </div>
-      </div>
+      </h2>
     }
     <div #chatListEnd></div>
   </div>
