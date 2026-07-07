@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   inject,
   Input,
   OnInit,
   Output,
   QueryList,
+  signal,
   ViewChild,
   ViewChildren,
 } from '@angular/core';
@@ -48,38 +49,46 @@ export class SideBar implements OnInit, AfterViewInit {
 
   @Input() menuOpen: boolean = true;
 
+  isMobile = signal(window.innerWidth < 1350);
+
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobile.set(window.innerWidth < 1350);
+  }
+
   @ViewChild('chatListEnd')
   private chatListEnd!: ElementRef<HTMLDivElement>;
 
   @ViewChildren('chatItem')
   chatItems!: QueryList<ElementRef<HTMLElement>>;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor() {}
 
   ngOnInit(): void {
-    if (!this.chatOperationService.chatService.getChat) {
-      this.chatOperationService.chatService
-        .loadChats()
-        .pipe(
-          switchMap((chats) =>
-            this.chatOperationService.chatService.getAllFirstMessages().pipe(
-              tap((allChatsFirstMessages) => {
-                chats.forEach((chat) => {
-                  for (let index = 0; index < allChatsFirstMessages.length; index++) {
-                    if (chat.id === allChatsFirstMessages[index].chat_id) {
-                      chat.firstMessage = allChatsFirstMessages[index];
-                    }
-                  }
-                });
-                this.chatOperationService.chatService.setChats(chats);
-
-                this.getNewChat(chats[0].id);
-              }),
-            ),
-          ),
-        )
-        .subscribe();
+    if (this.isMobile()) {
+      this.menuOpen = false;
     }
+    this.chatOperationService.chatService
+      .loadChats()
+      .pipe(
+        switchMap((chats) =>
+          this.chatOperationService.chatService.getAllFirstMessages().pipe(
+            tap((allChatsFirstMessages) => {
+              chats.forEach((chat) => {
+                for (let index = 0; index < allChatsFirstMessages.length; index++) {
+                  if (chat.id === allChatsFirstMessages[index].chat_id) {
+                    chat.firstMessage = allChatsFirstMessages[index];
+                  }
+                }
+              });
+              this.chatOperationService.chatService.setChats(chats);
+
+              this.getNewChat(chats[0].id);
+            }),
+          ),
+        ),
+      )
+      .subscribe();
   }
 
   ngAfterViewInit(): void {}

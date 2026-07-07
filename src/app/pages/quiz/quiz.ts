@@ -42,15 +42,15 @@ export class Quiz implements OnInit {
   showExportScreen: boolean = false;
   quizFormOpen: boolean = false;
   maxQuestions: number = 10;
-  menuOpen: boolean = false;
+  menuOpen: boolean = true;
   searchTerm: string = '';
   mode: string = 'end';
 
-  isMobile = signal(window.innerWidth < 850);
+  isMobile = signal(window.innerWidth < 1350);
 
   @HostListener('window:resize')
   onResize() {
-    this.isMobile.set(window.innerWidth < 850);
+    this.isMobile.set(window.innerWidth < 1350);
   }
 
   @ViewChild('quizOptions') quizOpts!: ElementRef;
@@ -66,6 +66,9 @@ export class Quiz implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.isMobile()) {
+      this.menuOpen = false;
+    }
     this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
       next: (currentChat) => {
         if (!currentChat) return;

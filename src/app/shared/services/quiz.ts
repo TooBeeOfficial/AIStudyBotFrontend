@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { QuizModel } from '../../models/quizModel';
 import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
 import { QuestionModel } from '../../models/questionModel';

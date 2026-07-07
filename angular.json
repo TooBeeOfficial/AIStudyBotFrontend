@@ -30,13 +30,8 @@
               }
             ],
             "styles": ["src/material-theme.scss", "src/styles.css"],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
             "security": {
               "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "src/server.ts"
             }
           },
           "configurations": {
@@ -44,13 +39,19 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1.5mb",
+                  "maximumError": "2.5mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kb",
+                  "maximumError": "40kb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/app/shared/environments/environment.ts",
+                  "with": "src/app/shared/environments/environment.production.ts"
                 }
               ],
               "outputHashing": "all"

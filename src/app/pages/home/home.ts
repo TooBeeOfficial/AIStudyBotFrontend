@@ -56,7 +56,7 @@ export class Home implements OnInit {
   loadingFile: boolean = false;
   isDragging: boolean = false;
   showModels: boolean = false;
-  menuOpen: boolean = false;
+  menuOpen: boolean = true;
 
   @ViewChild('chatEnd')
   private chatEnd!: ElementRef<HTMLDivElement>;
@@ -73,8 +73,14 @@ export class Home implements OnInit {
     }
   }
 
-  constructor(private cdr: ChangeDetectorRef) {
-    // Auto resize chat text area
+  isMobile = signal(window.innerWidth < 1350);
+
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobile.set(window.innerWidth < 1350);
+  }
+
+  constructor() {
     effect(() => {
       this.textContent();
       setTimeout(() => {
@@ -88,6 +94,7 @@ export class Home implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.isMobile()) this.menuOpen = false;
     this.aiService
       .getAIModels()
       .pipe(
