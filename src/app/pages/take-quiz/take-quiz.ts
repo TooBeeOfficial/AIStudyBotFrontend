@@ -7,6 +7,7 @@ import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/succ
 import { MatIcon } from '@angular/material/icon';
 import { RouteServices } from '../../shared/route-services';
 import { QuestionsService } from '../../shared/services/questions';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-take-quiz',
@@ -89,24 +90,31 @@ export class TakeQuiz implements OnInit {
   }
 
   async checkCorrectAnswer() {
-    this.questionService
-      .questionCheckCorrect(
-        this.currentQuestion.id,
-        this.currentQuestion.answers[this.selectedAnswer].id,
-      )
-      .subscribe({
-        next: (res) => {
-          this.isCorrectAnswerID = res as number;
+    const questionBeingChecked = this.currentQuestion;
+    const answerBeingChecked = this.currentQuestion.answers[this.selectedAnswer];
 
-          if ((res as number) === this.currentQuestion.answers[this.selectedAnswer].id) {
-            this.totalCorrectAnswer += 1;
-          } else {
-          }
+    try {
+      const res = await firstValueFrom(
+        this.questionService.questionCheckCorrect(questionBeingChecked.id, answerBeingChecked.id),
+      );
 
-          this.selectedAnswer = -1;
-          this.cdr.detectChanges();
+      this.isCorrectAnswerID = res as number;
+
+      if ((res as number) === answerBeingChecked.id) {
+        this.totalCorrectAnswer += 1;
+      }
+
+      this.selectedAnswer = -1;
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('Failed to check answer', err);
+      this.dialog.open(MessageDialogComponent, {
+        data: {
+          title: 'Error!',
+          message: `Something went wrong checking your answer. Please try again.`,
         },
       });
+    }
   }
 
   async getNextQuestion() {
