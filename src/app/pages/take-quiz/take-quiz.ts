@@ -105,6 +105,9 @@ export class TakeQuiz implements OnInit {
       }
 
       this.selectedAnswer = -1;
+      setTimeout(() => {
+        this.cdr.detectChanges();
+      });
     } catch (err) {
       console.error('Failed to check answer', err);
       this.dialog.open(MessageDialogComponent, {
@@ -137,6 +140,7 @@ export class TakeQuiz implements OnInit {
 
         setTimeout(() => {
           this.currentQuestion = this.myQuiz[this.questionsFinished];
+          this.cdr.detectChanges();
         });
       });
     }
