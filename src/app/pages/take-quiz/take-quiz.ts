@@ -89,32 +89,35 @@ export class TakeQuiz implements OnInit {
     }
   }
 
-  async checkCorrectAnswer() {
+  checkCorrectAnswer(onComplete: () => void) {
     const questionBeingChecked = this.currentQuestion;
     const answerBeingChecked = this.currentQuestion.answers[this.selectedAnswer];
 
-    try {
-      const res = await firstValueFrom(
-        this.questionService.questionCheckCorrect(questionBeingChecked.id, answerBeingChecked.id),
-      );
+    this.questionService
+      .questionCheckCorrect(questionBeingChecked.id, answerBeingChecked.id)
+      .subscribe({
+        next: (res) => {
+          this.isCorrectAnswerID = res as number;
 
-      this.isCorrectAnswerID = res as number;
-
-      if ((res as number) === answerBeingChecked.id) {
-        this.totalCorrectAnswer += 1;
-      }
-    } catch (err) {
-      console.error('Failed to check answer', err);
-      this.dialog.open(MessageDialogComponent, {
-        data: {
-          title: 'Error!',
-          message: `Something went wrong checking your answer. Please try again.`,
+          if ((res as number) === answerBeingChecked.id) {
+            this.totalCorrectAnswer += 1;
+          }
+          // selectedAnswer no longer reset here — moved to the advance step in getNextQuestion
+          onComplete();
+        },
+        error: (err) => {
+          console.error('Failed to check answer', err);
+          this.dialog.open(MessageDialogComponent, {
+            data: {
+              title: 'Error!',
+              message: `Something went wrong checking your answer. Please try again.`,
+            },
+          });
         },
       });
-    }
   }
 
-  async getNextQuestion() {
+  getNextQuestion() {
     if (this.selectedAnswer === -1 && !this.showResults) {
       this.dialog.open(MessageDialogComponent, {
         data: {
@@ -125,16 +128,23 @@ export class TakeQuiz implements OnInit {
       return;
     }
 
+    // Immediate-feedback mode: first click reveals the answer, second click advances
     if (!this.showResultsOnEnd && !this.showResults) {
-      await this.checkCorrectAnswer();
-      this.showResults = true;
+      this.checkCorrectAnswer(() => {
+        this.showResults = true;
+      });
       return;
     }
 
+    // End-of-quiz mode: check and advance in the same click
     if (this.showResultsOnEnd) {
-      await this.checkCorrectAnswer();
+      this.checkCorrectAnswer(() => this.advanceToNextQuestion());
+    } else {
+      this.advanceToNextQuestion();
     }
+  }
 
+  private advanceToNextQuestion() {
     this.showResults = false;
     this.isCorrectAnswerID = null;
     this.selectedAnswer = -1;
