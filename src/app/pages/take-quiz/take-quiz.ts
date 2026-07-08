@@ -127,17 +127,18 @@ export class TakeQuiz implements OnInit {
       });
       return;
     } else {
-      await this.checkCorrectAnswer();
-    }
-    this.showResults = false;
+      await this.checkCorrectAnswer().then(() => {
+        this.showResults = false;
 
-    if (this.questionsFinished + 1 < this.myQuiz.length) {
-      this.questionsFinished += 1;
-    } else {
-      this.finish = true;
+        if (this.questionsFinished + 1 < this.myQuiz.length) {
+          this.questionsFinished += 1;
+        } else {
+          this.finish = true;
+        }
+        this.currentQuestion = this.myQuiz[this.questionsFinished];
+        this.cdr.detectChanges();
+      });
     }
-    this.currentQuestion = this.myQuiz[this.questionsFinished];
-    this.cdr.detectChanges();
   }
 
   setSelectedAnswer(index: number) {
