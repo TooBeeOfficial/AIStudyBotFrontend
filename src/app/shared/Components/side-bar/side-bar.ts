@@ -68,27 +68,29 @@ export class SideBar implements OnInit, AfterViewInit {
     if (this.isMobile()) {
       this.menuOpen = false;
     }
-    this.chatOperationService.chatService
-      .loadChats()
-      .pipe(
-        switchMap((chats) =>
-          this.chatOperationService.chatService.getAllFirstMessages().pipe(
-            tap((allChatsFirstMessages) => {
-              chats.forEach((chat) => {
-                for (let index = 0; index < allChatsFirstMessages.length; index++) {
-                  if (chat.id === allChatsFirstMessages[index].chat_id) {
-                    chat.firstMessage = allChatsFirstMessages[index];
+    if (!this.chatOperationService.chatService.getChat) {
+      this.chatOperationService.chatService
+        .loadChats()
+        .pipe(
+          switchMap((chats) =>
+            this.chatOperationService.chatService.getAllFirstMessages().pipe(
+              tap((allChatsFirstMessages) => {
+                chats.forEach((chat) => {
+                  for (let index = 0; index < allChatsFirstMessages.length; index++) {
+                    if (chat.id === allChatsFirstMessages[index].chat_id) {
+                      chat.firstMessage = allChatsFirstMessages[index];
+                    }
                   }
-                }
-              });
-              this.chatOperationService.chatService.setChats(chats);
+                });
+                this.chatOperationService.chatService.setChats(chats);
 
-              this.getNewChat(chats[0].id);
-            }),
+                this.getNewChat(chats[0].id);
+              }),
+            ),
           ),
-        ),
-      )
-      .subscribe();
+        )
+        .subscribe();
+    }
   }
 
   ngAfterViewInit(): void {}
