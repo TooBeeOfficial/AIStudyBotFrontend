@@ -36,7 +36,7 @@ export class UserService {
   }
 
   googleLoginSignUp() {
-    window.open(this.apiURL + '/oauth2/redirect/google', '_self');
+    window.open(this.apiURL + '/login/google', '_self');
   }
 
   signUpUser(username: string, email: string, password: string): Observable<any> {
