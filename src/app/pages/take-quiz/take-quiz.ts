@@ -114,7 +114,6 @@ export class TakeQuiz implements OnInit {
         },
       });
     }
-    this.cdr.detectChanges();
   }
 
   async getNextQuestion() {
@@ -135,8 +134,10 @@ export class TakeQuiz implements OnInit {
         } else {
           this.finish = true;
         }
-        this.currentQuestion = this.myQuiz[this.questionsFinished];
-        this.cdr.detectChanges();
+
+        setTimeout(() => {
+          this.currentQuestion = this.myQuiz[this.questionsFinished];
+        });
       });
     }
   }
