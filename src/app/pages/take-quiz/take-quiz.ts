@@ -7,7 +7,7 @@ import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/succ
 import { MatIcon } from '@angular/material/icon';
 import { RouteServices } from '../../shared/route-services';
 import { QuestionsService } from '../../shared/services/questions';
-import { firstValueFrom } from 'rxjs';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-take-quiz',
@@ -89,36 +89,28 @@ export class TakeQuiz implements OnInit {
     }
   }
 
-  checkCorrectAnswer(onComplete: () => void) {
-    const questionBeingChecked = this.currentQuestion;
-    const answerBeingChecked = this.currentQuestion.answers[this.selectedAnswer];
-
-    this.questionService
-      .questionCheckCorrect(questionBeingChecked.id, answerBeingChecked.id)
-      .subscribe({
-        next: (res) => {
+  checkCorrectAnswer() {
+    return this.questionService
+      .questionCheckCorrect(
+        this.currentQuestion.id,
+        this.currentQuestion.answers[this.selectedAnswer].id,
+      )
+      .pipe(
+        tap((res) => {
           this.isCorrectAnswerID = res as number;
 
-          if ((res as number) === answerBeingChecked.id) {
+          if ((res as number) === this.currentQuestion.answers[this.selectedAnswer].id) {
             this.totalCorrectAnswer += 1;
+          } else {
           }
-          // selectedAnswer no longer reset here — moved to the advance step in getNextQuestion
-          onComplete();
-        },
-        error: (err) => {
-          console.error('Failed to check answer', err);
-          this.dialog.open(MessageDialogComponent, {
-            data: {
-              title: 'Error!',
-              message: `Something went wrong checking your answer. Please try again.`,
-            },
-          });
-        },
-      });
+
+          this.selectedAnswer = -1;
+        }),
+      );
   }
 
   getNextQuestion() {
-    if (this.selectedAnswer === -1 && !this.showResults) {
+    if (this.selectedAnswer === -1) {
       this.dialog.open(MessageDialogComponent, {
         data: {
           title: 'Fail!',
@@ -126,36 +118,20 @@ export class TakeQuiz implements OnInit {
         },
       });
       return;
-    }
+    } else {
+      this.checkCorrectAnswer().subscribe({
+        next: () => {
+          this.showResults = false;
 
-    // Immediate-feedback mode: first click reveals the answer, second click advances
-    if (!this.showResultsOnEnd && !this.showResults) {
-      this.checkCorrectAnswer(() => {
-        this.showResults = true;
+          if (this.questionsFinished + 1 < this.myQuiz.length) {
+            this.questionsFinished += 1;
+          } else {
+            this.finish = true;
+          }
+          this.currentQuestion = this.myQuiz[this.questionsFinished];
+        },
       });
-      return;
     }
-
-    // End-of-quiz mode: check and advance in the same click
-    if (this.showResultsOnEnd) {
-      this.checkCorrectAnswer(() => this.advanceToNextQuestion());
-    } else {
-      this.advanceToNextQuestion();
-    }
-  }
-
-  private advanceToNextQuestion() {
-    this.showResults = false;
-    this.isCorrectAnswerID = null;
-    this.selectedAnswer = -1;
-
-    if (this.questionsFinished + 1 < this.myQuiz.length) {
-      this.questionsFinished += 1;
-    } else {
-      this.finish = true;
-    }
-
-    this.currentQuestion = this.myQuiz[this.questionsFinished];
   }
 
   setSelectedAnswer(index: number) {
