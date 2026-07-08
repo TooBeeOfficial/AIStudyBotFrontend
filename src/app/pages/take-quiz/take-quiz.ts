@@ -103,11 +103,6 @@ export class TakeQuiz implements OnInit {
       if ((res as number) === answerBeingChecked.id) {
         this.totalCorrectAnswer += 1;
       }
-
-      this.selectedAnswer = -1;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      });
     } catch (err) {
       console.error('Failed to check answer', err);
       this.dialog.open(MessageDialogComponent, {
@@ -120,7 +115,7 @@ export class TakeQuiz implements OnInit {
   }
 
   async getNextQuestion() {
-    if (this.selectedAnswer === -1) {
+    if (this.selectedAnswer === -1 && !this.showResults) {
       this.dialog.open(MessageDialogComponent, {
         data: {
           title: 'Fail!',
@@ -128,22 +123,29 @@ export class TakeQuiz implements OnInit {
         },
       });
       return;
-    } else {
-      await this.checkCorrectAnswer().then(() => {
-        this.showResults = false;
-
-        if (this.questionsFinished + 1 < this.myQuiz.length) {
-          this.questionsFinished += 1;
-        } else {
-          this.finish = true;
-        }
-
-        setTimeout(() => {
-          this.currentQuestion = this.myQuiz[this.questionsFinished];
-          this.cdr.detectChanges();
-        });
-      });
     }
+
+    if (!this.showResultsOnEnd && !this.showResults) {
+      await this.checkCorrectAnswer();
+      this.showResults = true;
+      return;
+    }
+
+    if (this.showResultsOnEnd) {
+      await this.checkCorrectAnswer();
+    }
+
+    this.showResults = false;
+    this.isCorrectAnswerID = null;
+    this.selectedAnswer = -1;
+
+    if (this.questionsFinished + 1 < this.myQuiz.length) {
+      this.questionsFinished += 1;
+    } else {
+      this.finish = true;
+    }
+
+    this.currentQuestion = this.myQuiz[this.questionsFinished];
   }
 
   setSelectedAnswer(index: number) {
