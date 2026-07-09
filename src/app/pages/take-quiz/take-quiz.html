@@ -55,9 +55,9 @@
             class="answer wrap-break-word hyphens-auto"
             (click)="setSelectedAnswer(i)"
             [ngClass]="{
-              answerWrong: showResults && i === selectedAnswer && item.id !== isCorrectAnswerID,
-              answerCorrect: showResults && item.id === isCorrectAnswerID,
-              answerSelected: !showResults && i === selectedAnswer,
+              answerWrong: showResults && i === selectedAnswer() && item.id !== isCorrectAnswerID(),
+              answerCorrect: showResults && item.id === isCorrectAnswerID(),
+              answerSelected: !showResults && i === selectedAnswer(),
             }"
           >
             {{ item.answer }}

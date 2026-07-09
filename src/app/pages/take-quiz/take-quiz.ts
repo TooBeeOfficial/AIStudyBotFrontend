@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectorRef, Signal, signal } from '@angular/core';
 import { QuizService } from '../../shared/services/quiz';
 import { QuestionModel } from '../../models/questionModel';
 import { NgClass } from '@angular/common';
@@ -32,8 +32,8 @@ export class TakeQuiz implements OnInit {
 
   totalCorrectAnswer: number = 0;
   questionsFinished: number = 0;
-  selectedAnswer: number = -1;
-  isCorrectAnswerID: number | null = null;
+  selectedAnswer = signal<number>(-1);
+  isCorrectAnswerID = signal<number | null>(-1);
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -75,7 +75,7 @@ export class TakeQuiz implements OnInit {
   }
 
   getResult() {
-    if (this.selectedAnswer === -1) {
+    if (this.selectedAnswer() === -1) {
       this.dialog.open(MessageDialogComponent, {
         data: {
           title: 'Fail!',
@@ -93,24 +93,24 @@ export class TakeQuiz implements OnInit {
     return this.questionService
       .questionCheckCorrect(
         this.currentQuestion.id,
-        this.currentQuestion.answers[this.selectedAnswer].id,
+        this.currentQuestion.answers[this.selectedAnswer()].id,
       )
       .pipe(
         tap((res) => {
-          this.isCorrectAnswerID = res as number;
+          this.isCorrectAnswerID.set(res as number);
 
-          if ((res as number) === this.currentQuestion.answers[this.selectedAnswer].id) {
+          if ((res as number) === this.currentQuestion.answers[this.selectedAnswer()].id) {
             this.totalCorrectAnswer += 1;
           } else {
           }
 
-          this.selectedAnswer = -1;
+          this.selectedAnswer.set(-1);
         }),
       );
   }
 
   getNextQuestion() {
-    if (this.selectedAnswer === -1) {
+    if (this.selectedAnswer() === -1) {
       this.dialog.open(MessageDialogComponent, {
         data: {
           title: 'Fail!',
@@ -135,7 +135,7 @@ export class TakeQuiz implements OnInit {
   }
 
   setSelectedAnswer(index: number) {
-    this.selectedAnswer = index;
+    this.selectedAnswer.set(index);
   }
 
   getPercentOfResult() {
@@ -158,7 +158,7 @@ export class TakeQuiz implements OnInit {
         this.finish = false;
         this.questionsFinished = 0;
         this.totalCorrectAnswer = 0;
-        this.selectedAnswer = -1;
+        this.selectedAnswer.set(-1);
       },
     });
   }
