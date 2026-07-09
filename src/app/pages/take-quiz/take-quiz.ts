@@ -142,8 +142,7 @@ export class TakeQuiz implements OnInit {
     const numberOfQuestions =
       this.maxQuestionsForQuiz === -1 ? this.myQuiz.length : this.maxQuestionsForQuiz;
     if (numberOfQuestions === 0) return 0;
-
-    return (this.totalCorrectAnswer / numberOfQuestions) * 100;
+    return Math.ceil((this.totalCorrectAnswer / numberOfQuestions) * 100);
   }
 
   retryTest() {
