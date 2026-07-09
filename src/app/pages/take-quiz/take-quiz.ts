@@ -98,11 +98,16 @@ export class TakeQuiz implements OnInit {
       .pipe(
         tap((res) => {
           this.isCorrectAnswerID.set(res as number);
-
+          console.log(
+            'IS EQUAL: ',
+            (res as number) === this.currentQuestion().answers[this.selectedAnswer()].id,
+          );
+          console.log('RES: ', res as number);
           if ((res as number) === this.currentQuestion().answers[this.selectedAnswer()].id) {
             this.totalCorrectAnswer += 1;
           } else {
           }
+          console.log('TotalCorrectAnswer: ', this.totalCorrectAnswer);
 
           this.selectedAnswer.set(-1);
         }),
