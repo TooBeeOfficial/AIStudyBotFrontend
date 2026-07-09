@@ -18,7 +18,7 @@ import { tap } from 'rxjs';
 export class TakeQuiz implements OnInit {
   @Input() showResultsOnEnd: boolean = true;
   @Input() showResults: boolean = false;
-  @Input() maxQuestionsForQuiz: number = 2;
+  @Input() maxQuestionsForQuiz: number = 10;
 
   questionService: QuestionsService = inject(QuestionsService);
   routeService: RouteServices = inject(RouteServices);
@@ -48,6 +48,7 @@ export class TakeQuiz implements OnInit {
         }
         if (this.maxQuestionsForQuiz === -1 || this.maxQuestionsForQuiz >= quiz.questions.length) {
           this.myQuiz = quiz.questions;
+          this.maxQuestionsForQuiz = quiz.questions.length;
         } else {
           this.myQuiz = this.getRandomItems(quiz.questions, this.maxQuestionsForQuiz);
         }
@@ -147,9 +148,9 @@ export class TakeQuiz implements OnInit {
   getPercentOfResult() {
     const numberOfQuestions =
       this.maxQuestionsForQuiz === -1 ? this.myQuiz.length : this.maxQuestionsForQuiz;
-    console.log("No of questions: ",numberOfQuestions)
+    console.log('No of questions: ', numberOfQuestions);
     if (numberOfQuestions === 0) return 0;
-    console.log("% : ",this.totalCorrectAnswer / numberOfQuestions)
+    console.log('% : ', this.totalCorrectAnswer / numberOfQuestions);
 
     return (this.totalCorrectAnswer / numberOfQuestions) * 100;
   }
