@@ -13,6 +13,6 @@ export const routes: Routes = [
   { path: 'takeQuiz', component: TakeQuiz, canActivate: [AuthGuard] },
   { path: 'oauth-callback', component: OauthCallback },
 
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '**', redirectTo: 'home' },
 ];

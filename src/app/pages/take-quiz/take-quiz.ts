@@ -125,7 +125,8 @@ export class TakeQuiz implements OnInit {
       return;
     } else {
       this.checkCorrectAnswer().subscribe({
-        next: () => {
+        next: (res) => {
+          console.log(res)
           this.showResults = false;
 
           if (this.questionsFinished + 1 < this.myQuiz.length) {
