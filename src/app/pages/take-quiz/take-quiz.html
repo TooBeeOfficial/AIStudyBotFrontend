@@ -47,10 +47,10 @@
       <div
         class="text-xl font-bold py-4 pl-2 wrap-break-word hyphens-auto overflow-y-scroll transition-all duration-200"
       >
-        {{ currentQuestion?.question }}
+        {{ currentQuestion().question }}
       </div>
       <div class="AnswersTable flex flex-col gap-2 p-2 w-full transition-all duration-200 my-auto">
-        @for (item of currentQuestion?.answers; let i = $index; track $index) {
+        @for (item of currentQuestion().answers; let i = $index; track $index) {
           <button
             class="answer wrap-break-word hyphens-auto"
             (click)="setSelectedAnswer(i)"

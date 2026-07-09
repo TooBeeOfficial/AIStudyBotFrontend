@@ -25,7 +25,7 @@ export class TakeQuiz implements OnInit {
   quizService: QuizService = inject(QuizService);
   dialog: MatDialog = inject(MatDialog);
 
-  currentQuestion: QuestionModel = new QuestionModel();
+  currentQuestion = signal<QuestionModel>(new QuestionModel());
   myQuiz: QuestionModel[] = [];
 
   finish: boolean = false;
@@ -51,7 +51,7 @@ export class TakeQuiz implements OnInit {
         } else {
           this.myQuiz = this.getRandomItems(quiz.questions, this.maxQuestionsForQuiz);
         }
-        this.currentQuestion = this.myQuiz[0];
+        this.currentQuestion.set(this.myQuiz[0]);
       },
     });
   }
@@ -92,14 +92,14 @@ export class TakeQuiz implements OnInit {
   checkCorrectAnswer() {
     return this.questionService
       .questionCheckCorrect(
-        this.currentQuestion.id,
-        this.currentQuestion.answers[this.selectedAnswer()].id,
+        this.currentQuestion().id,
+        this.currentQuestion().answers[this.selectedAnswer()].id,
       )
       .pipe(
         tap((res) => {
           this.isCorrectAnswerID.set(res as number);
 
-          if ((res as number) === this.currentQuestion.answers[this.selectedAnswer()].id) {
+          if ((res as number) === this.currentQuestion().answers[this.selectedAnswer()].id) {
             this.totalCorrectAnswer += 1;
           } else {
           }
@@ -128,7 +128,7 @@ export class TakeQuiz implements OnInit {
           } else {
             this.finish = true;
           }
-          this.currentQuestion = this.myQuiz[this.questionsFinished];
+          this.currentQuestion.set(this.myQuiz[this.questionsFinished]);
         },
       });
     }
@@ -148,13 +148,13 @@ export class TakeQuiz implements OnInit {
     this.quizService.quiz$.subscribe({
       next: (quiz) => {
         if (!quiz) return;
-        this.currentQuestion = quiz.questions[0];
+        this.currentQuestion.set(quiz.questions[0]);
         if (this.maxQuestionsForQuiz === -1 && this.maxQuestionsForQuiz >= quiz.questions.length) {
           this.myQuiz = quiz.questions;
         } else {
           this.myQuiz = this.getRandomItems(quiz.questions, this.maxQuestionsForQuiz);
         }
-        this.currentQuestion = this.myQuiz[0];
+        this.currentQuestion.set(this.myQuiz[0]);
         this.finish = false;
         this.questionsFinished = 0;
         this.totalCorrectAnswer = 0;
