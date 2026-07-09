@@ -147,8 +147,9 @@ export class TakeQuiz implements OnInit {
   getPercentOfResult() {
     const numberOfQuestions =
       this.maxQuestionsForQuiz === -1 ? this.myQuiz.length : this.maxQuestionsForQuiz;
-
+    console.log("No of questions: ",numberOfQuestions)
     if (numberOfQuestions === 0) return 0;
+    console.log("% : ",this.totalCorrectAnswer / numberOfQuestions)
 
     return (this.totalCorrectAnswer / numberOfQuestions) * 100;
   }
