@@ -99,16 +99,10 @@ export class TakeQuiz implements OnInit {
       .pipe(
         tap((res) => {
           this.isCorrectAnswerID.set(res as number);
-          console.log(
-            'IS EQUAL: ',
-            (res as number) === this.currentQuestion().answers[this.selectedAnswer()].id,
-          );
-          console.log('RES: ', res as number);
           if ((res as number) === this.currentQuestion().answers[this.selectedAnswer()].id) {
             this.totalCorrectAnswer += 1;
           } else {
           }
-          console.log('TotalCorrectAnswer: ', this.totalCorrectAnswer);
 
           this.selectedAnswer.set(-1);
         }),
@@ -127,7 +121,6 @@ export class TakeQuiz implements OnInit {
     } else {
       this.checkCorrectAnswer().subscribe({
         next: (res) => {
-          console.log(res);
           this.showResults = false;
 
           if (this.questionsFinished + 1 < this.myQuiz.length) {
@@ -148,9 +141,7 @@ export class TakeQuiz implements OnInit {
   getPercentOfResult() {
     const numberOfQuestions =
       this.maxQuestionsForQuiz === -1 ? this.myQuiz.length : this.maxQuestionsForQuiz;
-    console.log('No of questions: ', numberOfQuestions);
     if (numberOfQuestions === 0) return 0;
-    console.log('% : ', this.totalCorrectAnswer / numberOfQuestions);
 
     return (this.totalCorrectAnswer / numberOfQuestions) * 100;
   }
