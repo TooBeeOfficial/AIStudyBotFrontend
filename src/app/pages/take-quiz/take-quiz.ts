@@ -46,7 +46,7 @@ export class TakeQuiz implements OnInit {
         if (state.mode !== 'end') {
           this.showResultsOnEnd = false;
         }
-        if (this.maxQuestionsForQuiz === -1 && this.maxQuestionsForQuiz >= quiz.questions.length) {
+        if (this.maxQuestionsForQuiz === -1 || this.maxQuestionsForQuiz >= quiz.questions.length) {
           this.myQuiz = quiz.questions;
         } else {
           this.myQuiz = this.getRandomItems(quiz.questions, this.maxQuestionsForQuiz);
@@ -126,7 +126,7 @@ export class TakeQuiz implements OnInit {
     } else {
       this.checkCorrectAnswer().subscribe({
         next: (res) => {
-          console.log(res)
+          console.log(res);
           this.showResults = false;
 
           if (this.questionsFinished + 1 < this.myQuiz.length) {
@@ -147,6 +147,9 @@ export class TakeQuiz implements OnInit {
   getPercentOfResult() {
     const numberOfQuestions =
       this.maxQuestionsForQuiz === -1 ? this.myQuiz.length : this.maxQuestionsForQuiz;
+
+    if (numberOfQuestions === 0) return 0;
+
     return (this.totalCorrectAnswer / numberOfQuestions) * 100;
   }
 
@@ -155,7 +158,7 @@ export class TakeQuiz implements OnInit {
       next: (quiz) => {
         if (!quiz) return;
         this.currentQuestion.set(quiz.questions[0]);
-        if (this.maxQuestionsForQuiz === -1 && this.maxQuestionsForQuiz >= quiz.questions.length) {
+        if (this.maxQuestionsForQuiz === -1 || this.maxQuestionsForQuiz >= quiz.questions.length) {
           this.myQuiz = quiz.questions;
         } else {
           this.myQuiz = this.getRandomItems(quiz.questions, this.maxQuestionsForQuiz);
