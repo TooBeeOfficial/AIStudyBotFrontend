@@ -63,7 +63,7 @@ export class UserService {
         }
       }),
       catchError((err) => {
-        console.error('getUser error:', err);
+        console.error('getUser error: No user logged in!');
         return of(false);
       }),
     );
