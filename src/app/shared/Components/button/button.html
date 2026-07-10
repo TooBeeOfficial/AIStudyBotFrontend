@@ -6,25 +6,21 @@
   [ngClass]="{
     'w-full': fullWidth,
 
-    'bg-gray-900  text-white hover:bg-gray-700 focus-visible:ring-blue-200': variant === 'primary',
+    'bg-gray-900 text-white hover:bg-gray-700 focus-visible:ring-blue-200':
+      variant === 'primary',
 
-    'bg-white text-blue-700 hover:bg-blue-50 focus-visible:ring-blue-100': variant === 'secondary',
+    'bg-white text-blue-700 hover:bg-blue-50 focus-visible:ring-blue-100':
+      variant === 'secondary',
 
-    'bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-200': variant === 'danger',
+    'bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-200':
+      variant === 'danger',
 
-    'bg-white text-slate-800 hover:bg-white focus-visible:ring-slate-200 shadow-sm':
+    'bg-white text-slate-800 hover:bg-white focus-visible:ring-slate-200':
       variant === 'white',
+
+    'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none hover:translate-y-0 hover:shadow-none active:scale-100':
+      variant === 'disabled'
   }"
 >
-  <ng-content
-    [ngClass]="{
-      ' text-white': variant === 'primary',
-
-      ' text-gray-900': variant === 'secondary',
-
-      ' text-white': variant === 'danger',
-
-      ' text-slate-800': variant === 'white',
-    }"
-  />
+  <ng-content />
 </button>

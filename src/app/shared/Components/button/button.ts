@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Button {
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() variant: 'primary' | 'secondary' | 'danger' | 'white' = 'primary';
+  @Input() variant: 'primary' | 'secondary' | 'danger' | 'white' | 'disabled' = 'primary';
   @Input() disabled = false;
   @Input() fullWidth = false;
   @Output() clicked = new EventEmitter<void>();

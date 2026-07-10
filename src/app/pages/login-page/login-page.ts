@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, Signal, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TextForm } from '../../shared/Components/text-form/text-form';
 import { Button } from '../../shared/Components/button/button';
@@ -15,6 +15,8 @@ import { AIBotService } from '../../shared/services/aibot';
 import { ChatService } from '../../shared/services/chat';
 import { QuizService } from '../../shared/services/quiz';
 import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MessageDialogComponent } from '../../shared/dialogs/success-dialog/success-dialog';
 
 @Component({
   selector: 'app-login-page',
@@ -52,18 +54,24 @@ export class LoginPage {
   routeService: RouteServices = inject(RouteServices);
   AIBotService: AIBotService = inject(AIBotService);
   userService: UserService = inject(UserService);
+  dialog: MatDialog = inject(MatDialog);
 
   private signin: boolean = false;
+  loggingInSession = signal(false);
 
   login() {
     if (this.email.invalid || this.password.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     } else {
+      this.loggingInSession.set(true);
       this.userService
         .loginUser(this.email.getRawValue() ?? '', this.password.getRawValue() ?? '')
         .pipe(
-          tap((user) => this.userService.setUser(UserModel.fromApi(user))),
+          tap((user) => {
+            this.loggingInSession.set(false);
+            this.userService.setUser(UserModel.fromApi(user));
+          }),
           switchMap(() => this.chatOperationService.chatService.loadChats()),
           switchMap(() => this.chatOperationService.chatService.getAllFirstMessages()),
           switchMap((values) =>
@@ -91,7 +99,16 @@ export class LoginPage {
             this.AIBotService.setAIModels(modes);
           }),
         )
-        .subscribe();
+        .subscribe({
+          error: (error) => {
+            this.dialog.open(MessageDialogComponent, {
+              data: {
+                title: 'Error',
+                message: 'Failed to get user.',
+              },
+            });
+          },
+        });
     }
   }
 
@@ -112,14 +129,28 @@ export class LoginPage {
         this.loginForm.markAllAsTouched();
         return;
       }
+
+      this.loggingInSession.set(true);
       this.userService
         .signUpUser(
           this.username.getRawValue() ?? '',
           this.email.getRawValue() ?? '',
           this.password.getRawValue() ?? '',
         )
+        .pipe(
+          tap(() => {
+            this.loggingInSession.set(false);
+          }),
+        )
         .subscribe({
-          next: () => {},
+          error: (error) => {
+            this.dialog.open(MessageDialogComponent, {
+              data: {
+                title: 'Error',
+                message: 'Failed to sign up.',
+              },
+            });
+          },
         });
     }
   }

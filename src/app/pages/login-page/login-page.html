@@ -24,7 +24,11 @@
           formTextType="password"
           [showHideButton]="true"
         ></app-text-form>
-        <app-button (clicked)="login()" variant="primary" [disabled]="signingIn" [fullWidth]="true"
+        <app-button
+          (clicked)="login()"
+          [disabled]="signingIn || loggingInSession()"
+          [variant]="signingIn || loggingInSession() ? 'disabled' : 'primary'"
+          [fullWidth]="true"
           ><h1 class="text-white">Sign In!</h1>
         </app-button>
         <app-button
@@ -133,8 +137,8 @@
           [showHideButton]="true"
         ></app-text-form>
         <app-button
-          variant="primary"
-          [disabled]="!signingIn"
+          [disabled]="!signingIn || loggingInSession()"
+          [variant]="!signingIn || loggingInSession() ? 'disabled' : 'primary'"
           [fullWidth]="true"
           (clicked)="signUp()"
           ><h1 class="text-white">Sign up!</h1></app-button
