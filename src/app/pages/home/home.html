@@ -23,7 +23,7 @@
     <!-- chat -->
     <div class="flex flex-col h-full text-white items-center justify-between relative w-full">
       <div
-        class="flex flex-col overflow-y-scroll overflow-x-hidden absolute bottom-16 top-0 max-[600px]:px-5 max-[970px]:px-10 min-[970px]:px-50"
+        class="flex flex-col overflow-y-scroll overflow-x-hidden absolute inset-x-0 bottom-16 top-0 max-[600px]:px-5 max-[970px]:px-10 min-[970px]:px-50"
       >
         @if (this.chatOperationService.chatService.chat$ | async; as chat) {
           @for (
