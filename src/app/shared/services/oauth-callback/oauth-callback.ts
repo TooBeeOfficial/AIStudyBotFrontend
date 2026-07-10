@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Auth } from '../auth';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-oauth-callback',
@@ -11,15 +12,26 @@ import { Auth } from '../auth';
 export class OauthCallback {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private auth = inject(Auth);
+  private apiURL = environment.apiUrl;
+  private http: HttpClient = inject(HttpClient);
 
   ngOnInit() {
-    const token = this.route.snapshot.queryParamMap.get('token');
-    if (token) {
-      this.auth.setToken(token);
-      this.router.navigate(['/home'], { replaceUrl: true });
-    } else {
+    const code = this.route.snapshot.queryParamMap.get('code');
+
+    if (!code) {
       this.router.navigate(['/login']);
+      return;
     }
+
+    this.http.post(`${this.apiURL}/auth/exchange`, { code }, { withCredentials: true }).subscribe({
+      next: () => {
+        window.history.replaceState({}, '', '/oauth-callback');
+
+        this.router.navigate(['/home']);
+      },
+      error: () => {
+        this.router.navigate(['/login']);
+      },
+    });
   }
 }

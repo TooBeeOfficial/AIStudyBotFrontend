@@ -101,6 +101,7 @@ export class LoginPage {
         )
         .subscribe({
           error: (error) => {
+            this.loggingInSession.set(false);
             this.dialog.open(MessageDialogComponent, {
               data: {
                 title: 'Error',
@@ -144,6 +145,7 @@ export class LoginPage {
         )
         .subscribe({
           error: (error) => {
+            this.loggingInSession.set(false);
             this.dialog.open(MessageDialogComponent, {
               data: {
                 title: 'Error',

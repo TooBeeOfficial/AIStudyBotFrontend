@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 import { UserModel } from '../../models/UserModel';
-import { Auth } from './auth';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +11,6 @@ export class UserService {
   private apiURL = environment.apiUrl;
   private http: HttpClient = inject(HttpClient);
   private userSubject = new BehaviorSubject<UserModel | null>(null);
-  authService: Auth = inject(Auth);
   user$ = this.userSubject.asObservable();
 
   get user(): UserModel | null {
@@ -70,7 +68,6 @@ export class UserService {
   }
 
   logout() {
-    this.authService.clearToken();
     return this.http.post(this.apiURL + '/logout', {}, { withCredentials: true });
   }
 }
