@@ -29,7 +29,13 @@
           [disabled]="signingIn || loggingInSession()"
           [variant]="signingIn || loggingInSession() ? 'disabled' : 'primary'"
           [fullWidth]="true"
-          ><h1 class="text-white">Sign In!</h1>
+          ><h2 class="text-white">
+            @if (loggingInSession()) {
+              Signing Up!
+            } @else {
+              Sign In!
+            }
+          </h2>
         </app-button>
         <app-button
           type="button"
@@ -141,7 +147,13 @@
           [variant]="!signingIn || loggingInSession() ? 'disabled' : 'primary'"
           [fullWidth]="true"
           (clicked)="signUp()"
-          ><h1 class="text-white">Sign up!</h1></app-button
+          ><h2 class="text-white">
+            @if (loggingInSession()) {
+              Signing Up!
+            } @else {
+              Sign up!
+            }
+          </h2></app-button
         >
         <app-button
           type="button"
