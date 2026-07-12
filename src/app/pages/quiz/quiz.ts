@@ -37,32 +37,13 @@ export class Quiz implements OnInit {
   userService: UserService = inject(UserService);
   router = inject(Router);
 
-  filteredQuestions: QuizModel = new QuizModel();
-  forExportQuestions: QuestionModel[] = [];
-  showExportScreen: boolean = false;
-  quizFormOpen: boolean = false;
-  maxQuestions: number = 10;
   menuOpen: boolean = true;
-  searchTerm: string = '';
-  mode: string = 'end';
 
   isMobile = signal(window.innerWidth < 1350);
 
   @HostListener('window:resize')
   onResize() {
     this.isMobile.set(window.innerWidth < 1350);
-  }
-
-  @ViewChild('quizOptions') quizOpts!: ElementRef;
-
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-
-    if (!target.closest('.extraForms') && !target.closest('.export-button')) {
-      this.showExportScreen = false;
-      this.quizFormOpen = false;
-    }
   }
 
   ngOnInit(): void {
@@ -77,69 +58,6 @@ export class Quiz implements OnInit {
         });
       },
     });
-  }
-
-  getFilteredQuestions() {
-    const keywords = this.searchTerm
-      .toLowerCase()
-      .split(',')
-      .map((k) => k.trim())
-      .filter((k) => k.length > 0);
-
-    this.quizService.quiz$.subscribe({
-      next: (quiz) => {
-        if (!quiz?.questions) return;
-
-        this.filteredQuestions.questions = quiz.questions.filter((q) => {
-          const text = q.question.toLowerCase();
-
-          return keywords.some((keyword) => text.includes(keyword));
-        });
-      },
-    });
-  }
-
-  handleExportList(question: QuestionModel, event: Event) {
-    const checked = (event.target as HTMLInputElement).checked;
-
-    if (checked) {
-      if (this.forExportQuestions.find((q) => q.id == question.id) === undefined)
-        this.forExportQuestions.push(question);
-    } else {
-      this.forExportQuestions = this.forExportQuestions.filter((q) => q.id != question.id);
-    }
-  }
-
-  exportQuizAsPDF() {
-    if (this.forExportQuestions.length > 0) {
-      this.exportService.exportQuizPdf(new QuizModel(this.forExportQuestions));
-      this.forExportQuestions = [];
-    } else {
-      this.quizService.quiz$
-        .subscribe({
-          next: (currentQuiz) => {
-            if (!currentQuiz) return;
-            this.exportService.exportQuizPdf(currentQuiz);
-          },
-        })
-        .unsubscribe();
-    }
-  }
-
-  exportQuizAsDOC() {
-    if (this.forExportQuestions.length > 0) {
-      this.exportService.exportQuizDoc(new QuizModel(this.forExportQuestions));
-      this.forExportQuestions = [];
-    } else {
-      this.quizService.quiz$
-        .subscribe({
-          next: (currentQuiz) => {
-            if (!currentQuiz) return;
-            this.exportService.exportQuizDoc(currentQuiz);
-          },
-        })
-        .unsubscribe();
-    }
   }
 
   home() {
@@ -162,13 +80,6 @@ export class Quiz implements OnInit {
             this.quizService.setQuiz(res);
           });
       },
-    });
-  }
-
-  takeQuiz() {
-    this.navigationService.navigateTo(RouteServices.routes.takeQuiz, {
-      maxQuestions: this.maxQuestions,
-      mode: this.mode,
     });
   }
 }

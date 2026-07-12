@@ -7,6 +7,40 @@
       Welcome {{ (userService.user$ | async)?.name }}!
     </h1>
   }
+  @if (!isMobile()) {
+    <div center class="export-button flex items-center navSide absolute justify-center w-full">
+      <button (click)="quizFormOpen = !quizFormOpen" title="takeQuiz">
+        <mat-icon>quiz</mat-icon>
+      </button>
+      <button (click)="exportQuizAsPDF()" title="Export PDF">
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button (click)="exportQuizAsDOC()" title="Export Document">
+        <mat-icon>description</mat-icon>
+      </button>
+      <button (click)="showExportScreen = !showExportScreen" title="Select for export">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+  } @else {
+    <div
+      sideButton
+      class="export-button flex items-center navSide absolute justify-start w-full max-[850px]:pl-15"
+    >
+      <button (click)="quizFormOpen = !quizFormOpen" title="takeQuiz">
+        <mat-icon>quiz</mat-icon>
+      </button>
+      <button (click)="exportQuizAsPDF()" title="Export PDF">
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button (click)="exportQuizAsDOC()" title="Export Document">
+        <mat-icon>description</mat-icon>
+      </button>
+      <button (click)="showExportScreen = !showExportScreen" title="Select for export">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+  }
   <button class="profile-button navSide z-1" (click)="openDropDownMenu()">
     <mat-icon>person</mat-icon>
   </button>
@@ -25,6 +59,133 @@
       >
         Log Out
       </button>
+    </div>
+  }
+  @if (quizFormOpen) {
+    <div class="absolute w-full h-full z-2 bg-black/30 flex items-center justify-center">
+      <div
+        #quizOptions
+        class="extraForms w-full h-fit max-w-125 max-h-125 bg-gray-300 rounded-2xl shadow-2xl p-4"
+      >
+        <form class="w-full h-full flex flex-col justify-between gap-10">
+          <h2 class="text-4xl text-gray-900">Quiz Settings</h2>
+
+          <div class="flex flex-col">
+            <label for="maxQuestions" class="text-2xl text-gray-700">Maximum Questions</label>
+            <input
+              id="maxQuestions"
+              type="number"
+              name="maxQuestions"
+              [(ngModel)]="maxQuestions"
+              min="1"
+              [max]="'(this.quizService.quiz$ | async)?.questions?.length'"
+              placeholder="e.g. 10"
+              class="p-2 rounded-xl outline outline-solid outline-gray-700 focus:outline-gray-950 focus:outline-2 mt-2"
+            />
+          </div>
+
+          <fieldset class="">
+            <label class="text-2xl text-gray-700">Results Mode</label>
+
+            <div>
+              <input type="radio" id="resultsEnd" name="mode" [(ngModel)]="mode" value="end" />
+              <label for="resultsEnd"> Show final results at the end </label>
+            </div>
+
+            <div>
+              <input
+                type="radio"
+                id="resultsImmediate"
+                name="mode"
+                [(ngModel)]="mode"
+                value="immediate"
+              />
+              <label for="resultsImmediate">
+                Show whether each answer is correct immediately
+              </label>
+            </div>
+          </fieldset>
+
+          <button
+            class="bg-gray-900 p-2 text-white rounded-xl cursor-pointer hover:bg-gray-700 transition-all duration-200 w-full"
+            type="submit"
+            (click)="takeQuiz()"
+          >
+            Start Quiz
+          </button>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (showExportScreen) {
+    <div class="absolute w-full h-full z-2 bg-black/30 flex items-center justify-center">
+      <div
+        #quizOptions
+        class="extraForms flex flex-col w-full h-fit max-w-125 min-h-100 bg-gray-300 rounded-2xl shadow-2xl p-4"
+        tabindex="0"
+        (blur)="showExportScreen = !showExportScreen"
+      >
+        <input
+          type="search"
+          class="flex w-full justify-between bg-gray-100 p-2 px-3 rounded-xl border border-solid border-gray-700 outline-0 focus:outline-2"
+          placeholder="Search: ex. what, who"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="getFilteredQuestions()"
+        />
+        <div class="flex gap-1 my-2 justify-between">
+          <div>
+            <span>Total questions selected</span>
+            <span>
+              {{ forExportQuestions.length }} /
+              {{ (this.quizService.quiz$ | async)?.questions?.length }}
+            </span>
+          </div>
+          <h3>
+            @if (filteredQuestions.questions.length <= 0 && searchTerm !== '') {
+              questions not found
+            } @else if (filteredQuestions.questions.length > 0 && searchTerm !== '') {
+              questions found: {{ filteredQuestions.questions.length }}
+            }
+          </h3>
+        </div>
+        <div class="w-full border-t border-gray-500"></div>
+        <div class="flex flex-col overflow-y-auto w-full max-w-125 h-max max-h-70">
+          @for (
+            item of filteredQuestions.questions.length <= 0
+              ? (this.quizService.quiz$ | async)?.questions
+              : filteredQuestions.questions;
+            track item.id
+          ) {
+            <div
+              class="flex w-full items-center justify-between bg-gray-100 p-2 px-3 rounded-xl my-1 border border-solid border-gray-500"
+            >
+              <h1 class="truncate">{{ item.question }}</h1>
+              <input
+                class="min-w-5 min-h-5 ml-2 cursor-pointer"
+                type="checkbox"
+                [checked]="this.forExportQuestions.find((q) => q.id === item.id)"
+                (change)="handleExportList(item, $event)"
+              />
+            </div>
+          }
+        </div>
+        <div class="w-full border-t border-gray-500"></div>
+        <div class="w-full flex gap-2 pt-2">
+          <button
+            class="w-full bg-gray-900 py-2 px-6 text-white rounded-lg transition-colors duration-300 cursor-pointer hover:bg-gray-700"
+            (click)="exportQuizAsPDF()"
+          >
+            export to PDF
+          </button>
+          <button
+            class="w-full bg-gray-900 py-2 px-6 text-white rounded-lg transition-colors duration-300 cursor-pointer hover:bg-gray-700"
+            (click)="exportQuizAsDOC()"
+          >
+            export to DOC
+          </button>
+        </div>
+      </div>
     </div>
   }
 </div>
