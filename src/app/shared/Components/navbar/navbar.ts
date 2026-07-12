@@ -9,6 +9,7 @@ import { ChatOperationServices } from '../../chat-operation-services';
 import { ExportServices } from '../../services/export-services';
 import { QuizService } from '../../services/quiz';
 import { FormsModule } from '@angular/forms';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -55,6 +56,12 @@ export class Navbar {
     }
   }
 
+  ngOnInit(): void {
+    if (this.isMobile()) {
+      this.menuOpen = false;
+    }
+  }
+
   openDropDownMenu() {
     this.showProfileDropdown = !this.showProfileDropdown;
   }
@@ -67,6 +74,7 @@ export class Navbar {
       error: (err) => {},
     });
   }
+
   takeQuiz() {
     this.navigationService.navigateTo(RouteServices.routes.takeQuiz, {
       maxQuestions: this.maxQuestions,

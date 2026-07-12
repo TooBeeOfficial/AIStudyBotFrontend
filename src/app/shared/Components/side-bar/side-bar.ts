@@ -85,6 +85,12 @@ export class SideBar implements OnInit, AfterViewInit {
                 this.chatOperationService.chatService.setChats(chats);
 
                 this.getNewChat(chats[0].id);
+                this.quizService.getQuizFromChat(chats[0].id).pipe(
+                  tap((quiz) => {
+                    if (!quiz) return;
+                    this.quizService.setQuiz(quiz);
+                  }),
+                );
               }),
             ),
           ),
@@ -148,6 +154,7 @@ export class SideBar implements OnInit, AfterViewInit {
               this.navigationService.scrollToBottom(this.chatItems.get(index)!, 'smooth');
             });
           }
+          this.swapNewQuiz(updatedChat.id)
           this.changeChatEvent();
           this.changeChatEventChatID(updatedChat.id);
         },
@@ -164,6 +171,21 @@ export class SideBar implements OnInit, AfterViewInit {
         }),
       )
       .subscribe();
+  }
+
+  swapNewQuiz(chatId: number) {
+    this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
+      next: (currentChat) => {
+        if (!currentChat) return;
+
+        this.quizService
+          .getQuizFromChat(chatId)
+          .pipe(take(1))
+          .subscribe((res) => {
+            this.quizService.setQuiz(res);
+          });
+      },
+    });
   }
 
   createNewQuestionFromDialog() {

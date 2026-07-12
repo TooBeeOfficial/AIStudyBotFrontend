@@ -32,10 +32,7 @@ import { UserService } from '../../shared/services/user';
 export class Quiz implements OnInit {
   chatOperationService: ChatOperationServices = inject(ChatOperationServices);
   navigationService: RouteServices = inject(RouteServices);
-  exportService: ExportServices = inject(ExportServices);
   quizService: QuizService = inject(QuizService);
-  userService: UserService = inject(UserService);
-  router = inject(Router);
 
   menuOpen: boolean = true;
 
@@ -66,20 +63,5 @@ export class Quiz implements OnInit {
 
   openMenu() {
     this.menuOpen = !this.menuOpen;
-  }
-
-  swapNewQuiz(chatId: number) {
-    this.chatOperationService.chatService.chat$.pipe(take(1)).subscribe({
-      next: (currentChat) => {
-        if (!currentChat) return;
-
-        this.quizService
-          .getQuizFromChat(chatId)
-          .pipe(take(1))
-          .subscribe((res) => {
-            this.quizService.setQuiz(res);
-          });
-      },
-    });
   }
 }
