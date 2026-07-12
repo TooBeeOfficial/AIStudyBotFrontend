@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, signal, ViewChild } from '@angular/core';
 import { UserService } from '../../services/user';
 import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
@@ -136,7 +136,4 @@ export class Navbar {
         .unsubscribe();
     }
   }
-}
-function ViewChild(arg0: string): (target: Navbar, propertyKey: 'quizOpts') => void {
-  throw new Error('Function not implemented.');
 }
