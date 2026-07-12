@@ -117,12 +117,15 @@ export class ExportServices {
   }
 
   exportQuizPdf(quiz: QuizModel) {
-    this.dialog.open(MessageDialogComponent, {
-      data: {
-        title: 'Error',
-        message: 'No questions to export!',
-      },
-    });
+    if (quiz.questions.length === 0) {
+      this.dialog.open(MessageDialogComponent, {
+        data: {
+          title: 'Error',
+          message: 'No questions to export!',
+        },
+      });
+      return;
+    }
     const pdf = new jsPDF();
 
     const pageHeight = pdf.internal.pageSize.height;
