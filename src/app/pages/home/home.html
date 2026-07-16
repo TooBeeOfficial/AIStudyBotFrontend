@@ -1,7 +1,7 @@
 <title>Study Buddy Home</title>
 <div class="bg-gray-100 w-full h-dvh flex flex-col">
   <app-navbar>
-    <div sideButton class="w-18 relative flex items-center navSide" (click)="openMenu()">
+    <div sideButton class="w-18 relative flex items-center navSide z-1" (click)="openMenu()">
       @if (!menuOpen) {
         <mat-icon>menu</mat-icon>
       } @else {

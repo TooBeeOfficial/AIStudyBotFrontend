@@ -23,7 +23,7 @@ import { ChatOperationServices } from '../../shared/chat-operation-services';
 import { FileService } from '../../shared/file-service';
 import { Navbar } from '../../shared/Components/navbar/navbar';
 import { SideBar } from '../../shared/Components/side-bar/side-bar';
-import { distinctUntilChanged, filter, map, switchMap, take, tap } from 'rxjs';
+import { take, tap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
